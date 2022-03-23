@@ -1,0 +1,41 @@
+---
+# tasks file for dev
+- name: Configure file watchers for IDEs, build tooling
+  become: yes
+  sysctl:
+    name: fs.inotify.max_user_watches
+    value: '528288'
+    state: present
+
+- name: Setup git username and email
+  copy:
+    src: .gitconfig
+    dest: /home/paul/.gitconfig
+
+- name: Create SSH dir
+  file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: Generate SSH key
+  openssh_keypair:
+    path: "{{ ansible_env.HOME }}/.ssh/id_ssh"
+    type: ed25519
+
+- name: Add SSH key to ssh-agent on login
+  lineinfile:
+    path: ~/.profile
+    line: "ssh-agent -s && ssh-add ~/.ssh/id_ssh"
+
+- name: Add SSH for this session
+  command: ssh-add ~/.ssh/id_ssh
+
+- name: Install general cli tools
+  become: yes
+  package:
+    name:
+      - jq
+      - httpie
+      - htop
+    state: present

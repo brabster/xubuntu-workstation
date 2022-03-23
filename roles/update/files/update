@@ -1,0 +1,7 @@
+#!/bin/bash -eux
+
+sudo apt update && sudo apt upgrade -y --autoremove
+
+fwupdmgr refresh || true
+fwupdmgr get-updates || true
+fwupdmgr update

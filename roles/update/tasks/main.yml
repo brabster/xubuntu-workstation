@@ -1,0 +1,16 @@
+---
+# tasks file for update
+- name: Setup firmare updates
+  become: yes
+  package:
+    name:
+      - fwupd
+    state: present
+    
+- name: Setup update script
+  copy:
+    src: update
+    dest: ~/bin/update
+    owner: paul
+    group: paul
+    mode: '0755'

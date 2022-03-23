@@ -1,0 +1,13 @@
+---
+# tasks file for bin
+- name: Create ~/bin directory
+  file:
+    path: ~/bin
+    state: directory
+    mode: '0755'
+
+- name: Place ~/bin on PATH
+  become: yes
+  copy:
+    dest: /etc/profile.d/home-bin.sh
+    content: 'PATH=$PATH:${HOME}/bin'
