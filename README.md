@@ -1,4 +1,4 @@
-Ubuntu 20.04
+Not intended for general use.
 
 ## Usage
 
@@ -6,15 +6,12 @@ Ubuntu 20.04
 sudo apt install git ansible &&
   mkdir -p ~/projects/brabster &&
   cd ~/projects/brabster &&
-  git clone https://github.com/brabster/ubuntu-workstation.git &&
-  cd ~/projects/ubuntu-workstation
-
-
-
+  git clone https://github.com/brabster/xubuntu-workstation.git &&
+  cd ~/projects/xubuntu-workstation
     ansible-galaxy install -r requirements.yml &&
     ansible-playbook -vv workstation.yml &&
     git remote rm origin &&
-    git remote add origin git@github.com:brabster/workstation-setup.git
+    git remote add origin git@github.com:brabster/xubuntu-workstation.git
 ```
 
 ## Post-Install
