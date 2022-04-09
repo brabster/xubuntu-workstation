@@ -1,0 +1,8 @@
+---
+# tasks file for gcloud
+- name: Install gcloud
+  become: yes
+  snap:
+    name: google-cloud-sdk
+    classic: yes
+

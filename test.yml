@@ -2,8 +2,5 @@
 - hosts: localhost
   become_method: sudo
   roles:
-  - role: ./roles/update
-  - role: ./roles/vscode
-  - role: ./roles/dev
-  - role: ./roles/printer
+  - role: ./roles/gcloud
 

@@ -3,12 +3,13 @@ Not intended for general use.
 ## Usage
 
 ```
-sudo apt install git ansible &&
+sudo apt-get update &&
+sudo apt-get upgrade &&
+sudo apt-get install git ansible &&
   mkdir -p ~/projects/brabster &&
   cd ~/projects/brabster &&
   git clone https://github.com/brabster/xubuntu-workstation.git &&
   cd ~/projects/xubuntu-workstation
-    ansible-galaxy install -r requirements.yml &&
     ansible-playbook -vv workstation.yml &&
     git remote rm origin &&
     git remote add origin git@github.com:brabster/xubuntu-workstation.git

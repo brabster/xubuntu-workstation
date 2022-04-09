@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  become_method: sudo
+  roles:
+  - role: ./roles/vscode
+  - role: ./roles/dev
+  - role: ./roles/slack
+  
+  

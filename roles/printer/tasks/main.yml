@@ -1,8 +1,0 @@
----
-# tasks file for printer
-- name: Install Samsung Printer Drivers
-  become: yes
-  package:
-    name: printer-driver-splix
-    state: present
-    

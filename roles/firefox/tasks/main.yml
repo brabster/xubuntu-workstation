@@ -1,0 +1,14 @@
+---
+# tasks file for firefox
+- name: Ensure Firefox installed
+  become: yes
+  dnf:
+    name:
+      - firefox
+    state: present
+
+- name: Setup default preferences
+  become: yes
+  copy:
+    src: firefox-prefs.js
+    dest: /usr/lib64/firefox/browser/defaults/preferences/all-custom-prefs.js

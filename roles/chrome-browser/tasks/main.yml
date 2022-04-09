@@ -1,0 +1,22 @@
+---
+# tasks file for chrome-browser
+- name: Ensures Chrome policy dir exists
+  become: true
+  file:
+    path: /etc/opt/chrome/policies/managed
+    state: directory
+
+- name: Configure Chrome Browser
+  become: true
+  copy:
+    src: chrome-prefs.json
+    dest: /etc/opt/chrome/policies/managed/prefs.json
+
+- name: Disable password store for Chrome
+  become: true
+  replace:
+    path:  /usr/share/xfce4/helpers/google-chrome.desktop
+    regexp: '^X-XFCE-CommandsWithParameter'
+    replace: 'X-XFCE-CommandsWithParameter=%B --password-store=basic "%s";'
+
+
