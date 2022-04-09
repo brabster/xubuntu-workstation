@@ -38,4 +38,5 @@
       - jq
       - httpie
       - htop
+      - curl
     state: present

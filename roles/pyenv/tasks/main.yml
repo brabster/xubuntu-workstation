@@ -1,0 +1,52 @@
+---
+- name: Check that pyenv not already installed
+  stat:
+    path: ~/.pyenv
+  register: pyenv
+
+- name: Fetch installer
+  get_url:
+    url: https://pyenv.run
+    dest: /tmp/pyenv.run
+  when: not pyenv.stat.exists
+
+- name: Install
+  shell: cat /tmp/pyenv.run | bash
+  when: not pyenv.stat.exists
+
+- name: Setup shims
+  blockinfile:
+    path: ~/.profile
+    block: |
+      export PATH="~/.pyenv/shims:~/.pyenv/bin:$PATH"
+      eval "$(pyenv init -)"
+      eval "$(pyenv virtualenv-init -)"
+
+- name: Install python build system dependencies
+  become: yes
+  package:
+    name:
+      - aria2
+      - build-essential
+      - curl
+      - git
+      - libbz2-dev
+      - libffi-dev
+      - liblzma-dev
+      - libncurses5-dev
+      - libncursesw5-dev
+      - libreadline-dev
+      - libsqlite3-dev
+      - libssl-dev
+      - llvm
+      - make
+      - tk-dev
+      - wget
+      - xz-utils
+      - zlib1g-dev
+
+- name: Install python 3.8
+  shell: |
+    ~/.pyenv/bin/pyenv install 3.8.13
+    ~/.pyenv/bin/pyenv global 3.8.13
+    ~/.pyenv/bin/pyenv rehash
