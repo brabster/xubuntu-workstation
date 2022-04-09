@@ -18,7 +18,7 @@
   blockinfile:
     path: ~/.profile
     block: |
-      export PATH="~/.pyenv/shims:~/.pyenv/bin:$PATH"
+      export PATH="${HOME}/.pyenv/shims:${HOME}/.pyenv/bin:$PATH"
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
 
@@ -30,7 +30,7 @@
       - build-essential
       - curl
       - git
-      - libbz2-dev
+      - libbz2-devpip
       - libffi-dev
       - liblzma-dev
       - libncurses5-dev

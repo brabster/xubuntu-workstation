@@ -10,7 +10,7 @@
 - name: Setup git username and email
   copy:
     src: .gitconfig
-    dest: /home/paul/.gitconfig
+    dest: ${HOME}/.gitconfig
 
 - name: Create SSH dir
   file:
