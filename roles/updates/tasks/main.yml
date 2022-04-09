@@ -1,0 +1,7 @@
+---
+# tasks file for update
+- name: Setup update script
+  copy:
+    src: update
+    dest: ~/bin/update
+    mode: 0755

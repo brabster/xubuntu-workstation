@@ -5,9 +5,9 @@
     path: ~/bin
     state: directory
     mode: '0755'
-
+  
 - name: Place ~/bin on PATH
-  become: yes
-  copy:
-    dest: /etc/profile.d/home-bin.sh
-    content: 'PATH=$PATH:${HOME}/bin'
+  lineinfile:
+    dest: ~/.profile
+    state: present
+    line: 'PATH=$PATH:$HOME/bin'
