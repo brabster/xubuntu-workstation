@@ -11,5 +11,6 @@
   - role: ./roles/lastpass
   - role: ./roles/expressvpn
   - role: ./roles/pyenv
+  - role: ./roles/docker-rootless
   
   

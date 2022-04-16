@@ -2,5 +2,6 @@
 - hosts: localhost
   become_method: sudo
   roles:
-  - role: ./roles/firefox
+  - role: ./roles/docker-rootless
+  
 
