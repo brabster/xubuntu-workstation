@@ -2,5 +2,5 @@
 - hosts: localhost
   become_method: sudo
   roles:
-  - role: ./roles/pyenv
+  - role: ./roles/firefox
 

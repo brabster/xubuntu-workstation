@@ -1,12 +1,13 @@
 ---
 # tasks file for firefox
-- name: Ensure Firefox installed
+- name: Ensure policy directory exists
   become: yes
-  package:
-    name:
-      - firefox
+  file:
+    path: /etc/firefox/policies
+    state: directory
 
 - name: Setup default preferences
+  become: yes
   copy:
-    src: firefox-prefs.js
-    dest: ~/snap/firefox/common/.mozilla/firefox/mozilla.cfg
+    src: policies.json
+    dest: /etc/firefox/policies/policies.json

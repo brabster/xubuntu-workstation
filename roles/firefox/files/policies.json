@@ -1,0 +1,17 @@
+
+{
+    "policies": {
+        "OfferToSaveLogins": false,
+        "DNSOverHTTPS": {
+            "Enabled": true
+        },
+        "EnableTrackingProtection": {
+            "Value": true,
+            "Cryptomining": true,
+            "Fingerprinting": true
+        },
+        "Preferences": {
+            "dom.security.https_only_mode": true
+        }
+    }
+}
