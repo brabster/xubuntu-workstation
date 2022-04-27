@@ -3,6 +3,7 @@ on:
   - push
 jobs:
   test_install:
+    runs-on: ubuntu-latest
     container:
       image: ubuntu:22.04
     steps:
