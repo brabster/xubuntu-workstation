@@ -22,11 +22,5 @@
     src: chrome-prefs.json
     dest: /etc/opt/chrome/policies/managed/prefs.json
 
-- name: Disable password store for Chrome
-  become: yes
-  replace:
-    path:  /usr/share/xfce4/helpers/google-chrome.desktop
-    regexp: '^X-XFCE-CommandsWithParameter'
-    replace: 'X-XFCE-CommandsWithParameter=%B --password-store=basic "%s";'
 
 
