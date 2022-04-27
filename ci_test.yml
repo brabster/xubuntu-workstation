@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  become_method: sudo
+  roles:
+  - role: ./roles/updates
+  - role: ./roles/dev
+  - role: ./roles/firefox
+  - role: ./roles/chrome-browser
+  - role: ./roles/lastpass
+  - role: ./roles/expressvpn
+  - role: ./roles/pyenv
+  - role: ./roles/docker-rootless
+  
+  
