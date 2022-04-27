@@ -10,7 +10,10 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
     steps:
       - name: debug info
-        run: cat /etc/lsb-release
+        run: |
+          cat /etc/lsb-release
+          id
+          echo ~
       - name: update and install pre-reqs
         run: |
           apt-get update
