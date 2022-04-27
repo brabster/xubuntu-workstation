@@ -16,7 +16,8 @@ jobs:
         run: |
           apt-get update
           apt-get -y install git ansible sudo snapd
-          snap install core
+      - name: init snapd
+        run: snap install core
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
