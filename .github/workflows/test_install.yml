@@ -12,8 +12,15 @@ jobs:
       - name: debug info
         run: |
           cat /etc/lsb-release
+      - name: setup user
+        run: |
+          useradd brabster
+          usermod -a -G wheel brabster
+          su - brabster
           id
-          echo ~
+          groups
+          echo ${HOME}
+          sudo ls
       - name: update and install pre-reqs
         run: |
           apt-get update
