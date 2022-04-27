@@ -9,8 +9,10 @@ jobs:
     steps:
       - name: debug info
         run: cat /etc/lsb-release
-      - name: install_pre_reqs
-        run: apt-get update && apt-get install -y git ansible
+      - name: update package info
+        run: apt-get update
+      - name: install pre-reqs
+        run: apt-get install -y git ansible
       - name: checkout
         uses: actions/checkout@v3
       
