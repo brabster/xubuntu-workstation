@@ -15,7 +15,7 @@ jobs:
       - name: update and install pre-reqs
         run: |
           apt-get update
-          apt-get -y install git ansible sudo
+          apt-get -y install git ansible sudo snapd
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
