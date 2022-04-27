@@ -4,17 +4,18 @@ on:
 jobs:
   test_install:
     runs-on: ubuntu-latest
-    env:
-      DEBIAN_FRONTEND: noninteractive
+    container:
+      image: ubuntu:22.04
+      env:
+        DEBIAN_FRONTEND: noninteractive
     steps:
       - name: debug info
         run: |
           cat /etc/lsb-release
-          id
       - name: update and install pre-reqs
         run: |
           apt-get update
-          apt-get -y install git ansible sudo snapd
+          apt-get -y install git ansible sudo
       - name: init snapd
         run: snap install core
       - name: setup user
