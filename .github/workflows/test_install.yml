@@ -6,6 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ubuntu:22.04
+      env:
+        DEBIAN_FRONTEND: noninteractive
     steps:
       - name: debug info
         run: cat /etc/lsb-release
