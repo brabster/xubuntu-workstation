@@ -12,19 +12,20 @@ jobs:
       - name: debug info
         run: |
           cat /etc/lsb-release
+      - name: update and install pre-reqs
+        run: |
+          apt-get update
+          apt-get -y install git ansible sudo
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
           adduser tester sudo
+          echo "tester  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/tester
           su - tester
           id
           groups
           echo ${HOME}
           sudo ls
-      - name: update and install pre-reqs
-        run: |
-          apt-get update
-          apt-get -y install git ansible
       - name: checkout
         uses: actions/checkout@v3
       - name: setup
