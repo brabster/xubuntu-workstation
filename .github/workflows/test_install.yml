@@ -8,7 +8,7 @@ jobs:
       image: ubuntu:22.04
     steps:
       - name: debug info
-        run: lsb_release -a
+        run: cat /etc/lsb-release
       - name: install_pre_reqs
         run: apt-get update && apt-get install -y git ansible
       - name: checkout
