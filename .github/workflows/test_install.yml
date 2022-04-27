@@ -8,7 +8,7 @@ jobs:
       image: ubuntu:22.04
     steps:
       - name: install_pre_reqs
-        run: apt-get install git ansible
+        run: apt-get update && apt-get install git ansible
       - name: checkout
         uses: actions/checkout@v3
       
