@@ -22,10 +22,10 @@ jobs:
           adduser tester sudo
           echo "tester  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/tester
           su - tester -c id
-          su - tester -c "mkdir -p ${HOME}/Downloads"
+          su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
         uses: actions/checkout@v3
       - name: setup
         run: |
-          su - tester -c "cd $GITHUB_WORKSPACE && ansible-playbook -Kv ci_test.yml"
+          su - tester -c "cd $GITHUB_WORKSPACE && ansible-playbook -K ci_test.yml"
       
