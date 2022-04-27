@@ -10,6 +10,7 @@ jobs:
       - name: debug info
         run: |
           cat /etc/lsb-release
+          id
       - name: update and install pre-reqs
         run: |
           apt-get update
