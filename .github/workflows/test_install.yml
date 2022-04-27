@@ -21,11 +21,10 @@ jobs:
           adduser --disabled-password --quiet --gecos '' tester
           adduser tester sudo
           echo "tester  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/tester
-          (su - tester && id && groups && echo ${HOME} && sudo ls)
+          su - tester -c id
       - name: checkout
         uses: actions/checkout@v3
       - name: setup
         run: |
-          su - tester
-          ansible-playbook -Kv workstation.yml
+          su - tester -c "ansible-playbook -Kv workstation.yml"
       
