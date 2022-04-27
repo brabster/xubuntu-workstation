@@ -1,0 +1,11 @@
+name: test_install
+on:
+  - push
+jobs:
+  test_install:
+    container:
+      image: ubuntu:22.04
+    steps:
+      - name: Run install script
+        run: ./setup.sh
+        shell: bash

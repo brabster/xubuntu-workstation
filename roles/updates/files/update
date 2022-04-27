@@ -6,6 +6,7 @@ echo "Package updates"
 
 sudo apt-get update
 sudo apt-get upgrade
+sudo apt-get autoremove
 
 echo "Snap updates"
 
