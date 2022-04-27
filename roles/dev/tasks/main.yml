@@ -29,7 +29,9 @@
     line: "ssh-agent -s && ssh-add ~/.ssh/id_ssh"
 
 - name: Add SSH for this session
-  command: eval $(ssh-agent -s) && ssh-add ~/.ssh/id_ssh
+  command: |
+    eval $(ssh-agent -s)
+    ssh-add ~/.ssh/id_ssh
 
 - name: Install general cli tools
   become: yes
