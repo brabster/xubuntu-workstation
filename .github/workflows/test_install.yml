@@ -14,9 +14,9 @@ jobs:
           cat /etc/lsb-release
       - name: setup user
         run: |
-          useradd brabster
-          usermod -a -G wheel brabster
-          su - brabster
+          adduser --disabled-password --quiet --gecos '' tester
+          adduser tester sudo
+          su - tester
           id
           groups
           echo ${HOME}
