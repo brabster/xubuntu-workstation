@@ -7,6 +7,8 @@ jobs:
     container:
       image: ubuntu:22.04
     steps:
-      - name: Run install script
-        run: ./setup.sh
-        shell: bash
+      - name: install_pre_reqs
+        run: apt-get install git ansible
+      - name: checkout
+        uses: actions/checkout@v3
+      
