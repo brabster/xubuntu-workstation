@@ -30,7 +30,7 @@
       - build-essential
       - curl
       - git
-      - libbz2-devpip
+      - libbz2-dev
       - libffi-dev
       - liblzma-dev
       - libncurses5-dev
