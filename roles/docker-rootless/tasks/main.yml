@@ -31,6 +31,7 @@
   shell: |
     dockerd-rootless-setuptool.sh install
     systemctl --user enable docker
+  when: in_container is not defined
 
 - name: Set environment variables
   blockinfile:

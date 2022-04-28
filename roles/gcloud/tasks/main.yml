@@ -5,4 +5,5 @@
   snap:
     name: google-cloud-sdk
     classic: yes
+  when: in_container is not defined
 
