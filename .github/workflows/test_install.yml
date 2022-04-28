@@ -27,5 +27,5 @@ jobs:
         uses: actions/checkout@v3
       - name: setup
         run: |
-          su - tester -c "cd $GITHUB_WORKSPACE && ansible-playbook -K -e in_container=true ci_test.yml"
+          su - tester -c "cd $GITHUB_WORKSPACE && ansible-playbook -K -e in_container=true workstation.yml"
       

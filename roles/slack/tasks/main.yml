@@ -5,3 +5,4 @@
   snap:
     name: slack
     classic: yes
+  when: in_container is not defined

@@ -6,3 +6,4 @@
   snap:
     name: code
     classic: yes
+  when: in_container is not defined  

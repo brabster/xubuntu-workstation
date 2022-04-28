@@ -25,7 +25,7 @@
 - name: Disable system docker
   become: true
   shell: systemctl disable --now docker.service docker.socket
-  when: in_container is defined
+  when: in_container is not defined
 
 - name: Install docker rootless
   shell: |
