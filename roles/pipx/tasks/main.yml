@@ -1,0 +1,8 @@
+---
+- name: pipx install
+  shell: pip install --user pipx
+
+- name: pipx update
+  lineinfile:
+    path: ~/.local/bin/update
+    line: pipx upgrade-all

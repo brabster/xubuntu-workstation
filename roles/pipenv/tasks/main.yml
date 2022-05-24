@@ -1,0 +1,4 @@
+---
+- name: pipenv install
+  shell: pipx install pipenv
+  

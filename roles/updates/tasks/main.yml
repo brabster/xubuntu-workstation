@@ -3,5 +3,5 @@
 - name: Setup update script
   copy:
     src: update
-    dest: ~/bin/update
+    dest: ~/.local/bin/update
     mode: 0755

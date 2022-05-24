@@ -2,12 +2,7 @@
 # tasks file for bin
 - name: Create ~/bin directory
   file:
-    path: ~/bin
+    path: ~/.local/bin
     state: directory
     mode: '0755'
-  
-- name: Place ~/bin on PATH
-  lineinfile:
-    dest: ~/.profile
-    state: present
-    line: 'PATH=$PATH:$HOME/bin'
+ 
