@@ -17,7 +17,7 @@
 - name: Setup shims
   blockinfile:
     path: ~/.profile
-    marker: '{mark} ANSIBLE_PYENV'
+    marker: '# {mark} ANSIBLE_PYENV'
     block: |
       export PATH="${HOME}/.pyenv/shims:${HOME}/.pyenv/bin:$PATH"
       eval "$(pyenv init -)"
