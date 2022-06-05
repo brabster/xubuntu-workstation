@@ -23,7 +23,6 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
-  when: in_container is not defined
 
 - name: Disable system docker
   become: true
