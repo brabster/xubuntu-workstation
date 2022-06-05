@@ -1,0 +1,22 @@
+---
+- name: Remove shortcuts that conflict with applications
+  xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /xfwm4/custom/<Super>Right
+    value_type: string
+    value: dummy
+    state: absent
+
+- name: Remove shortcuts that conflict with applications
+  xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /xfwm4/default/<Super>Right
+    value_type: string
+    value: dummy
+
+- name: Remove shortcuts that conflict with applications
+  xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /xfwm4/custom/<Super>Right
+    value_type: string
+    value: tile_right_key

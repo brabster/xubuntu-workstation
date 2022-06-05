@@ -2,7 +2,7 @@
 - hosts: localhost
   become_method: sudo
   roles:
-  - role: ./roles/updates
+  - role: ./roles/xfce
 
   
 
