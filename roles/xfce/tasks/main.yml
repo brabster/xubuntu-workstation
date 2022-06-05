@@ -1,5 +1,5 @@
 ---
-- name: Remove shortcuts that conflict with applications
+- name: Remove problematic shortcut
   xfconf:
     channel: xfce4-keyboard-shortcuts
     property: /xfwm4/custom/<Super>Right
@@ -7,14 +7,14 @@
     value: dummy
     state: absent
 
-- name: Remove shortcuts that conflict with applications
+- name: Dummy out problematic shortcut (cannot remove!)
   xfconf:
     channel: xfce4-keyboard-shortcuts
     property: /xfwm4/default/<Super>Right
     value_type: string
     value: dummy
 
-- name: Remove shortcuts that conflict with applications
+- name: Replace problematic shortcut
   xfconf:
     channel: xfce4-keyboard-shortcuts
     property: /xfwm4/custom/<Super>Right
