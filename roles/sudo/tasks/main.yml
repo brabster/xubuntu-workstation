@@ -1,0 +1,8 @@
+---
+- name: Timeout sudo immediately
+  become: yes
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^Defaults\s+env_reset'
+    line: 'Defaults        env_reset,timestamp_timeout=0'
+    
