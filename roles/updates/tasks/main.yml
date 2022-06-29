@@ -1,7 +1,8 @@
 ---
 # tasks file for update
 - name: Setup update script
+  become: yes
   copy:
     src: update
-    dest: ~/.local/bin/update
+    dest: /usr/local/bin/update
     mode: 0755

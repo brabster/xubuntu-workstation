@@ -2,11 +2,7 @@
 - hosts: localhost
   become_method: sudo
   roles:
-<<<<<<< HEAD
-  - role: ./roles/git
-=======
-  - role: ./roles/sudo
->>>>>>> 491a92f (Set immediate sudo timeout)
+    - role: ./roles/updates
 
   
 

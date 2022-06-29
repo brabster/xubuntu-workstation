@@ -4,5 +4,5 @@
 
 - name: pipx update
   lineinfile:
-    path: ~/.local/bin/update
+    path: /usr/local/bin/update
     line: pipx upgrade-all
