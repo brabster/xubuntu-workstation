@@ -1,4 +1,11 @@
 ---
+- name: Install xfconf cli tool
+  become: yes
+  package:
+    name:
+      - xfconf
+    state: present
+
 - name: Remove problematic shortcut
   xfconf:
     channel: xfce4-keyboard-shortcuts
