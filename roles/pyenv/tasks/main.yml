@@ -48,7 +48,7 @@
 
 - name: Install python 3.8
   shell: |
-    echo $PATH
+    source {{ user_bashrc }}
     pyenv install 3.8.13
     pyenv global 3.8.13
     pyenv rehash
