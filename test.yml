@@ -4,7 +4,7 @@
   vars_files:
     - ./vars.yml
   roles:
-    - role: ./roles/pyenv
+    - role: ./roles/dev
 
   
 

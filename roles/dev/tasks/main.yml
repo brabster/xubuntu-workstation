@@ -8,8 +8,8 @@
     state: present
 
 - name: Setup git username and email
-  copy:
-    src: .gitconfig
+  template:
+    src: files/.gitconfig.j2
     dest: '{{ ansible_env.HOME }}/.gitconfig'
 
 - name: Create SSH dir
