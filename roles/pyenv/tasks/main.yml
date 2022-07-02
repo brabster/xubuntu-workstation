@@ -16,7 +16,7 @@
 
 - name: Setup shims
   blockinfile:
-    path: '{{ user_bashrc }}'
+    path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_PYENV'
     block: |
       export PATH="{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.HOME }}/.pyenv/bin:$PATH"
@@ -48,7 +48,7 @@
 
 - name: Install python 3.8
   shell: |
-    source {{ user_bashrc }}
+    source {{ user_profile }}
     pyenv install 3.8.13
     pyenv global 3.8.13
     pyenv rehash

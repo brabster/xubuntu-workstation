@@ -1,6 +1,8 @@
 ---
 - name: pipx install
-  shell: pip install --user pipx
+  shell: |
+    source {{ user_profile }}
+    pip install --user pipx
 
 - name: pipx update
   become: yes

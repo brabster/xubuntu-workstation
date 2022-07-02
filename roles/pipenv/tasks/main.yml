@@ -1,4 +1,6 @@
 ---
 - name: pipenv install
-  shell: pipx install pipenv
+  shell: |
+    source {{ user_profile }}
+    pipx install pipenv
   
