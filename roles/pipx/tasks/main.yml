@@ -3,6 +3,7 @@
   shell: pip install --user pipx
 
 - name: pipx update
+  become: yes
   lineinfile:
     path: /usr/local/bin/update
     line: pipx upgrade-all
