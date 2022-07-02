@@ -1,26 +1,9 @@
 ---
 # tasks file for chrome-browser
-- name: Fetch Chrome Browser
-  get_url:
-    url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-    dest: /tmp/google-chrome.deb
+- name: Check that chrome not already installed
+  stat:
+    path: '/usr/bin/google-chrome'
+  register: chrome
 
-- name: Install Chrome
-  become: yes
-  apt:
-    deb: /tmp/google-chrome.deb
-
-- name: Ensures Chrome policy dir exists
-  become: yes
-  file:
-    path: /etc/opt/chrome/policies/managed
-    state: directory
-
-- name: Configure Chrome Browser
-  become: yes
-  copy:
-    src: chrome-prefs.json
-    dest: /etc/opt/chrome/policies/managed/prefs.json
-
-
-
+- include: tasks.yml
+  when: not chrome.stat.exists
