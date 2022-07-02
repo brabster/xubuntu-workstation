@@ -19,7 +19,7 @@
     path: '{{ user_bashrc }}'
     marker: '# {mark} ANSIBLE_PYENV'
     block: |
-      export PATH='{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.HOME }}/.pyenv/bin:$PATH'
+      export PATH="{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.HOME }}/.pyenv/bin:$PATH"
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
 
