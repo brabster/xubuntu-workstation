@@ -4,5 +4,5 @@
   become: yes
   copy:
     src: update
-    dest: /usr/local/bin/update
+    dest: '{{ update_script }}'
     mode: 0755

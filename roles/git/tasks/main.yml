@@ -1,7 +1,7 @@
 ---
 - name: Enable cli completion
   blockinfile:
-    path: ~/.bashrc
+    path: '{{ user_bashrc }}'
     marker: '# {mark} ANSIBLE_GIT'
     block: |
       source /usr/share/bash-completion/completions/git

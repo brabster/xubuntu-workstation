@@ -1,23 +1,10 @@
 ---
 # tasks file for lastpass
-- name: Fetch download page
-  get_url:
-    url: https://vlycgtx.com/latest#linux
-    dest: /tmp/expressvpn.html
+- name: Check that expressvpn not already installed
+  stat:
+    path: '{{ ansible_env.HOME }}/.experessvpn_is_installed'
+  register: expressvpn
 
-- name: "Figure out where the latest ExpressVPN .deb is"
-  shell: cat /tmp/expressvpn.html | sed -rn 's/^.*<option .+ value="(.*)">Ubuntu 64-bit.*$/\1/p'
-  register: expressvpn_deb_url
-
-- name: "Fetch latest ExpressVPN Linux install"
-  get_url:
-    url: "{{ expressvpn_deb_url.stdout }}"
-    dest: /tmp/expressvpn.deb
-
-- name: "Install VPN client"
-  become: yes
-  apt:
-    deb: /tmp/expressvpn.deb
-
-
+- include: tasks.yml
+  when: not expressvpn.stat.exists
 

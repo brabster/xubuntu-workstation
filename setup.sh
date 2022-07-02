@@ -11,6 +11,6 @@ cd ~/projects/brabster
 git clone https://github.com/brabster/xubuntu-workstation.git
 
 cd ~/projects/brabster/xubuntu-workstation
-ansible-playbook -Kvv workstation.yml
+ansible-playbook -K workstation.yml
 git remote rm origin
 git remote add origin git@github.com:brabster/xubuntu-workstation.git

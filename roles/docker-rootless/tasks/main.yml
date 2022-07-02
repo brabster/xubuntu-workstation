@@ -37,7 +37,7 @@
 
 - name: Set environment variables
   blockinfile:
-    path: ~/.profile
+    path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_DOCKER'
     block: |
       export DOCKER_HOST=unix:///run/user/${UID}/docker.sock

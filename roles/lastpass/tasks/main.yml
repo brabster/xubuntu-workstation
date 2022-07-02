@@ -1,22 +1,9 @@
 ---
 # tasks file for lastpass
-- name: "Fetch latest LastPass Linux install"
-  get_url:
-    url: https://download.cloud.lastpass.com/linux/lplinux.tar.bz2
-    dest: /tmp/lplinux.tar.bz2
+- name: Check that lastpass not already installed
+  stat:
+    path: '{{ ansible_env.HOME }}/.lastpass_is_installed'
+  register: lastpass
 
-- name: Create LastPass extract dir
-  file:
-    path: /tmp/lplinux
-    state: directory
-
-- name: Decompress LastPass archive
-  unarchive:
-    src: /tmp/lplinux.tar.bz2
-    dest: /tmp/lplinux
-
-- name: Install LastPass plugins
-  become: yes
-  command: ./install_lastpass.sh
-  args:
-    chdir: /tmp/lplinux
+- include: tasks.yml
+  when: not lastpass.stat.exists

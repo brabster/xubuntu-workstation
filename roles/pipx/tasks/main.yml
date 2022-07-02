@@ -5,5 +5,5 @@
 - name: pipx update
   become: yes
   lineinfile:
-    path: /usr/local/bin/update
+    path: '{{ update_script }}'
     line: pipx upgrade-all

@@ -10,7 +10,7 @@
 - name: Setup git username and email
   copy:
     src: .gitconfig
-    dest: ${HOME}/.gitconfig
+    dest: '{{ ansible_env.HOME }}/.gitconfig'
 
 - name: Create SSH dir
   file:
@@ -25,7 +25,7 @@
 
 - name: Add SSH key to ssh-agent on login
   lineinfile:
-    path: ~/.profile
+    path: '{{ user_profile }}'
     line: "ssh-agent -s && ssh-add ~/.ssh/id_ssh"
 
 - name: Install general cli tools

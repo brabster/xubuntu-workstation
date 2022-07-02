@@ -1,7 +1,7 @@
 ---
 - name: Check that pyenv not already installed
   stat:
-    path: ~/.pyenv
+    path: '{{ ansible_env.HOME }}/.pyenv'
   register: pyenv
 
 - name: Fetch installer
@@ -16,10 +16,10 @@
 
 - name: Setup shims
   blockinfile:
-    path: ~/.profile
+    path: '{{ user_bashrc }}'
     marker: '# {mark} ANSIBLE_PYENV'
     block: |
-      export PATH="${HOME}/.pyenv/shims:${HOME}/.pyenv/bin:$PATH"
+      export PATH='{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.HOME }}/.pyenv/bin:$PATH'
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
 
@@ -48,6 +48,6 @@
 
 - name: Install python 3.8
   shell: |
-    ~/.pyenv/bin/pyenv install 3.8.13
-    ~/.pyenv/bin/pyenv global 3.8.13
-    ~/.pyenv/bin/pyenv rehash
+    pyenv install 3.8.13
+    pyenv global 3.8.13
+    pyenv rehash

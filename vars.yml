@@ -1,0 +1,4 @@
+---
+user_bashrc: '{{ ansible_env.HOME }}/.bashrc'
+user_profile: '{{ ansible_env.HOME }}/.profile'
+update_script: /usr/local/bin/update
