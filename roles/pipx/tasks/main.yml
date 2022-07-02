@@ -1,7 +1,7 @@
 ---
 - name: pipx install
   shell: |
-    source {{ user_profile }}
+    . {{ user_profile }}
     pip install --user pipx
 
 - name: pipx update
