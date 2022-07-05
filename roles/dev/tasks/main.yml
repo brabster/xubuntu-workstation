@@ -36,4 +36,5 @@
       - httpie
       - htop
       - curl
+      - file-roller
     state: present
