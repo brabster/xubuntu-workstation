@@ -15,6 +15,9 @@ snap refresh
 echo "Firmware updates"
 
 fwupdmgr refresh --force
-fwupdmgr get-updates
-fwupdmgr update
+fwupdmgr get-updates || true
+fwupdmgr update || true
+#############################
+echo "Running user updates"
+su - ${SUDO_USER} -c '{{ user_update_script }}'
 #############################

@@ -7,5 +7,6 @@
 - name: pipx update
   become: yes
   lineinfile:
-    path: '{{ update_script }}'
+    path: '{{ user_update_script }}'
     line: pipx upgrade-all
+    

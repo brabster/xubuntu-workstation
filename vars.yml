@@ -4,3 +4,4 @@ git_email: paul.brabban@gmail.com
 user_bashrc: '{{ ansible_env.HOME }}/.bashrc'
 user_profile: '{{ ansible_env.HOME }}/.profile'
 update_script: /usr/local/bin/update
+user_update_script: '{{ ansible_env.HOME }}/.local/bin/update'

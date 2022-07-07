@@ -4,7 +4,8 @@
   vars_files:
     - ./vars.yml
   roles:
-    - role: ./roles/xfce
+    - role: ./roles/updates
+    - role: ./roles/pipx
 
   
 

@@ -1,8 +1,14 @@
 ---
 # tasks file for update
-- name: Setup update script
+- name: Setup root update script
   become: yes
-  copy:
-    src: update
+  template:
+    src: files/update.j2
     dest: '{{ update_script }}'
+    mode: 0755
+
+- name: Setup user update script
+  copy:
+    src: user_update
+    dest: '{{ user_update_script }}'
     mode: 0755
