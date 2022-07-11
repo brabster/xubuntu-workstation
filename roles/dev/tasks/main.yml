@@ -23,11 +23,6 @@
     path: "{{ ansible_env.HOME }}/.ssh/id_ssh"
     type: ed25519
 
-- name: Add SSH key to ssh-agent on login
-  lineinfile:
-    path: '{{ user_profile }}'
-    line: "ssh-agent -s && ssh-add ~/.ssh/id_ssh"
-
 - name: Install general cli tools
   become: yes
   package:
