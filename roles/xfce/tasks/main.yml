@@ -1,7 +1,29 @@
 ---
-- name: Remove unneeded packages
+- name: Install xfconf cli tool
   become: yes
   package:
     name:
-      - thunderbird
+      - xfconf
+    state: present
+
+- name: Remove problematic shortcut
+  xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /xfwm4/custom/<Super>Right
+    value_type: string
+    value: dummy
     state: absent
+
+- name: Dummy out problematic shortcut (cannot remove!)
+  xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /xfwm4/default/<Super>Right
+    value_type: string
+    value: dummy
+
+- name: Replace problematic shortcut
+  xfconf:
+    channel: xfce4-keyboard-shortcuts
+    property: /xfwm4/custom/<Super>Right
+    value_type: string
+    value: tile_right_key
