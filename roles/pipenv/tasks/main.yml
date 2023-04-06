@@ -3,4 +3,11 @@
   shell: |
     . {{ user_profile }}
     pipx install pipenv
+
+- name: Setup environment
+  blockinfile:
+    path: '{{ user_profile }}'
+    marker: '# {mark} ANSIBLE_PIPENV'
+    block: |
+      export PIPENV_VENV_IN_PROJECT=true
   
