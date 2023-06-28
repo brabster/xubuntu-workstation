@@ -5,4 +5,5 @@
     path: ~/.local/bin
     state: directory
     mode: '0755'
+    owner: '{{ username }}'
  

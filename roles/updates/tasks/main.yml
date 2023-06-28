@@ -7,8 +7,31 @@
     dest: '{{ update_script }}'
     mode: 0755
 
+- name: Add updaters group
+  become: yes
+  group:
+    name: updaters
+    state: present
+
+- name: Add current user to updaters group
+  become: yes
+  user:
+    name: '{{ username }}'
+    groups: updaters
+    append: yes
+
+- name: Allow updaters group to run update script with appropriate privileges
+  become: yes
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%updaters'
+    line: '%updaters {{ ansible_hostname }}={{ update_script }}'
+    validate: visudo -cf %s
+
 - name: Setup user update script
   copy:
     src: user_update
     dest: '{{ user_update_script }}'
     mode: 0755
+    owner: '{{ username }}'
