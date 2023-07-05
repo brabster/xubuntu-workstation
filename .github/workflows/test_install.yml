@@ -23,8 +23,9 @@ jobs:
           adduser --disabled-password --quiet --gecos '' tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
+          echo ${GITHUB_WORKSPACE}
       - name: check
-        run: su - tester -c './.github/check_install.sh'
+        run: su - tester -c '${GITHUB_WORKSPACE}/.github/check_install.sh'
         shell: bash
       - name: checkout
         uses: actions/checkout@v3
