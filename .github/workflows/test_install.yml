@@ -21,13 +21,16 @@ jobs:
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
-          adduser tester sudo
-          echo "tester  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/tester
+          adduser tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
         uses: actions/checkout@v3
       - name: setup
-        run: |
-          su - tester -c "cd $GITHUB_WORKSPACE && ansible-playbook -K -e in_container=true workstation.yml"
+        run: >
+          cd $GITHUB_WORKSPACE
+          && ansible-playbook
+            -e in_container=true
+            workstation.yml
+            --extra-vars 'git_nme="Testy McTestface" username=tester git_email="testy@mctestface.com"'
       
