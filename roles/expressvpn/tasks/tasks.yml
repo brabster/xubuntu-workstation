@@ -15,7 +15,6 @@
     dest: /tmp/expressvpn.deb
 
 - name: "Install VPN client"
-  become: yes
   apt:
     deb: /tmp/expressvpn.deb
 

@@ -1,7 +1,6 @@
 ---
 # tasks file for slack
 - name: Install Slack
-  become: yes
   snap:
     name: slack
   when: in_container is not defined

@@ -1,8 +1,9 @@
 ---
 # tasks file for bin
 - name: Create ~/bin directory
+  become_user: '{{ username }}'
   file:
-    path: ~/.local/bin
+    path: '{{ user_home }}/.local/bin'
     state: directory
     mode: '0755'
     owner: '{{ username }}'

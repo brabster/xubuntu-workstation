@@ -1,13 +1,11 @@
 ---
 # tasks file for firefox
 - name: Ensure policy directory exists
-  become: yes
   file:
     path: /etc/firefox/policies
     state: directory
 
 - name: Setup default preferences
-  become: yes
   copy:
     src: policies.json
     dest: /etc/firefox/policies/policies.json

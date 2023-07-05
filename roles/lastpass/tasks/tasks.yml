@@ -16,7 +16,6 @@
     dest: /tmp/lplinux
 
 - name: Install LastPass plugins
-  become: yes
   command: ./install_lastpass.sh
   args:
     chdir: /tmp/lplinux

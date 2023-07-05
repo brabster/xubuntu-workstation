@@ -1,27 +1,23 @@
 ---
 # tasks file for update
 - name: Setup root update script
-  become: yes
   template:
     src: files/update.j2
     dest: '{{ update_script }}'
     mode: 0755
 
 - name: Add updaters group
-  become: yes
   group:
     name: updaters
     state: present
 
 - name: Add current user to updaters group
-  become: yes
   user:
     name: '{{ username }}'
     groups: updaters
     append: yes
 
 - name: Allow updaters group to run update script with appropriate privileges
-  become: yes
   lineinfile:
     dest: /etc/sudoers
     state: present

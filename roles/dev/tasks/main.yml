@@ -1,25 +1,25 @@
 ---
 # tasks file for dev
 - name: Configure file watchers for IDEs, build tooling
-  become: yes
   sysctl:
     name: fs.inotify.max_user_watches
     value: '528288'
     state: present
 
 - name: Create SSH dir
+  become_user: '{{ username }}'
   file:
-    path: "{{ ansible_env.HOME }}/.ssh"
+    path: "{{ user_home }}/.ssh"
     state: directory
     mode: '0700'
 
 - name: Generate SSH key
+  become_user: '{{ username }}'
   openssh_keypair:
-    path: "{{ ansible_env.HOME }}/.ssh/id_ssh"
+    path: "{{ user_home }}/.ssh/id_ssh"
     type: ed25519
 
 - name: Install general cli tools
-  become: yes
   package:
     name:
       - jq

@@ -21,7 +21,6 @@ jobs:
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
-          adduser tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout

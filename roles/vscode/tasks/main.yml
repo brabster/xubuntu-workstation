@@ -2,7 +2,6 @@
 # tasks file for roles/vscode
 
 - name: Intall VSCode snap
-  become: yes
   snap:
     name: code
     classic: yes
