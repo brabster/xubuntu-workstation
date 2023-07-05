@@ -49,10 +49,10 @@
       - xz-utils
       - zlib1g-dev
 
-- name: Install python 3.8
+- name: Install python 3.11
   become_user: '{{ username }}'
   shell: |
     . {{ user_profile }}
-    pyenv install 3.8.13
-    pyenv global 3.8.13
+    pyenv install 3.11
+    pyenv global 3.11
     pyenv rehash

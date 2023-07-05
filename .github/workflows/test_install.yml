@@ -30,8 +30,9 @@ jobs:
           cd $GITHUB_WORKSPACE && ansible-playbook -e in_container=true workstation.yml --extra-vars 'git_name="Testy McTestface" username=tester git_email="testy@mctestface.com"'
       - name: check
         run:
-          su - tester
-          git config --list
-          sudo update
+          - su - tester
+          - git config --list
+          - python --version
+          - sudo update
 
       
