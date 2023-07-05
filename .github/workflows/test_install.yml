@@ -17,7 +17,7 @@ jobs:
       - name: update and install pre-reqs
         run: |
           apt-get update
-          apt-get -y install git ansible sudo bzip2
+          apt-get -y install git ansible bzip2
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
@@ -32,7 +32,6 @@ jobs:
         run: |
           su - tester -c "git config --list"
           su - tester -c "python --version"
-          su - tester -c "sudo update"
         shell: bash
 
       
