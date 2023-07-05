@@ -23,6 +23,7 @@ jobs:
           adduser --disabled-password --quiet --gecos '' tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
+          su - tester -c "ls -lart $(pwd)"
       - name: check
         run: su - tester -c "$(pwd)/.github/check_install.sh"
         shell: bash
