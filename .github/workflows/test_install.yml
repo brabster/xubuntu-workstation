@@ -23,17 +23,16 @@ jobs:
           adduser --disabled-password --quiet --gecos '' tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
-          su - tester -c "ls -lart $(pwd)"
-      - name: check
-        run: su - tester -c "$(pwd)/.github/check_install.sh"
-        shell: bash
       - name: checkout
         uses: actions/checkout@v3
       - name: setup
         run: >
           cd $GITHUB_WORKSPACE && ansible-playbook -e in_container=true workstation.yml --extra-vars 'git_name="Testy McTestface" username=tester git_email="testy@mctestface.com"'
       - name: check
-        run: su - tester -c "$(pwd)/.github/check_install.sh"
+        run: |
+          su - tester -c "git config --list"
+          su - tester -c "python --version"
+          su - tester -c "sudo update"
         shell: bash
 
       
