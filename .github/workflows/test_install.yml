@@ -28,8 +28,8 @@ jobs:
       - name: setup
         run: >
           cd $GITHUB_WORKSPACE
-          && ansible-playbook
-            -e in_container=true
-            workstation.yml
+          ansible-playbook 
+            -e in_container=true 
+            workstation.yml 
             --extra-vars 'git_nme="Testy McTestface" username=tester git_email="testy@mctestface.com"'
       
