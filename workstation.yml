@@ -13,7 +13,6 @@
   - role: ./roles/firefox
   - role: ./roles/chrome-browser
   - role: ./roles/gcloud
-  - role: ./roles/lastpass
   - role: ./roles/expressvpn
   - role: ./roles/pyenv
   - role: ./roles/pipx

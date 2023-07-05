@@ -1,4 +1,9 @@
 ---
+- name: Setup git username and email
+  template:
+    src: files/.gitconfig.j2
+    dest: '{{ ansible_env.HOME }}/.gitconfig'
+
 - name: Enable cli completion
   blockinfile:
     path: '{{ user_bashrc }}'
