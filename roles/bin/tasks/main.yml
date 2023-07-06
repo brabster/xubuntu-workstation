@@ -1,6 +1,7 @@
 ---
 # tasks file for bin
 - name: Create ~/bin directory
+  become: yes
   become_user: '{{ username }}'
   file:
     path: '{{ user_home }}/.local/bin'

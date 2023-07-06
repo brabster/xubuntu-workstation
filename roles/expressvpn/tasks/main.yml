@@ -2,7 +2,7 @@
 # tasks file for lastpass
 - name: Check that expressvpn not already installed
   stat:
-    path: '{{ ansible_env.HOME }}/.experessvpn_is_installed'
+    path: '{{ user_home }}/.experessvpn_is_installed'
   register: expressvpn
 
 - include: tasks.yml

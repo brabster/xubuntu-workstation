@@ -7,6 +7,7 @@
     state: present
 
 - name: Create SSH dir
+  become: yes
   become_user: '{{ username }}'
   file:
     path: "{{ user_home }}/.ssh"
@@ -14,6 +15,7 @@
     mode: '0700'
 
 - name: Generate SSH key
+  become: yes
   become_user: '{{ username }}'
   openssh_keypair:
     path: "{{ user_home }}/.ssh/id_ssh"

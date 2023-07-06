@@ -24,7 +24,7 @@ jobs:
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 
       - name: setup
         run: >
           cd $GITHUB_WORKSPACE && ansible-playbook -e in_container=true workstation.yml --extra-vars 'git_name="Testy McTestface" username=tester git_email="testy@mctestface.com"'

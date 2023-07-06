@@ -26,8 +26,8 @@
     validate: visudo -cf %s
 
 - name: Setup user update script
-  copy:
-    src: user_update
+  template:
+    src: files/user_update.j2
     dest: '{{ user_update_script }}'
     mode: 0755
     owner: '{{ username }}'

@@ -2,7 +2,7 @@
 # tasks file for lastpass
 - name: Check that lastpass not already installed
   stat:
-    path: '{{ ansible_env.HOME }}/.lastpass_is_installed'
+    path: '{{ user_home }}/.lastpass_is_installed'
   register: lastpass
 
 - include: tasks.yml

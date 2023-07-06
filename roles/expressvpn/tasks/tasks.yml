@@ -20,6 +20,6 @@
 
 - name: Mark installed
   file:
-    path: '{{ ansible_env.HOME }}/.experessvpn_is_installed'
+    path: '{{ user_home }}/.experessvpn_is_installed'
     state: touch
 

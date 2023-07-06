@@ -22,5 +22,5 @@
 
 - name: Mark installed
   file:
-    path: '{{ ansible_env.HOME }}/.lastpass_is_installed'
+    path: '{{ user_home }}/.lastpass_is_installed'
     state: touch
