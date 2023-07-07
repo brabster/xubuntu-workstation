@@ -1,11 +1,14 @@
 ---
 - name: pipx install
+  become: yes
+  become_user: '{{ username }}'
   shell: |
     . {{ user_profile }}
     pip install --user pipx
 
 - name: pipx update
   become: yes
+  become_user: '{{ username }}'
   lineinfile:
     path: '{{ user_update_script }}'
     line: pipx upgrade-all

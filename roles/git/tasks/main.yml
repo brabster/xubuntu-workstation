@@ -1,4 +1,11 @@
 ---
+- name: Setup git username and email
+  become: yes
+  become_user: '{{ username }}'
+  template:
+    src: files/.gitconfig.j2
+    dest: '{{ user_home }}/.gitconfig'
+
 - name: Enable cli completion
   blockinfile:
     path: '{{ user_bashrc }}'

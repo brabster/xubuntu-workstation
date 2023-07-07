@@ -1,30 +1,37 @@
 ---
 - name: Check that pyenv not already installed
+  become: yes
+  become_user: '{{ username }}'
   stat:
-    path: '{{ ansible_env.HOME }}/.pyenv'
+    path: '{{ user_home }}/.pyenv'
   register: pyenv
 
 - name: Fetch installer
+  become: yes
+  become_user: '{{ username }}'
   get_url:
     url: https://pyenv.run
     dest: /tmp/pyenv.run
   when: not pyenv.stat.exists
 
 - name: Install
+  become: yes
+  become_user: '{{ username }}'
   shell: cat /tmp/pyenv.run | bash
   when: not pyenv.stat.exists
 
 - name: Setup shims
+  become: yes
+  become_user: '{{ username }}'
   blockinfile:
     path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_PYENV'
     block: |
-      export PATH="{{ ansible_env.HOME }}/.pyenv/shims:{{ ansible_env.HOME }}/.pyenv/bin:$PATH"
+      export PATH="{{ user_home }}/.pyenv/shims:{{ user_home }}/.pyenv/bin:$PATH"
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
 
 - name: Install python build system dependencies
-  become: yes
   package:
     name:
       - aria2
@@ -46,9 +53,11 @@
       - xz-utils
       - zlib1g-dev
 
-- name: Install python 3.8
+- name: Install python 3.11
+  become: yes
+  become_user: '{{ username }}'
   shell: |
     . {{ user_profile }}
-    pyenv install 3.8.13
-    pyenv global 3.8.13
+    pyenv install 3.11
+    pyenv global 3.11
     pyenv rehash

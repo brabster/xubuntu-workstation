@@ -1,7 +1,9 @@
 ---
-git_name: Paul Brabban
-git_email: paul.brabban@gmail.com
-user_bashrc: '{{ ansible_env.HOME }}/.bashrc'
-user_profile: '{{ ansible_env.HOME }}/.profile'
+git_name: '{{ undef(hint="git_name must be set to the value for git config value user.name") }}'
+git_email: '{{ undef(hint="git_email must be set to the value for git config value user.email") }}' 
+username: '{{ undef(hint="username must be set to OS user username") }}'
+user_home: '/home/{{ username }}'
+user_bashrc: '{{ user_home }}/.bashrc'
+user_profile: '{{ user_home }}/.profile'
 update_script: /usr/local/bin/update
-user_update_script: '{{ ansible_env.HOME }}/.local/bin/update'
+user_update_script: '{{ user_home }}/.local/bin/update'

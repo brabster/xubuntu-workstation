@@ -19,5 +19,5 @@ fwupdmgr get-updates || true
 fwupdmgr update || true
 #############################
 echo "Running user updates"
-su - ${SUDO_USER} -c '{{ user_update_script }}'
+su -c '{{ user_update_script }}' '{{ username }}'
 #############################

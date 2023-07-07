@@ -1,6 +1,5 @@
 ---
 - name: Remove unneeded packages
-  become: yes
   package:
     name:
       - thunderbird

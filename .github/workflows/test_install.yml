@@ -7,7 +7,7 @@ jobs:
   test_install:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:23.04
+      image: ubuntu:22.04
       env:
         DEBIAN_FRONTEND: noninteractive
     steps:
@@ -21,13 +21,17 @@ jobs:
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
-          adduser tester sudo
-          echo "tester  ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 
       - name: setup
+        run: >
+          cd $GITHUB_WORKSPACE && ansible-playbook -e in_container=true workstation.yml --extra-vars 'git_name="Testy McTestface" username=tester git_email="testy@mctestface.com"'
+      - name: check
         run: |
-          su - tester -c "cd $GITHUB_WORKSPACE && ansible-playbook -K -e in_container=true workstation.yml"
+          su - tester -c "git config --list"
+          su - tester -c "python --version"
+        shell: bash
+
       

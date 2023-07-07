@@ -6,18 +6,15 @@
     dest: /tmp/google-chrome.deb
 
 - name: Install Chrome
-  become: yes
   apt:
     deb: /tmp/google-chrome.deb
 
 - name: Ensures Chrome policy dir exists
-  become: yes
   file:
     path: /etc/opt/chrome/policies/managed
     state: directory
 
 - name: Configure Chrome Browser
-  become: yes
   copy:
     src: chrome-prefs.json
     dest: /etc/opt/chrome/policies/managed/prefs.json
