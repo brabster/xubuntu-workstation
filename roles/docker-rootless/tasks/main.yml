@@ -34,7 +34,7 @@
 
 - name: Determine XDG_RUNTIME_DIR
   set_fact:
-    xdg_runtime_dir: '/run/user/{{ then_user_uid.stdout }}'
+    xdg_runtime_dir: '/run/user/{{ the_user_uid.stdout }}'
   changed_when: false
 
 - name: Install docker rootless
