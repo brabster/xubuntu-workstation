@@ -18,6 +18,7 @@
   - role: ./roles/pipx
   - role: ./roles/pipenv
   - role: ./roles/git
+  - role: ./roles/clamav
   - role: ./roles/xfce
     when: in_container is not defined # needs X11
   - role: ./roles/docker-rootless
