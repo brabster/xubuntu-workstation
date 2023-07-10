@@ -9,6 +9,7 @@
 - name: Setup AV file scan option in Thunar
   become: yes
   become_user: '{{ username }}'
+  when: in_container is not defined # needs xfce
   blockinfile:
     path: '{{ user_home }}/.config/Thunar/uca.xml'
     marker: '<!-- {mark} ANSIBLE_CLAMAV -->'
