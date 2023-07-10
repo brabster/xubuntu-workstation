@@ -32,6 +32,7 @@ jobs:
         run: |
           su - tester -c "git config --list"
           su - tester -c "python --version"
+          su - tester -c "clamscan --version"
         shell: bash
 
       
