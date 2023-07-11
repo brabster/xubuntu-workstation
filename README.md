@@ -25,6 +25,7 @@ Single-user Xubuntu setup: repeatable and demonstrable software installs and con
     - su to user to apply user updates
 - [firefox](roles/firefox), [chrome](roles/chrome-browser) apply security settings by policy
 - [expressvpn](roles/expressvpn) install VPN
+- [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
 
 ## Testing
 
