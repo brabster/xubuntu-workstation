@@ -6,7 +6,7 @@ Single-user Xubuntu setup: repeatable and demonstrable software installs and con
 
 - `sudo su -` to start a root shell
 - `passwd` to set a root password
-- `wget https://raw.githubusercontent.com/brabster/xubuntu-workstation/run-as-root/bootstrap.sh && chmod 755 bootstrap.sh`
+- `wget https://raw.githubusercontent.com/brabster/xubuntu-workstation/main/bootstrap.sh && chmod 755 bootstrap.sh`
 - Run `bootstrap.sh` as root.
 - Follow instructions printed in script output to setup software and config.
 
