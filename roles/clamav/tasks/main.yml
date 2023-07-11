@@ -5,29 +5,6 @@
       - clamav
       - clamav-daemon
     state: present
-  
-- name: Setup AV file scan option in Thunar
-  become: yes
-  become_user: '{{ username }}'
-  when: in_container is not defined # needs xfce
-  blockinfile:
-    path: '{{ user_home }}/.config/Thunar/uca.xml'
-    marker: '<!-- {mark} ANSIBLE_CLAMAV -->'
-    insertbefore: '</actions>'
-    block: |
-      <action>
-        <icon></icon>
-        <name>ClamAV Scan</name>
-        <unique-id>#{mark}ANSIBLE_CLAMAV-1</unique-id>
-        <command>xfce4-terminal -e &quot;clamscan %f&quot; --hold</command>
-        <description/></description>
-        <patterns>*</patterns>
-        <audio-files/>
-        <video-files/>
-        <image-files/>
-        <other-files/>
-        <text-files/>
-      </action>
 
 - name: Note ClamAV version and sig versions when running updates
   become: yes
