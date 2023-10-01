@@ -1,8 +1,8 @@
 name: test_install
 on:
-  push: {}
-  schedule:
-    - cron: "0 0 * * *"
+  - push: {}
+  - schedule:
+    - cron: "0 0 * * 0"
 jobs:
   test_install:
     runs-on: ubuntu-latest
