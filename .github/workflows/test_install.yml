@@ -7,7 +7,7 @@ jobs:
   test_install:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:23.04
+      image: ubuntu:23.10
       env:
         DEBIAN_FRONTEND: noninteractive
     steps:
