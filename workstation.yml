@@ -2,6 +2,7 @@
 - hosts: localhost
   become_method: sudo
   vars_files:
+    - ./.vars.yml
     - ./vars.yml
   roles:
   - role: ./roles/sudo

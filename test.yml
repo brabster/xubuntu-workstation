@@ -1,9 +1,10 @@
 ---
 - hosts: localhost
   vars_files:
+    - ./.vars.yml
     - ./vars.yml
   roles:
-    - role: ./roles/clamav
+    - role: ./roles/git
 
   
 

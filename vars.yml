@@ -1,7 +1,8 @@
 ---
-git_name: '{{ undef(hint="git_name must be set to the value for git config value user.name") }}'
-git_email: '{{ undef(hint="git_email must be set to the value for git config value user.email") }}' 
-username: '{{ undef(hint="username must be set to OS user username") }}'
+# install-specific, set these in .vars.yml
+# git_name: '{{ undef(hint="git_name must be set to the value for git config value user.name") }}'
+# git_email: '{{ undef(hint="git_email must be set to the value for git config value user.email") }}' 
+# username: '{{ undef(hint="username must be set to OS user username") }}'
 user_home: '/home/{{ username }}'
 user_bashrc: '{{ user_home }}/.bashrc'
 user_profile: '{{ user_home }}/.profile'
