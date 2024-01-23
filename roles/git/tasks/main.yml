@@ -17,7 +17,7 @@
   become: yes
   become_user: '{{ username }}'
   blockinfile:
-    path: '{{ user_profile }}'
+    path: '{{ user_bashrc }}'
     marker: '# {mark} GIT_ALIAS'
     block: |
       alias gitdefault="git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
