@@ -31,7 +31,7 @@ jobs:
           cp ${GITHUB_WORKSPACE}/.github/workflows/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
           ansible-playbook -e in_container=true workstation.yml 
       - name: check
-        shell: bash
+        shell: bash -l
         run: |
           su - tester
           alias
