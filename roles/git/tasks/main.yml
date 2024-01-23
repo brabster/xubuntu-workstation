@@ -12,3 +12,13 @@
     marker: '# {mark} ANSIBLE_GIT'
     block: |
       source /usr/share/bash-completion/completions/git
+
+- name: Setup bash aliases
+  become: yes
+  become_user: '{{ username }}'
+  blockinfile:
+    path: '{{ user_bashrc }}'
+    marker: '# {mark} GIT_ALIAS'
+    block: |
+      alias gitdefault="git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
+      alias gitmain="git switch $(gitdefault) && git pull && git branch | grep -v $(gitdefault) | xargs -r git branch -D"

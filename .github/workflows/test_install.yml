@@ -26,13 +26,16 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3 
       - name: setup
-        run: >
-          cd $GITHUB_WORKSPACE && ansible-playbook -e in_container=true workstation.yml --extra-vars 'git_name="Testy McTestface" username=tester git_email="testy@mctestface.com"'
-      - name: check
         run: |
-          su - tester -c "git config --list"
-          su - tester -c "python --version"
-          su - tester -c "clamscan --version"
-        shell: bash
-
-      
+          cd $GITHUB_WORKSPACE
+          cp ${GITHUB_WORKSPACE}/.github/workflows/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
+          ansible-playbook -e in_container=true workstation.yml 
+      - name: check
+        shell: bash -l {0}
+        run: |
+          su - tester
+          alias
+          git config --list
+          python --version
+          clamscan --version
+          
