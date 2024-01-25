@@ -5,9 +5,14 @@ on:
     - cron: "0 0 * * 0"
 jobs:
   test_install:
+    strategy:
+      matrix:
+        image:
+          - ubuntu:latest
+          - ubuntu:rolling
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:23.04
+      image: ${{ matrix.image }}
       env:
         DEBIAN_FRONTEND: noninteractive
     steps:
