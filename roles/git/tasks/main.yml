@@ -21,4 +21,4 @@
     marker: '# {mark} GIT_ALIAS'
     block: |
       alias gitdefault="git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
-      alias gitmain="git switch $(gitdefault) && git pull && git branch | grep -v $(gitdefault) | xargs -r git branch -D"
+      alias gitmain='git switch $(gitdefault) && git pull && git branch | grep -v $(gitdefault) | xargs -r git branch -D'
