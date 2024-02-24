@@ -1,6 +1,8 @@
 name: test_install
 on:
-  push: {}
+  pull_request:
+    branches:
+      - main
   schedule:
     - cron: "0 0 * * 0"
 jobs:
@@ -29,11 +31,11 @@ jobs:
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
-        uses: actions/checkout@v3 
+        uses: actions/checkout@v4
       - name: setup
         run: |
           cd $GITHUB_WORKSPACE
-          cp ${GITHUB_WORKSPACE}/.github/workflows/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
+          cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
           ansible-playbook -e in_container=true workstation.yml 
       - name: check
         shell: bash -l {0}
