@@ -26,6 +26,7 @@ Most convenient way to do this is to create a bootable USB for the xubuntu distr
 - requires root permissions to write the USB device
 - wipes any existing USB content
 - use [vars_example.yml](./vars_example.yml) to create a file .vars.yml with appropriate settings
+- [optional] - edit workstation.yml to one-off customise install
 - run [setup_bootstrap_ansible_usb.sh](./setup_bootstrap_ansible_usb.sh)
 
 ### Install Xubuntu
