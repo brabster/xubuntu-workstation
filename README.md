@@ -4,11 +4,43 @@ Single-user Xubuntu setup: repeatable and demonstrable software installs and con
 
 ## Usage
 
-- `sudo su -` to start a root shell
+Most convenient way to do this is to create a bootable USB for the xubuntu distro, and a separate non-bootable USB from this repo. Minimal Xubuntu distro expected.
+
+### Setup Distro USB
+
+- requires root permissions to write the USB device
+- wipes any existing USB content
+- run [setup_bootable_linux_usb.sh](./setup_bootable_linux_usb.sh)
+
+### Create Bootstrap USB
+
+- requires root permissions to write the USB device
+- wipes any existing USB content
+- use [vars_example.yml](./vars_example.yml) to create a file .vars.yml with appropriate settings
+- run [setup_bootstrap_ansible_usb.sh](./setup_bootstrap_ansible_usb.sh)
+
+### Install Xubuntu
+
+- insert bootable USB
+- interrupt boot process, set USB as temp boot device
+- install distro
+    - can connect to network now or in bootstrap
+    - use LVM/encrypt HDD
+    - as this is a single-user device, can use same strong password for disk encryption as for login - one stronger better than two weaker
+- allow reboot
+- remove USB
+- boot, decrypt and log in
+
+### Bootstrap
+
+- insert bootstrap USB
+- mount, open terminal in directory
+- `sudo su -` to start a root shell (you will lose ability to `sudo` arbitrarily as part of install to meet Cyber Essentials regulations)
 - `passwd` to set a root password
-- `wget https://raw.githubusercontent.com/brabster/xubuntu-workstation/main/bootstrap.sh && chmod 755 bootstrap.sh`
-- Run `bootstrap.sh` as root.
-- Follow instructions printed in script output to setup software and config.
+- `cd` back to the mount directory
+- ensure connected to network for updates and installs
+- `./bootstrap.sh`
+
 
 ## Security
 
