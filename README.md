@@ -2,6 +2,15 @@ Single-user Xubuntu setup: repeatable and demonstrable software installs and con
 
 **Target OS: Xubuntu 22.04 LTS** (see OS version in [GitHub actions](.github/workflows/test_install.yml))
 
+## Support
+
+**I provide no commitment to support your use of this repository and you use it at your own risk.**
+
+This repository is for my own use and shared to inform and accelerate others.
+I have placed it under the MIT licence for simplicity and permissiveness.
+You are welcome to raise issues and submit pull requests but **I reserve the absolute right to refuse as I see fit**.
+
+
 ## Usage
 
 Most convenient way to do this is to create a bootable USB for the xubuntu distro, and a separate non-bootable USB from this repo. Minimal Xubuntu distro expected.
