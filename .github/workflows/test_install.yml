@@ -1,8 +1,6 @@
 name: test_install
 on:
-  pull_request:
-    branches:
-      - main
+  push: {}
   schedule:
     - cron: "0 0 * * 0"
 jobs:
