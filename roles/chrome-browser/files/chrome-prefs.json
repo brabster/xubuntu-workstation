@@ -5,7 +5,7 @@
     "DnsOverHttpsMode": "secure",
     "HttpsOnlyMode": "force_enabled",
     "AdvancedProtectionAllowed": true,
-    "DownloadRestrictions"L 4,
+    "DownloadRestrictions": 4,
     "ExtensionInstallForcelist": [
         "nngceckbapebfimnlniiiahkandclblb",
         "aeblfdkhhhdcdjpifhhbdiojplfjncoa"
