@@ -2,6 +2,10 @@
     "AutoFillEnabled": false,
     "PasswordManagerEnabled": false,
     "DefaultBrowserSettingEnabled": false,
+    "DnsOverHttpsMode": "secure",
+    "HttpsOnlyMode": "force_enabled",
+    "AdvancedProtectionAllowed": true,
+    "DownloadRestrictions"L 4,
     "ExtensionInstallForcelist": [
         "nngceckbapebfimnlniiiahkandclblb",
         "aeblfdkhhhdcdjpifhhbdiojplfjncoa"
