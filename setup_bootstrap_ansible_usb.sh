@@ -9,20 +9,22 @@ USB_DEVICE=$1
 SCRIPT_DIR=$(dirname "$0")
 
 echo "Wiping ${USB_DEVICE} MBR"
-dd if=/dev/zero of=${USB_DEVICE} bs=512 count=1 conv=notrunc
+dd if=/dev/zero of=${USB_DEVICE} bs=512 count=10
 
 echo "Partitioning ${USB_DEVICE}"
-parted --script "${USB_DEVICE}" \
-    mklabel gpt \
-    mkpart primary 0% 100$
 
-fdisk -l ${USB_DEVICE}
+parted -l
+
+parted --script "${USB_DEVICE}" mklabel gpt mkpart primary 0% 100%
+
+parted -l
 
 USB_PARTITION=${USB_DEVICE}1
 
 echo "Formatting partition ${USB_PARTITION}"
-mkfs.ext4 -L xubuntu_setup "${USB_PARTITION}"
+mkfs.ext4 -vL xubuntu_setup "${USB_PARTITION}"
 
+echo "Mounting new partition"
 MOUNT_DIR=$(mktemp -d)
 mount -t auto -v "${USB_PARTITION}" "${MOUNT_DIR}"
 
