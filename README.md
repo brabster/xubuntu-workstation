@@ -10,6 +10,11 @@ This repository is for my own use and shared to inform and accelerate others.
 I have placed it under the MIT licence for simplicity and permissiveness.
 You are welcome to raise issues and submit pull requests but **I reserve the absolute right to refuse as I see fit**.
 
+## Supporting Materials
+
+- [Show and Tell Video](https://www.youtube.com/watch?v=CyuGg4F850g)
+- [Why I automated this (Feb 2024)](https://tempered.works/posts/2024-02-27-automated-laptop-build-intro/)
+- [Living with this automated build (Mar 2024)](https://tempered.works/posts/2024-02-27-automated-laptop-build-intro/)
 
 ## Usage
 
