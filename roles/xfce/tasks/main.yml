@@ -1,6 +1,6 @@
 ---
 - name: Install xfconf cli tool
-  package:
+  ansible.builtin.package:
     name:
       - xfconf
     state: present

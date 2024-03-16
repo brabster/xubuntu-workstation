@@ -1,9 +1,10 @@
 ---
 # tasks file for lastpass
 - name: Check that lastpass not already installed
-  stat:
+  ansible.builtin.stat:
     path: '{{ user_home }}/.lastpass_is_installed'
   register: lastpass
 
-- include: tasks.yml
+- name: Run Playbook
+  import_tasks: tasks.yml
   when: not lastpass.stat.exists

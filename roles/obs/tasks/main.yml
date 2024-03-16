@@ -1,0 +1,9 @@
+---
+- name: Setup OBS Repository
+  ansible.builtin.apt_repository:
+    repo: ppa:obsproject/obs-studio
+
+- name: Install OBS
+  ansible.builtin.package:
+    name:
+      - obs-studio

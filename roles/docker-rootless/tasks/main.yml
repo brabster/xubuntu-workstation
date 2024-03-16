@@ -1,7 +1,7 @@
 ---
 # tasks file for docker-rootless
 - name: Add docker GPG key and repo
-  shell: 
+  ansible.builtin.shell: 
     creates: /usr/share/keyrings/docker-archive-keyring.gpg
     cmd: |
       curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -10,7 +10,7 @@
       apt-get update
 
 - name: Install pre-reqs
-  package:
+  ansible.builtin.package:
     name:
       - uidmap
       - dbus-user-session
@@ -23,17 +23,17 @@
       - containerd.io
 
 - name: Disable system docker
-  shell: systemctl disable --now docker.service docker.socket
+  ansible.builtin.shell: systemctl disable --now docker.service docker.socket
   when: in_container is not defined
 
 - name: Find user UID
-  command: 'id -u {{ username }}'
+  ansible.builtin.command: 'id -u {{ username }}'
   register: the_user_uid
   check_mode: no
   changed_when: false
 
 - name: Determine XDG_RUNTIME_DIR
-  set_fact:
+  ansible.builtin.set_fact:
     xdg_runtime_dir: '/run/user/{{ the_user_uid.stdout }}'
   changed_when: false
 
@@ -42,7 +42,7 @@
   become_user: '{{ username }}'
   environment:
     XDG_RUNTIME_DIR: '{{ xdg_runtime_dir }}'
-  shell: |
+  ansible.builtin.shell: |
     dockerd-rootless-setuptool.sh install
     systemctl --user enable docker
   when: in_container is not defined
@@ -50,7 +50,7 @@
 - name: Set environment variables
   become: yes
   become_user: '{{ username }}'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_DOCKER'
     block: |

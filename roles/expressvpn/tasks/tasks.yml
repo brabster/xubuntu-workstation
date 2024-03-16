@@ -1,25 +1,25 @@
 ---
 # tasks file for lastpass
 - name: Fetch download page
-  get_url:
+  ansible.builtin.get_url:
     url: https://vlycgtx.com/latest#linux
     dest: /tmp/expressvpn.html
 
 - name: "Figure out where the latest ExpressVPN .deb is"
-  shell: cat /tmp/expressvpn.html | sed -rn 's/^.*<option .+ value="(.*)">Ubuntu 64-bit.*$/\1/p'
+  ansible.builtin.shell: cat /tmp/expressvpn.html | sed -rn 's/^.*<option .+ value="(.*)">Ubuntu 64-bit.*$/\1/p'
   register: expressvpn_deb_url
 
 - name: "Fetch latest ExpressVPN Linux install"
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ expressvpn_deb_url.stdout }}"
     dest: /tmp/expressvpn.deb
 
 - name: "Install VPN client"
-  apt:
+  ansible.builtin.apt:
     deb: /tmp/expressvpn.deb
 
 - name: Mark installed
-  file:
+  ansible.builtin.file:
     path: '{{ user_home }}/.experessvpn_is_installed'
     state: touch
 

@@ -1,6 +1,6 @@
 ---
 - name: Remove unneeded packages
-  package:
+  ansible.builtin.package:
     name:
       - thunderbird
     state: absent

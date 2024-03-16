@@ -1,24 +1,24 @@
 ---
 # tasks file for update
 - name: Setup root update script
-  template:
+  ansible.builtin.template:
     src: files/update.j2
     dest: '{{ update_script }}'
     mode: 0755
 
 - name: Add updaters group
-  group:
+  ansible.builtin.group:
     name: updaters
     state: present
 
 - name: Add current user to updaters group
-  user:
+  ansible.builtin.user:
     name: '{{ username }}'
     groups: updaters
     append: yes
 
 - name: Allow updaters group to run update script with appropriate privileges
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/sudoers
     state: present
     regexp: '^%updaters'
@@ -26,7 +26,7 @@
     validate: visudo -cf %s
 
 - name: Setup user update script
-  template:
+  ansible.builtin.template:
     src: files/user_update.j2
     dest: '{{ user_update_script }}'
     mode: 0755

@@ -2,14 +2,14 @@
 - name: pipx install
   become: yes
   become_user: '{{ username }}'
-  shell: |
+  ansible.builtin.shell: |
     . {{ user_profile }}
     pip install --user pipx
 
 - name: pipx update
   become: yes
   become_user: '{{ username }}'
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: '{{ user_update_script }}'
     line: pipx upgrade-all
     

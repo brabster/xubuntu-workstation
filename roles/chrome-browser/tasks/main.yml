@@ -1,9 +1,10 @@
 ---
 # tasks file for chrome-browser
 - name: Check that chrome not already installed
-  stat:
+  ansible.builtin.stat:
     path: '/usr/bin/google-chrome'
   register: chrome
 
-- include: tasks.yml
+- name: Run Playbook
+  ansible.builtin.import_tasks: tasks.yml
   when: not chrome.stat.exists

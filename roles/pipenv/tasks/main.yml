@@ -2,14 +2,14 @@
 - name: pipenv install
   become: yes
   become_user: '{{ username }}'
-  shell: |
+  ansible.builtin.shell: |
     . {{ user_profile }}
     pipx install pipenv
 
 - name: Setup environment
   become: yes
   become_user: '{{ username }}'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_PIPENV'
     block: |
