@@ -1,14 +1,9 @@
 {
-    "AutoFillEnabled": false,
     "PasswordManagerEnabled": false,
     "DefaultBrowserSettingEnabled": false,
     "HttpsOnlyMode": "force_enabled",
     "AdvancedProtectionAllowed": true,
     "DownloadRestrictions": 4,
     "SafeBrowsingProtectionLevel": 2,
-    "DefaultJavaScriptJitSetting": 2,
-    "ExtensionInstallForcelist": [
-        "nngceckbapebfimnlniiiahkandclblb",
-        "aeblfdkhhhdcdjpifhhbdiojplfjncoa"
-    ]
+    "DefaultJavaScriptJitSetting": 2
 }

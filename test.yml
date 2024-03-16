@@ -4,7 +4,7 @@
     - ./.vars.yml
     - ./vars.yml
   roles:
-    - role: ./roles/git
+    - role: ./roles/chrome-browser
 
   
 

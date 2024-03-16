@@ -9,15 +9,5 @@
   ansible.builtin.apt:
     deb: /tmp/google-chrome.deb
 
-- name: Ensures Chrome policy dir exists
-  ansible.builtin.file:
-    path: /etc/opt/chrome/policies/recommended
-    state: directory
-
-- name: Configure Chrome Browser
-  ansible.builtin.copy:
-    src: chrome-prefs.json
-    dest: /etc/opt/chrome/policies/recommended/prefs.json
-
 
 
