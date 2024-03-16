@@ -11,13 +11,13 @@
 
 - name: Ensures Chrome policy dir exists
   file:
-    path: /etc/opt/chrome/policies/managed
+    path: /etc/opt/chrome/policies/recommended
     state: directory
 
 - name: Configure Chrome Browser
   copy:
     src: chrome-prefs.json
-    dest: /etc/opt/chrome/policies/managed/prefs.json
+    dest: /etc/opt/chrome/policies/recommended/prefs.json
 
 
 
