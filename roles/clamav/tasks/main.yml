@@ -10,5 +10,5 @@
   become: yes
   become_user: '{{ username }}'
   lineinfile:
-    path: '{{ user_update_script }}'
-    line: clamscan --version
+    path: '{{ update_script }}'
+    line: freshclam && clamscan --version
