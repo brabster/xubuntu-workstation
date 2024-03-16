@@ -1,6 +1,0 @@
----
-- name: Ensure snapd installed
-  ansible.builtin.package:
-    name:
-      - snapd
- 

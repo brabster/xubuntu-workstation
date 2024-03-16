@@ -1,3 +1,4 @@
 ---
 - name: install VSCode snap
   ansible.builtin.command: snap install code --classic
+  when: in_container is not defined
