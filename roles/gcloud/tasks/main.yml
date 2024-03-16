@@ -1,8 +1,5 @@
 ---
-# tasks file for gcloud
 - name: Install gcloud
-  snap:
-    name: google-cloud-sdk
-    classic: yes
+  ansible.builtin.command: snap install google-cloud-sdk --classic
   when: in_container is not defined
 

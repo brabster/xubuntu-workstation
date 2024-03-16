@@ -1,14 +1,12 @@
 ---
 - name: Install clamav
-  package:
+  ansible.builtin.package:
     name:
       - clamav
       - clamav-daemon
     state: present
 
 - name: Note ClamAV version and sig versions when running updates
-  become: yes
-  become_user: '{{ username }}'
-  lineinfile:
-    path: '{{ user_update_script }}'
-    line: clamscan --version
+  ansible.builtin.lineinfile:
+    path: '{{ update_script }}'
+    line: freshclam && clamscan --version

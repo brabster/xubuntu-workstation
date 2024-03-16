@@ -2,14 +2,14 @@
 - name: Check that pyenv not already installed
   become: yes
   become_user: '{{ username }}'
-  stat:
+  ansible.builtin.stat:
     path: '{{ user_home }}/.pyenv'
   register: pyenv
 
 - name: Fetch installer
   become: yes
   become_user: '{{ username }}'
-  get_url:
+  ansible.builtin.get_url:
     url: https://pyenv.run
     dest: /tmp/pyenv.run
   when: not pyenv.stat.exists
@@ -17,13 +17,13 @@
 - name: Install
   become: yes
   become_user: '{{ username }}'
-  shell: cat /tmp/pyenv.run | bash
+  ansible.builtin.shell: cat /tmp/pyenv.run | bash
   when: not pyenv.stat.exists
 
 - name: Setup shims
   become: yes
   become_user: '{{ username }}'
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_PYENV'
     block: |
@@ -32,7 +32,7 @@
       eval "$(pyenv virtualenv-init -)"
 
 - name: Install python build system dependencies
-  package:
+  ansible.builtin.package:
     name:
       - aria2
       - build-essential
@@ -56,7 +56,7 @@
 - name: Install python 3.11
   become: yes
   become_user: '{{ username }}'
-  shell: |
+  ansible.builtin.shell: |
     . {{ user_profile }}
     pyenv install 3.11
     pyenv global 3.11

@@ -1,10 +1,11 @@
 ---
 # tasks file for lastpass
 - name: Check that expressvpn not already installed
-  stat:
+  ansible.builtin.stat:
     path: '{{ user_home }}/.experessvpn_is_installed'
   register: expressvpn
 
-- include: tasks.yml
+- name: Run Playbook
+  ansible.builtin.import_tasks: tasks.yml
   when: not expressvpn.stat.exists
 

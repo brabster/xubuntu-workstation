@@ -1,11 +1,11 @@
 ---
 # tasks file for firefox
 - name: Ensure policy directory exists
-  file:
+  ansible.builtin.file:
     path: /etc/firefox/policies
     state: directory
 
 - name: Setup default preferences
-  copy:
+  ansible.builtin.copy:
     src: policies.json
     dest: /etc/firefox/policies/policies.json

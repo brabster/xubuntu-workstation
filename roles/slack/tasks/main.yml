@@ -1,6 +1,4 @@
 ---
-# tasks file for slack
 - name: Install Slack
-  snap:
-    name: slack
+  ansible.builtin.command: snap install slack
   when: in_container is not defined

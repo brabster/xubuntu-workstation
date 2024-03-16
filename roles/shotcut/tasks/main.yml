@@ -1,0 +1,4 @@
+---
+- name: Install Shotcut snap
+  ansible.builtin.command: snap install shotcut --classic
+  when: in_container is not defined

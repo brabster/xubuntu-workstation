@@ -1,26 +1,26 @@
 ---
 # tasks file for lastpass
-- name: "Fetch latest LastPass Linux install"
-  get_url:
+- name: Fetch latest LastPass Linux install
+  ansible.builtin.get_url:
     url: https://download.cloud.lastpass.com/linux/lplinux.tar.bz2
     dest: /tmp/lplinux.tar.bz2
 
 - name: Create LastPass extract dir
-  file:
+  ansible.builtin.file:
     path: /tmp/lplinux
     state: directory
 
 - name: Decompress LastPass archive
-  unarchive:
+  ansible.builtin.unarchive:
     src: /tmp/lplinux.tar.bz2
     dest: /tmp/lplinux
 
 - name: Install LastPass plugins
-  command: ./install_lastpass.sh
+  ansible.builtin.command: ./install_lastpass.sh
   args:
     chdir: /tmp/lplinux
 
 - name: Mark installed
-  file:
+  ansible.builtin.file:
     path: '{{ user_home }}/.lastpass_is_installed'
     state: touch

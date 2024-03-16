@@ -1,7 +1,7 @@
 ---
 # tasks file for dev
 - name: Configure file watchers for IDEs, build tooling
-  sysctl:
+  ansible.builtin.sysctl:
     name: fs.inotify.max_user_watches
     value: '528288'
     state: present
@@ -9,7 +9,7 @@
 - name: Create SSH dir
   become: yes
   become_user: '{{ username }}'
-  file:
+  ansible.builtin.file:
     path: "{{ user_home }}/.ssh"
     state: directory
     mode: '0700'
@@ -17,12 +17,12 @@
 - name: Generate SSH key
   become: yes
   become_user: '{{ username }}'
-  openssh_keypair:
+  ansible.builtin.openssh_keypair:
     path: "{{ user_home }}/.ssh/id_ssh"
     type: ed25519
 
 - name: Install general cli tools
-  package:
+  ansible.builtin.package:
     name:
       - jq
       - httpie

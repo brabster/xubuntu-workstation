@@ -3,7 +3,7 @@
 - name: Create ~/bin directory
   become: yes
   become_user: '{{ username }}'
-  file:
+  ansible.builtin.file:
     path: '{{ user_home }}/.local/bin'
     state: directory
     mode: '0755'
