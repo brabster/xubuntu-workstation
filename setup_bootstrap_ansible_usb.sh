@@ -28,10 +28,13 @@ echo "Mounting new partition"
 MOUNT_DIR=$(mktemp -d)
 mount -t auto -v "${USB_PARTITION}" "${MOUNT_DIR}"
 
-for src_file in roles .vars.yml bootstrap.sh README.md workstation.yml vars.yml; do
+echo "Copying bootstrap files"
+for src_file in roles .vars.yml bootstrap.sh README.md workstation.yml video-editor.yml vars.yml; do
     cp -r "${SCRIPT_DIR}"/${src_file} "${MOUNT_DIR}"
 done
 sync
+
+echo "All done, ejecting"
 umount "${USB_PARTITION}"
 eject "${USB_PARTITION}"
 rm -rf "${MOUNT_DIR}"
