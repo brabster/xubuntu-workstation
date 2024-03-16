@@ -6,6 +6,7 @@
     - ./vars.yml
   roles:
   - role: ./roles/sudo
+  - role: ./roles/snapd
   - role: ./roles/cleanup
   - role: ./roles/updates
   - role: ./roles/vscode
