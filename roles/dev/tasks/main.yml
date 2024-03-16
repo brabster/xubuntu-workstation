@@ -29,4 +29,5 @@
       - htop
       - curl
       - file-roller
+      - galculator
     state: present
