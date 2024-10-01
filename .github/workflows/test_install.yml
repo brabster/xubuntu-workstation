@@ -42,5 +42,8 @@ jobs:
           alias
           git config --list
           python --version
-          clamscan --version
+          ! pip install jsonschema # should not work because no venv
+
+          clamscan --versionecho 
+
           

@@ -27,6 +27,7 @@
     path: '{{ user_profile }}'
     marker: '# {mark} ANSIBLE_PYENV'
     block: |
+      #export PIP_REQUIRE_VIRTUALENV=true
       export PATH="{{ user_home }}/.pyenv/shims:{{ user_home }}/.pyenv/bin:$PATH"
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
