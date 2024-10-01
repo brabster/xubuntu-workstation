@@ -16,8 +16,6 @@
   - role: ./roles/gcloud
   - role: ./roles/expressvpn
   - role: ./roles/pyenv
-  - role: ./roles/pipx
-  - role: ./roles/pipenv
   - role: ./roles/git
   - role: ./roles/clamav
   - role: ./roles/xfce
