@@ -3,5 +3,6 @@
   ansible.builtin.package:
     name:
       - thunderbird
+      - cups
     state: absent
 

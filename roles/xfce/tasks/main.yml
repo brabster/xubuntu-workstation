@@ -4,3 +4,10 @@
     name:
       - xfconf
     state: present
+
+- name: Prepare directory for Thunar shortcut
+  ansible.builtin.file:
+    path: '{{ user_home }}/.config/Thunar'
+    state: directory
+    mode: '0755'
+    owner: '{{ username }}'
