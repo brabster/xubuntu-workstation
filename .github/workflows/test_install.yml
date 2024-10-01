@@ -38,9 +38,9 @@ jobs:
       - name: check
         shell: bash -l {0}
         run: |
-          su - tester
-          alias
-          git config --list
-          python --version
-          clamscan --version
+          su - tester -c "alias"
+          su - tester -c "git config --list"
+          su - tester -c "python --version"
+          su - tester -c "! pip install jsonschema # should not work because no venv"
+          su - tester -c "clamscan --version"
           
