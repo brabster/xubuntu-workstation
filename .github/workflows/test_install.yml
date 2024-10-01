@@ -39,6 +39,7 @@ jobs:
         shell: bash -l {0}
         run: |
           su - tester
+          source ~/.profile
           alias
           git config --list
           python --version
