@@ -2,7 +2,7 @@
 # tasks file for lastpass
 - name: Fetch download page
   ansible.builtin.get_url:
-    url: https://vlycgtx.com/latest#linux
+    url: https://www.expressvpn.com/latest#linux
     dest: /tmp/expressvpn.html
 
 - name: "Figure out where the latest ExpressVPN .deb is"
