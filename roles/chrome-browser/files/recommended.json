@@ -5,5 +5,8 @@
     "AdvancedProtectionAllowed": true,
     "DownloadRestrictions": 4,
     "SafeBrowsingProtectionLevel": 2,
-    "DefaultJavaScriptJitSetting": 2
+    "DefaultJavaScriptJitSetting": 2,
+    "JavaScriptJitAllowedForSites": [
+        "[*.]github.dev"
+    ]
 }

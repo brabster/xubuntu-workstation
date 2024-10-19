@@ -1,6 +1,6 @@
 Single-user Xubuntu setup: repeatable and demonstrable software installs and configuration.
 
-**Target OS: Xubuntu 22.04 LTS** (see OS version in [GitHub actions](.github/workflows/test_install.yml))
+**Target OS: Xubuntu latest LTS and rolling** (see OS version in [GitHub actions](.github/workflows/test_install.yml))
 
 ## Support
 
