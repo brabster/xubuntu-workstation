@@ -8,6 +8,7 @@
     "DefaultJavaScriptJitSetting": 2,
     "JavaScriptJitAllowedForSites": [
         "[*.]github.dev",
+        "[*.]1password.com",
         "[*.]1password.eu"
     ]
 }
