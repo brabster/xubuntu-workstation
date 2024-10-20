@@ -10,10 +10,3 @@
   ansible.builtin.lineinfile:
     path: '{{ update_script }}'
     line: freshclam && clamscan --version
-
-- name: Install Thunar shortcut
-  ansible.builtin.copy:
-    src: files/thunar_custom_actions.xml
-    dest: '{{ user_home }}/.config/Thunar/uca.xml'
-    mode: 0600
-    owner: '{{ username }}'
