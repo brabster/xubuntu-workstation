@@ -11,3 +11,9 @@
     state: directory
     mode: '0755'
     owner: '{{ username }}'
+
+- name: Disable media automounting
+  ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-media/enabled -t 'bool' -s 'false'
+
+- name: Disable drives automounting
+  ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-drives/enabled -t 'bool' -s 'false'
