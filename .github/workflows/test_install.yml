@@ -43,4 +43,5 @@ jobs:
           su - tester -c "python --version"
           su - tester -c "! pip install jsonschema # should not work because no venv"
           su - tester -c "clamscan --version"
+          su - tester -c ""
           
