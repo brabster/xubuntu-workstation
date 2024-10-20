@@ -24,7 +24,6 @@
 
 - name: Disable system docker
   ansible.builtin.shell: systemctl disable --now docker.service docker.socket
-  when: in_container is not defined
 
 - name: Find user UID
   ansible.builtin.command: 'id -u {{ username }}'
@@ -45,7 +44,6 @@
   ansible.builtin.shell: |
     dockerd-rootless-setuptool.sh install
     systemctl --user enable docker
-  when: in_container is not defined
 
 - name: Set environment variables
   become: yes

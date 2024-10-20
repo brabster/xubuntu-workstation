@@ -34,7 +34,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
-          ansible-playbook -e in_container=true -i inventory workstation.yml 
+          ansible-playbook -i inventory workstation.yml 
       - name: check
         shell: bash -l {0}
         run: |

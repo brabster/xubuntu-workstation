@@ -18,10 +18,10 @@
   - role: ./roles/pyenv
   - role: ./roles/git
   - role: ./roles/clamav
+
   - role: ./roles/xfce
-    when: in_container is not defined # needs X11
+    when: not CI  # needs X11
+
   - role: ./roles/docker-rootless
-    when: in_container is not defined # already running in a container
-  
-  
+    when: not CI # already running in a container
   
