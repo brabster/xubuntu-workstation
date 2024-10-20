@@ -7,6 +7,7 @@
     "SafeBrowsingProtectionLevel": 2,
     "DefaultJavaScriptJitSetting": 2,
     "JavaScriptJitAllowedForSites": [
-        "[*.]github.dev"
+        "[*.]github.dev",
+        "[*.]1password.eu"
     ]
 }
