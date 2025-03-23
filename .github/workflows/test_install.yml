@@ -61,13 +61,13 @@ jobs:
         # snapd depends on systemd and can't easily be run in a container
         # but snaps have never caused any problems so not concerned about lack of smoke testing
         run: |
-          apt-get update
-          apt-get -y install git ansible sudo bzip2
+          sudo apt-get update
+          sudo apt-get -y install git ansible sudo bzip2
       - name: setup user
         run: |
-          adduser --disabled-password --quiet --gecos '' tester
-          su - tester -c id
-          su - tester -c "mkdir -p /home/tester/Downloads"
+          sudo adduser --disabled-password --quiet --gecos '' tester
+          sudo su - tester -c id
+          sudo su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
         uses: actions/checkout@v4
       - name: setup
@@ -78,13 +78,13 @@ jobs:
       - name: check
         shell: bash -l {0}
         run: |
-          su - tester -c "alias"
-          su - tester -c "git config --list"
-          su - tester -c "python --version"
-          su - tester -c "! pip install jsonschema # should not work because no venv"
-          su - tester -c "clamscan --version"
-          su - tester -c "! systemctl is-enabled cups"
-          su - tester -c "sudo systemctl start cups"
-          su - tester -c "sudo systemctl stop cups"
-          su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
+          sudo su - tester -c "alias"
+          sudo su - tester -c "git config --list"
+          sudo su - tester -c "python --version"
+          sudo su - tester -c "! pip install jsonschema # should not work because no venv"
+          sudo su - tester -c "clamscan --version"
+          sudo su - tester -c "! systemctl is-enabled cups"
+          sudo su - tester -c "sudo systemctl start cups"
+          sudo su - tester -c "sudo systemctl stop cups"
+          sudo su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
           
