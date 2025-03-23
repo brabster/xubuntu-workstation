@@ -1,0 +1,5 @@
+---
+# tasks file for nordvpn
+- name: Install nordvpn
+  ansible.builtin.command: snap install nordvpn
+  when: in_container is not defined
