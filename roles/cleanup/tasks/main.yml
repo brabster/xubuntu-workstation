@@ -16,6 +16,7 @@
     name: cups
     state: stopped
     enabled: false
+  when: in_container is not defined
 
 - name: Add cups_users group
   ansible.builtin.group:
