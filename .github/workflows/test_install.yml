@@ -21,10 +21,11 @@ jobs:
         run: |
           cat /etc/lsb-release
       - name: update and install pre-reqs
+        # snapd depends on systemd and can't easily be run in a container
+        # but snaps have never caused any problems so not concerned about lack of smoke testing
         run: |
           apt-get update
-          apt-get -y install git ansible sudo bzip2 snapd
-          systemctl enable --now snapd
+          apt-get -y install git ansible sudo bzip2
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester

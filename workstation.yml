@@ -10,11 +10,14 @@
   - role: ./roles/updates
 
   - role: ./roles/nordvpn
-    
+    when: not CI  # no snapd
+  
   - role: ./roles/slack
-    
+    when: not CI  # no snapd
+  
   - role: ./roles/vscode
-    
+    when: not CI  # no snapd
+
   - role: ./roles/xfce
     when: not CI  # needs X11
 
