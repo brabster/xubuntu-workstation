@@ -1,6 +1,7 @@
 name: test_install
 on:
   push: {}
+  workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"
 jobs:
@@ -20,6 +21,8 @@ jobs:
         run: |
           cat /etc/lsb-release
       - name: update and install pre-reqs
+        # snapd depends on systemd and can't easily be run in a container
+        # but snaps have never caused any problems so not concerned about lack of smoke testing
         run: |
           apt-get update
           apt-get -y install git ansible sudo bzip2
@@ -43,5 +46,7 @@ jobs:
           su - tester -c "python --version"
           su - tester -c "! pip install jsonschema # should not work because no venv"
           su - tester -c "clamscan --version"
-          su - tester -c ""
-          
+          # su - tester -c "! systemctl is-enabled cups"
+          # su - tester -c "sudo systemctl start cups"
+          # su - tester -c "sudo systemctl stop cups"
+          # su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop

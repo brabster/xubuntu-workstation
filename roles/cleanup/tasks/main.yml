@@ -3,7 +3,36 @@
   ansible.builtin.package:
     name:
       - thunderbird
-      - cups
+      - blueman
+      - bluez-utils
+      - bluez
+      - bluetooth
     state: absent
     update_cache: true
     autoremove: true
+
+- name: Disable rarely-needed packages
+  ansible.builtin.service:
+    name: cups
+    state: stopped
+    enabled: false
+  when: CI is not defined
+
+- name: Add cups_users group
+  ansible.builtin.group:
+    name: cups_users
+    state: present
+
+- name: Add current user to cups_users group
+  ansible.builtin.user:
+    name: '{{ username }}'
+    groups: cups_users
+    append: yes
+
+- name: Allow cups_users group to start cupsd with appropriate privileges
+  ansible.builtin.lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%cups_users'
+    line: '%cups_users {{ ansible_hostname }}=/usr/bin/systemctl start cups, /usr/bin/systemctl stop cups'
+    validate: visudo -cf %s

@@ -8,26 +8,20 @@
   - role: ./roles/sudo
   - role: ./roles/cleanup
   - role: ./roles/updates
+
+  - role: ./roles/nordvpn
+    when: not CI  # no snapd
   
   - role: ./roles/slack
     when: not CI  # no snapd
-    
-  - role: ./roles/gcloud
-    when: not CI  # no snapd
-
+  
   - role: ./roles/vscode
     when: not CI  # no snapd
 
   - role: ./roles/xfce
     when: not CI  # needs X11
 
-  - role: ./roles/docker-rootless
-    when: not CI # already running in a container
-  
   - role: ./roles/dev
-  - role: ./roles/firefox
   - role: ./roles/chrome-browser
-  - role: ./roles/expressvpn
-  - role: ./roles/pyenv
   - role: ./roles/git
   - role: ./roles/clamav
