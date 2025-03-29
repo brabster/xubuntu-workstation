@@ -8,7 +8,6 @@
   - role: ./roles/sudo
   - role: ./roles/cleanup
   - role: ./roles/updates
-  - role: ./roles/clipboard
 
   - role: ./roles/nordvpn
     when: not CI  # no snapd
