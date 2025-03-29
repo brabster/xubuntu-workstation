@@ -27,5 +27,7 @@
   - role: ./roles/git
   - role: ./roles/clamav
   - role: ./roles/cups
+    when: not CI  # no systemctl in container
   - role: ./roles/clipboard
+    when: not CI  # no crontab in container
   

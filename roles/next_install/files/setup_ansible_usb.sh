@@ -12,16 +12,15 @@ if ! lsblk --filter 'TRAN == "usb"' -o PATH | grep "${USB_DEVICE}"; then
     exit 1
 fi
 
+echo "Unmounting all mounts on ${USB_DEVICE}"
+lsblk --noheadings --output MOUNTPOINTS ${USB_DEVICE} | xargs -r umount -f
+ 
 echo "Wiping ${USB_DEVICE} MBR"
 dd if=/dev/zero of=${USB_DEVICE} bs=512 count=10
 
 echo "Partitioning ${USB_DEVICE}"
 
-parted -l
-
 parted --script "${USB_DEVICE}" mklabel gpt mkpart primary 0% 100%
-
-parted -l
 
 USB_PARTITION=${USB_DEVICE}1
 
@@ -42,7 +41,3 @@ echo "All done, ejecting"
 umount "${USB_PARTITION}"
 eject "${USB_PARTITION}"
 rm -rf "${MOUNT_DIR}"
-
-
-
-
