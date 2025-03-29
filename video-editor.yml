@@ -1,6 +1,0 @@
----
-- hosts: localhost
-  become_method: sudo
-  roles:
-  - role: ./roles/obs
-  - role: ./roles/shotcut

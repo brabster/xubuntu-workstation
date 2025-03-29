@@ -1,4 +1,3 @@
 ---
 - name: Install Slack
   ansible.builtin.command: snap install slack
-  when: in_container is not defined
