@@ -10,4 +10,4 @@ sudo sh -c 'apt-get -y update && apt-get -y upgrade && apt-get -y install git an
 echo "=== Running playbook"
 ansible-playbook -i inventory workstation.yml
 
-echo "=== Log out and in again, no need to reboot."
+echo "=== Log out and in again, them run test.sh. No need to reboot."

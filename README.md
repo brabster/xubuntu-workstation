@@ -20,19 +20,19 @@ You are welcome to raise issues and submit pull requests but **I reserve the abs
 
 Most convenient way to do this is to create a bootable USB for the xubuntu distro, and a separate non-bootable USB from this repo. Minimal Xubuntu distro expected.
 
+The [next_install role](./roles/next_install) places these scripts in a non-user modifiable directory and grants sudo rights to execute them. Some safety checks are in place but user takes responsibility for any data loss that may occur.
+
 ### Setup Distro USB
 
-- requires root permissions to write the USB device
 - wipes any existing USB content
-- run [setup_linux_usb.sh](./setup_linux_usb.sh)
+- run [sudo setup_linux_usb.sh iso_image_path target_usb_device](./roles/next_install/files/setup_linux_usb.sh)
 
 ### Create Bootstrap USB
 
-- requires root permissions to write the USB device
 - wipes any existing USB content
 - use [vars_example.yml](./vars_example.yml) to create a file .vars.yml with appropriate settings
 - [optional] - edit workstation.yml to one-off customise install
-- run [setup_ansible_usb.sh](./setup_ansible_usb.sh)
+- run [sudo setup_ansible_usb.sh repo_root_dir target_usb_device](./roles/next_install/files/setup_ansible_usb.sh)
 
 ### Install Xubuntu
 
