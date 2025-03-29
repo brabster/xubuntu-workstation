@@ -7,7 +7,7 @@ echo "Usage: 'PROJECT_ROOT USB_DEVICE', example '~/projects/xubuntu-workstation 
 PROJECT_ROOT=$1
 USB_DEVICE=$2
 
-if ! $(lsblk --filter 'TRAN == "usb"' -o PATH | grep "${USB_DEVICE}"); then
+if ! lsblk --filter 'TRAN == "usb"' -o PATH | grep "${USB_DEVICE}"; then
     echo "${USB_DEVICE} does not appear to be a USB device. Aborting, disable this check and run again to proceed anyway"
     exit 1
 fi
