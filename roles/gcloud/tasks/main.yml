@@ -1,4 +1,0 @@
----
-- name: Install gcloud
-  ansible.builtin.command: snap install google-cloud-sdk --classic
-

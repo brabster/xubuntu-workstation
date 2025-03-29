@@ -1,3 +1,0 @@
----
-- name: Install Shotcut snap
-  ansible.builtin.command: snap install shotcut --classic

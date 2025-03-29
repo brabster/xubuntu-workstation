@@ -1,0 +1,12 @@
+---
+- name: Install xsel
+  ansible.builtin.package:
+    name:
+      - xsel
+    state: present
+
+- name: Clear the clipboard every 60 seconds
+  ansible.builtin.cron:
+    name: clear_clipboard
+    user: '{{ username }}'
+    job: 'xsel -c > /dev/null 2>&1'

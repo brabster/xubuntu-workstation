@@ -24,7 +24,7 @@ Most convenient way to do this is to create a bootable USB for the xubuntu distr
 
 - requires root permissions to write the USB device
 - wipes any existing USB content
-- run [setup_bootable_linux_usb.sh](./setup_bootable_linux_usb.sh)
+- run [setup_linux_usb.sh](./setup_linux_usb.sh)
 
 ### Create Bootstrap USB
 
@@ -32,7 +32,7 @@ Most convenient way to do this is to create a bootable USB for the xubuntu distr
 - wipes any existing USB content
 - use [vars_example.yml](./vars_example.yml) to create a file .vars.yml with appropriate settings
 - [optional] - edit workstation.yml to one-off customise install
-- run [setup_bootstrap_ansible_usb.sh](./setup_bootstrap_ansible_usb.sh)
+- run [setup_ansible_usb.sh](./setup_ansible_usb.sh)
 
 ### Install Xubuntu
 
@@ -56,24 +56,33 @@ Most convenient way to do this is to create a bootable USB for the xubuntu distr
 - ensure connected to network for updates and installs
 - `./bootstrap.sh`
 
+### Smoke test
+
+Numerous setup options cannot be checked in GitHub actions, as the VM is locked down, the container does not run systemd and the whole thing is headless. The build mainly checks that the Ansible playbook executes successfully and very basic things are working.
+
+A test script is provided to run on the target machine after installation as the normal user account.
 
 ## Security
 
 ### OS install:
 - minimal install (minimise unneeded packages)
 - encrypt HDD (optionally same password as user account)
+- remove any packages that I know I don't need
+- disable any services that I rarely need, add service-specific start/stop via sudoers
 
 ### Playbook
 - [sudo](roles/sudo) remove sudo timeout - you need to put your password in each time
-- [sudo](roles/sudo) restrict sudo commands to only applying updates
+- [sudo](roles/sudo) restrict sudo commands to essential tasks
+    - applying updates,
+    - preparing installation media for the next update
+    - temporarily starting and stopping rarely-needed services
+- [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
 - [updates](roles/updates)
-    - update all known supply chains, incl. OS, firmware, snap, pip
+    - update all known supply chains, incl. OS, firmware, snap, pip, clamav
     - apply system-level updates as root
     - su to user to apply user updates
 - [firefox](roles/firefox), [chrome](roles/chrome-browser) apply security settings by policy
-- [expressvpn](roles/expressvpn) install VPN
-- [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
 
 ## Testing
 
-[GitHub actions](.github/workflows) runs playbook on a container of the same OS as target. Tasks requiring a graphical target or container management not easily exercised this way.
+[GitHub actions](.github/workflows) runs playbook on a container of the same OS as target. Tasks requiring a graphical target or systemd interaction (snap, systemctl) cannot be tested in a container.

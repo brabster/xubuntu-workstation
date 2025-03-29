@@ -2,11 +2,15 @@
 
 set -euo pipefail
 
-echo "Usage: 'USB_DEVICE'"
-echo "Example: '/dev/sda'"
+echo "Usage: 'PROJECT_ROOT USB_DEVICE', example '~/projects/xubuntu-workstation /dev/sda'"
 
-USB_DEVICE=$1
-SCRIPT_DIR=$(dirname "$0")
+PROJECT_ROOT=$1
+USB_DEVICE=$2
+
+if ! $(lsblk --filter 'TRAN == "usb"' -o PATH | grep "${USB_DEVICE}"); then
+    echo "${USB_DEVICE} does not appear to be a USB device. Aborting, disable this check and run again to proceed anyway"
+    exit 1
+fi
 
 echo "Wiping ${USB_DEVICE} MBR"
 dd if=/dev/zero of=${USB_DEVICE} bs=512 count=10
@@ -29,8 +33,8 @@ MOUNT_DIR=$(mktemp -d)
 mount -t auto -v "${USB_PARTITION}" "${MOUNT_DIR}"
 
 echo "Copying bootstrap files"
-for src_file in roles .vars.yml bootstrap.sh README.md workstation.yml video-editor.yml vars.yml; do
-    cp -r "${SCRIPT_DIR}"/${src_file} "${MOUNT_DIR}"
+for src_file in roles bootstrap.sh test.sh README.md workstation.yml vars.yml .vars.yml; do
+    cp -r "${PROJECT_ROOT}"/${src_file} "${MOUNT_DIR}"
 done
 sync
 

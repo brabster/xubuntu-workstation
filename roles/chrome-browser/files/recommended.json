@@ -4,11 +4,5 @@
     "HttpsOnlyMode": "force_enabled",
     "AdvancedProtectionAllowed": true,
     "DownloadRestrictions": 4,
-    "SafeBrowsingProtectionLevel": 2,
-    "DefaultJavaScriptJitSetting": 2,
-    "JavaScriptJitAllowedForSites": [
-        "[*.]github.dev",
-        "[*.]1password.com",
-        "[*.]1password.eu"
-    ]
+    "SafeBrowsingProtectionLevel": 2
 }
