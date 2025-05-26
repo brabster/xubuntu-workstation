@@ -1,0 +1,6 @@
+- name: restart resolved
+  become: yes
+  when: not is_gh_actions
+  systemd:
+    name: systemd-resolved
+    state: restarted

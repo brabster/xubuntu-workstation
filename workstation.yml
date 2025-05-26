@@ -5,6 +5,7 @@
     - ./.vars.yml
     - ./vars.yml
   roles:
+  - role: ./roles/networking
   - role: ./roles/sudo
   - role: ./roles/cleanup
   - role: ./roles/updates
