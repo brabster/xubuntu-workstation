@@ -4,7 +4,7 @@
     name: cups
     state: stopped
     enabled: false
-  when: not CI
+  when: not is_gh_actions
 
 - name: Add cups_users group
   ansible.builtin.group:
