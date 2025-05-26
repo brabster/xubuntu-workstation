@@ -1,3 +1,12 @@
+- name: Ensure /etc/systemd/resolved.conf.d exists
+  become: yes
+  file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Configure Cloudflare for Families DNS
   become: yes
   copy:
@@ -6,4 +15,5 @@
       [Resolve]
       DNS=1.1.1.3 1.0.0.3 2606:4700:4700::1113 2606:4700:4700::1003
       DNSStubListener=yes
+      DNSOverTLS=yes
   notify: restart resolved
