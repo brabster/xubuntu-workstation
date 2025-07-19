@@ -32,12 +32,4 @@
   ansible.builtin.service:
     name: clamav-daemon
     state: started
-    enabled: yes
-
-- name: Tune kernel parameters for file watching
-  become: yes
-  ansible.builtin.sysctl:
-    name: fs.inotify.max_user_watches
-    value: '1048576'
-    state: present
-    reload: yes
+    enabled: true

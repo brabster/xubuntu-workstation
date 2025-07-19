@@ -6,10 +6,10 @@ LocalSocketGroup clamav
 LocalSocketMode 666
 User clamav
 
-ScanOnAccess yes
+ScanOnAccess true
 OnAccessIncludePath {{ user_dir }}/Downloads
-OnAccessPrevention {{ clamav_on_access_prevention | default('yes') }}
-OnAccessExtraScanning yes
+OnAccessPrevention {{ clamav_on_access_prevention | default('true') }}
+OnAccessExtraScanning true
 
 # Action to take when a virus is found.
 VirusEvent /usr/local/bin/clamav-quarantine.sh "%f"
