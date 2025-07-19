@@ -51,6 +51,8 @@ done
 
 log "ERROR: Timed out waiting for EICAR file to be quarantined."
 log "Dumping ClamAV logs for debugging..."
+ls -lart /home/tester/Downloads/
+ls -lart /var/lib/clamav/quarantine
 tail -n 50 /var/log/clamav/clamav.log || true
 tail -n 50 /var/log/clamav/clamonacc.log || true
 exit 1

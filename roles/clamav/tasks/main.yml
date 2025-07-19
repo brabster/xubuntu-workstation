@@ -25,6 +25,14 @@
     cmd: freshclam
   changed_when: false
 
+- name: Create a global quarantine directory
+  ansible.builtin.file:
+    path: /var/lib/clamav/quarantine
+    state: directory
+    owner: clamav
+    group: clamav
+    mode: '0755'
+
 - name: Copy quarantine script
   ansible.builtin.copy:
     src: clamav-quarantine.sh
