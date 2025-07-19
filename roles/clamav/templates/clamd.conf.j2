@@ -7,7 +7,7 @@ LocalSocketMode 666
 User clamav
 
 ScanOnAccess yes
-OnAccessIncludePath {{ ansible_user_dir }}/Downloads
+OnAccessIncludePath {{ user_dir }}/Downloads
 OnAccessPrevention {{ clamav_on_access_prevention | default('yes') }}
 OnAccessExtraScanning yes
 
