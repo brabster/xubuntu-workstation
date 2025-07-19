@@ -41,7 +41,8 @@
     enabled: true
   when: lookup('env', 'CI') != 'true'
 
-## In CI
+# --- CI Specific Service Start ---
+
 - name: Add clamav user to the tester group
   ansible.builtin.user:
     name: clamav
@@ -58,18 +59,14 @@
     mode: '0755'
   when: lookup('env', 'CI') == 'true'
 
-- name: Capture clamd startup output (Temporary Debug Task)
+- name: Start the clamd scanning daemon (for CI)
   become: true
-  ansible.builtin.command:
-    cmd: clamd --foreground
-  register: clamd_debug_output
-  failed_when: false
+  ansible.builtin.shell:
+    # Run in the foreground to prevent zombie processes, and use '&' to
+    # background it from the shell so the playbook can continue.
+    cmd: clamd --foreground &
   when: lookup('env', 'CI') == 'true'
-
-- name: Display clamd startup output
-  ansible.builtin.debug:
-    var: clamd_debug_output
-  when: lookup('env', 'CI') == 'true'
+  changed_when: false
 
 - name: Wait for the clamd socket to become available (for CI)
   ansible.builtin.wait_for:
