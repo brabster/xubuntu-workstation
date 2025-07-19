@@ -4,13 +4,11 @@ set -euo pipefail
 
 # --- Configuration (CI Environment) ---
 TARGET_USER="tester"
-TARGET_HOME="/home/${TARGET_USER}"
-DOWNLOADS_DIR="${TARGET_HOME}/Downloads"
+DOWNLOADS_DIR="/home/${TARGET_USER}/Downloads"
 QUARANTINE_DIR="${DOWNLOADS_DIR}/.quarantine"
 
 EICAR_STRING='X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 EICAR_TEST_FILE="eicar_test_file.txt"
-EICAR_SOURCE_PATH="/tmp/${EICAR_TEST_FILE}"
 EICAR_DEST_PATH="${DOWNLOADS_DIR}/${EICAR_TEST_FILE}"
 QUARANTINED_FILE_PATH="${QUARANTINE_DIR}/${EICAR_TEST_FILE}"
 
@@ -27,19 +25,13 @@ log() {
 # Define a cleanup function to run on exit
 cleanup() {
   log "Cleaning up..."
-  rm -f "${EICAR_SOURCE_PATH}"
   # Use runuser to clean up files owned by the target user
   runuser -l "${TARGET_USER}" -c "rm -f '${EICAR_DEST_PATH}' '${QUARANTINED_FILE_PATH}'" &>/dev/null || true
 }
 trap cleanup EXIT
 
-log "Creating EICAR test file at ${EICAR_SOURCE_PATH} as user ${TARGET_USER}..."
-runuser -l "${TARGET_USER}" -c "echo '${EICAR_STRING}' > '${EICAR_SOURCE_PATH}'"
-
-# The user and Downloads dir are created in the GitHub Action workflow, so no need to check here.
-
-log "Moving test file to ${EICAR_DEST_PATH} as user ${TARGET_USER} to trigger scan..."
-runuser -l "${TARGET_USER}" -c "mv '${EICAR_SOURCE_PATH}' '${EICAR_DEST_PATH}'"
+log "Creating EICAR test file directly in ${EICAR_DEST_PATH} as user ${TARGET_USER} to trigger scan..."
+runuser -l "${TARGET_USER}" -c "echo '${EICAR_STRING}' > '${EICAR_DEST_PATH}'"
 
 log "Polling for quarantined file at ${QUARANTINED_FILE_PATH} (timeout: ${POLL_TIMEOUT_SECONDS}s)..."
 SECONDS=0
@@ -59,5 +51,6 @@ done
 
 log "ERROR: Timed out waiting for EICAR file to be quarantined."
 log "Dumping ClamAV logs for debugging..."
-journalctl -u clamav-daemon --no-pager -n 50 || tail -n 50 /var/log/clamav/clamav.log
+tail -n 50 /var/log/clamav/clamav.log || true
+tail -n 50 /var/log/clamav/clamonacc.log || true
 exit 1
