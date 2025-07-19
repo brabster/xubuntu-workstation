@@ -20,6 +20,11 @@
     mode: '0644'
   notify: Restart clamav-daemon
 
+- name: Update virus definitions before first start
+  ansible.builtin.command:
+    cmd: freshclam
+  changed_when: false
+
 - name: Copy quarantine script
   ansible.builtin.copy:
     src: clamav-quarantine.sh
@@ -33,6 +38,7 @@
     name: clamav
     groups: tester
     append: true
+  when: lookup('env', 'CI') == 'true'
 
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
@@ -41,21 +47,17 @@
     enabled: true
   when: lookup('env', 'CI') != 'true'
 
-# - name: Start clamav-daemon process manually (in CI environment)
-#   ansible.builtin.command:
-#     cmd: /etc/init.d/clamav-daemon start
-#   when: lookup('env', 'CI') == 'true'
-#   changed_when: false # This command doesn't report changes idempotently
-
-- name: Check permissions of the ClamAV log directory (for CI)
-  ansible.builtin.command:
-    cmd: ls -ld /var/log/clamav/
+- name: Create clamav runtime directory for PID file (for CI)
+  ansible.builtin.file:
+    path: /run/clamav
+    state: directory
+    owner: clamav
+    group: clamav
+    mode: '0755'
   when: lookup('env', 'CI') == 'true'
-  changed_when: false
-  failed_when: false # Don't fail, just show output
 
-- name: Run clamav-daemon in debug mode to see startup errors (for CI)
+- name: Start clamav-daemon process manually (in CI environment)
   ansible.builtin.command:
-    cmd: /usr/sbin/clamd --debug --foreground
+    cmd: /etc/init.d/clamav-daemon start
   when: lookup('env', 'CI') == 'true'
   changed_when: false
