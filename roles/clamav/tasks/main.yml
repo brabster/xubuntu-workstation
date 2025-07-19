@@ -41,6 +41,12 @@
     group: root
     mode: '0755'
 
+- name: Allow clamav user to run mv for quarantine via sudo
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    line: 'clamav ALL=(ALL) NOPASSWD: /bin/mv'
+    validate: 'visudo -cf %s'
+
 ## Real environment
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
