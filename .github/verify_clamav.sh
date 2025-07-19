@@ -5,7 +5,7 @@ set -euo pipefail
 # --- Configuration (CI Environment) ---
 TARGET_USER="tester"
 DOWNLOADS_DIR="/home/${TARGET_USER}/Downloads"
-QUARANTINE_DIR="${DOWNLOADS_DIR}/.quarantine"
+QUARANTINE_DIR="/var/lib/clamav/quarantine"
 
 EICAR_STRING='X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 EICAR_TEST_FILE="eicar_test_file.txt"
@@ -50,9 +50,11 @@ while [[ $SECONDS -lt $POLL_TIMEOUT_SECONDS ]]; do
 done
 
 log "ERROR: Timed out waiting for EICAR file to be quarantined."
-log "Dumping ClamAV logs for debugging..."
+log "Content of Downloads directory..."
 ls -lart /home/tester/Downloads/
+log "Content of Quarantine directory..."
 ls -lart /var/lib/clamav/quarantine
+log "Dumping ClamAV logs for debugging..."
 tail -n 50 /var/log/clamav/clamav.log || true
 tail -n 50 /var/log/clamav/clamonacc.log || true
 exit 1
