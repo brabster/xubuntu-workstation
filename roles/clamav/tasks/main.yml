@@ -69,6 +69,7 @@
   when: lookup('env', 'CI') == 'true'
 
 - name: Start the clamonacc file-watching process (for CI)
+  become: true
   ansible.builtin.command:
     # Start it in the background
     cmd: clamonacc &
