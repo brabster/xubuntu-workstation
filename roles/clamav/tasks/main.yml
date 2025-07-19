@@ -62,6 +62,19 @@
   when: lookup('env', 'CI') == 'true'
   changed_when: false
 
+- name: Wait for the clamd socket to become available (for CI)
+  ansible.builtin.wait_for:
+    path: /run/clamav/clamd.ctl
+    timeout: 10
+  when: lookup('env', 'CI') == 'true'
+
+- name: Start the clamonacc file-watching process (for CI)
+  ansible.builtin.command:
+    # Start it in the background
+    cmd: clamonacc &
+  when: lookup('env', 'CI') == 'true'
+  changed_when: false
+
 # - name: Run clamd in debug mode to see startup errors (for CI)
 #   ansible.builtin.command:
 #     cmd: /usr/sbin/clamd --debug --foreground

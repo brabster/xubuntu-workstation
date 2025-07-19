@@ -56,18 +56,16 @@ jobs:
       - name: Verify ClamAV On-Access Scanning
         run: |
           # --- DIAGNOSTICS ---
-          echo "--- 1. Checking clamav-daemon service status ---"
-          systemctl status clamav-daemon --no-pager || echo "systemctl status failed"
+          echo "--- 1. Checking for running ClamAV processes ---"
+          ps aux | grep -E '[c]lamd|[c]lamonacc' || echo "No clamd or clamonacc process found."
 
-          echo "--- 2. Checking for AppArmor denials in syslog ---"
-          sudo grep DENIED /var/log/syslog || echo "No AppArmor DENIED messages found in syslog."
+          echo "--- 2. Checking for clamd socket file ---"
+          ls -l /run/clamav/clamd.ctl || echo "Socket file not found."
 
-          echo "--- 3. Waiting for ClamAV engine to initialize ---"
-          # Give the daemon time to load the virus signature database, which can be slow.
-          sleep 20
-
-          echo "--- 4. Checking status again after delay ---"
-          systemctl status clamav-daemon --no-pager || echo "systemctl status failed"
+          echo "--- 3. Displaying clamd log ---"
+          # Give the logs a moment to populate if needed
+          sleep 2
+          tail -n 100 /var/log/clamav/clamav.log || echo "clamd.log not found or is empty."
 
           echo "--- 5. Running verification script ---"
           chmod +x .github/verify_clamav.sh
