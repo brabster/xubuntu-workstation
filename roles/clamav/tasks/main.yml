@@ -41,8 +41,21 @@
     enabled: true
   when: lookup('env', 'CI') != 'true'
 
-- name: Start clamav-daemon process manually (in CI environment)
+# - name: Start clamav-daemon process manually (in CI environment)
+#   ansible.builtin.command:
+#     cmd: /etc/init.d/clamav-daemon start
+#   when: lookup('env', 'CI') == 'true'
+#   changed_when: false # This command doesn't report changes idempotently
+
+- name: Check permissions of the ClamAV log directory (for CI)
   ansible.builtin.command:
-    cmd: /etc/init.d/clamav-daemon start
+    cmd: ls -ld /var/log/clamav/
   when: lookup('env', 'CI') == 'true'
-  changed_when: false # This command doesn't report changes idempotently
+  changed_when: false
+  failed_when: false # Don't fail, just show output
+
+- name: Run clamav-daemon in debug mode to see startup errors (for CI)
+  ansible.builtin.command:
+    cmd: /usr/sbin/clamav-daemon --debug
+  when: lookup('env', 'CI') == 'true'
+  changed_when: false
