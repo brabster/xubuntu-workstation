@@ -28,6 +28,12 @@
     group: root
     mode: '0755'
 
+- name: Add clamav user to the tester group
+  ansible.builtin.user:
+    name: clamav
+    groups: tester
+    append: true
+
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
     name: clamav-daemon
