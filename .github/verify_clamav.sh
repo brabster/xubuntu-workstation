@@ -50,10 +50,12 @@ while [[ $SECONDS -lt $POLL_TIMEOUT_SECONDS ]]; do
 done
 
 log "ERROR: Timed out waiting for EICAR file to be quarantined."
-log "Content of Downloads directory..."
+log "Content of downloads directory..."
 ls -lart "${DOWNLOADS_DIR}"
-log "Content of Quarantine directory..."
+log "Content of quarantine directory..."
 ls -lart "${QUARANTINE_DIR}"
+log "Dumping quarantine events log..."
+cat /var/log/clamav/quarantine_events.log
 log "Dumping ClamAV logs for debugging..."
 tail -n 50 /var/log/clamav/clamav.log || true
 tail -n 50 /var/log/clamav/clamonacc.log || true
