@@ -58,14 +58,18 @@
     mode: '0755'
   when: lookup('env', 'CI') == 'true'
 
-- name: Start the clamd scanning daemon directly (for CI)
-  # Run clamd in foreground mode to prevent the daemonization that creates a zombie,
-  # and use the shell's '&' to background the process so the playbook can continue.
+- name: Capture clamd startup output (Temporary Debug Task)
   become: true
-  ansible.builtin.shell:
-    cmd: clamd --foreground &
+  ansible.builtin.command:
+    cmd: clamd --foreground
+  register: clamd_debug_output
+  failed_when: false
   when: lookup('env', 'CI') == 'true'
-  changed_when: false
+
+- name: Display clamd startup output
+  ansible.builtin.debug:
+    var: clamd_debug_output
+  when: lookup('env', 'CI') == 'true'
 
 - name: Wait for the clamd socket to become available (for CI)
   ansible.builtin.wait_for:
