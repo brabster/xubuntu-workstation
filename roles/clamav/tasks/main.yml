@@ -39,3 +39,9 @@
     name: clamav-daemon
     state: started
     enabled: true
+
+- name: Start clamav-daemon process manually (in CI environment)
+  ansible.builtin.command:
+    cmd: /etc/init.d/clamav-daemon start
+  when: lookup('env', 'CI') == 'true'
+  changed_when: false # This command doesn't report changes idempotently
