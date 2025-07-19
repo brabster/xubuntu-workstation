@@ -10,3 +10,34 @@
   ansible.builtin.lineinfile:
     path: '{{ update_script }}'
     line: freshclam && clamscan --version
+
+- name: Configure clamav daemon
+  ansible.builtin.template:
+    src: clamd.conf.j2
+    dest: /etc/clamav/clamd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart clamav-daemon
+
+- name: Copy quarantine script
+  ansible.builtin.copy:
+    src: clamav-quarantine.sh
+    dest: /usr/local/bin/clamav-quarantine.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure clamav-daemon is running and enabled
+  ansible.builtin.service:
+    name: clamav-daemon
+    state: started
+    enabled: yes
+
+- name: Tune kernel parameters for file watching
+  become: yes
+  ansible.builtin.sysctl:
+    name: fs.inotify.max_user_watches
+    value: '1048576'
+    state: present
+    reload: yes

@@ -1,0 +1,15 @@
+LogFile /var/log/clamav/clamav.log
+PidFile /run/clamav/clamd.pid
+LocalSocket /var/run/clamav/clamd.ctl
+FixStaleSocket true
+LocalSocketGroup clamav
+LocalSocketMode 666
+User clamav
+
+ScanOnAccess yes
+OnAccessIncludePath {{ ansible_user_dir }}/Downloads
+OnAccessPrevention yes
+OnAccessExtraScanning yes
+
+# Action to take when a virus is found.
+VirusEvent /usr/local/bin/clamav-quarantine.sh "%f"

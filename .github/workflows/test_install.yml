@@ -53,3 +53,7 @@ jobs:
           # su - tester -c "sudo systemctl start cups"
           # su - tester -c "sudo systemctl stop cups"
           # su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
+      - name: Verify ClamAV On-Access Scanning
+        run: |
+          chmod +x .github/verify_clamav.sh
+          .github/verify_clamav.sh
