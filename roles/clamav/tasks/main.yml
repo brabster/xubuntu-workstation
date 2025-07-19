@@ -33,19 +33,21 @@
     group: root
     mode: '0755'
 
-- name: Add clamav user to the tester group
-  ansible.builtin.user:
-    name: clamav
-    groups: tester
-    append: true
-  when: lookup('env', 'CI') == 'true'
-
+## Real environment
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
     name: clamav-daemon
     state: started
     enabled: true
   when: lookup('env', 'CI') != 'true'
+
+## In CI
+- name: Add clamav user to the tester group
+  ansible.builtin.user:
+    name: clamav
+    groups: tester
+    append: true
+  when: lookup('env', 'CI') == 'true'
 
 - name: Create clamav runtime directory for PID file (for CI)
   ansible.builtin.file:
@@ -56,9 +58,11 @@
     mode: '0755'
   when: lookup('env', 'CI') == 'true'
 
-- name: Start clamav-daemon process manually (in CI environment)
+- name: Start the clamd scanning daemon directly (for CI)
+  # Run clamd directly to bypass the unreliable init script.
+  # It will read the config and daemonize (background) itself.
   ansible.builtin.command:
-    cmd: /etc/init.d/clamav-daemon start
+    cmd: clamd
   when: lookup('env', 'CI') == 'true'
   changed_when: false
 
@@ -68,16 +72,10 @@
     timeout: 10
   when: lookup('env', 'CI') == 'true'
 
-- name: Start the clamonacc file-watching process (for CI)
+- name: Start clamonacc with logging (for CI)
   become: true
   ansible.builtin.command:
-    # Start it in the background
-    cmd: clamonacc &
+    # Start in the background and tell it to create a log file.
+    cmd: clamonacc --log=/var/log/clamav/clamonacc.log &
   when: lookup('env', 'CI') == 'true'
   changed_when: false
-
-# - name: Run clamd in debug mode to see startup errors (for CI)
-#   ansible.builtin.command:
-#     cmd: /usr/sbin/clamd --debug --foreground
-#   when: lookup('env', 'CI') == 'true'
-#   changed_when: false
