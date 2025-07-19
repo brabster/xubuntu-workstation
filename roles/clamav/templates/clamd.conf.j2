@@ -7,7 +7,7 @@ LocalSocketMode 666
 User clamav
 
 ScanOnAccess true
-OnAccessIncludePath {{ user_dir }}/Downloads
+OnAccessIncludePath {{ user_home }}/Downloads
 OnAccessPrevention {{ clamav_on_access_prevention | default('true') }}
 OnAccessExtraScanning true
 
