@@ -60,13 +60,12 @@ jobs:
           echo "--- 1. Checking for running ClamAV processes ---"
           ps aux | grep -E '[c]lamd|[c]lamonacc' || echo "No clamd or clamonacc process found."
 
-          echo "--- 2. Checking for clamd socket file ---"
-          ls -l /run/clamav/clamd.ctl || echo "Socket file not found."
-
-          echo "--- 3. Displaying clamd log ---"
-          # Give the logs a moment to populate if needed
-          sleep 2
+          echo "--- 2. Displaying clamd log ---"
           tail -n 100 /var/log/clamav/clamav.log || echo "clamd.log not found or is empty."
+
+          echo "--- 3. Displaying clamonacc log ---" # <-- THIS IS THE CRITICAL STEP
+          sleep 2
+          tail -n 100 /var/log/clamav/clamonacc.log || echo "clamonacc.log not found or is empty."
 
           echo "--- 5. Running verification script ---"
           chmod +x .github/verify_clamav.sh
