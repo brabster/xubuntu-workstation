@@ -56,14 +56,14 @@
     mode: '0755'
   when: lookup('env', 'CI') == 'true'
 
-# - name: Start clamav-daemon process manually (in CI environment)
-#   ansible.builtin.command:
-#     cmd: /etc/init.d/clamav-daemon start
-#   when: lookup('env', 'CI') == 'true'
-#   changed_when: false
-
-- name: Run clamd in debug mode to see startup errors (for CI)
+- name: Start clamav-daemon process manually (in CI environment)
   ansible.builtin.command:
-    cmd: /usr/sbin/clamd --debug --foreground
+    cmd: /etc/init.d/clamav-daemon start
   when: lookup('env', 'CI') == 'true'
   changed_when: false
+
+# - name: Run clamd in debug mode to see startup errors (for CI)
+#   ansible.builtin.command:
+#     cmd: /usr/sbin/clamd --debug --foreground
+#   when: lookup('env', 'CI') == 'true'
+#   changed_when: false
