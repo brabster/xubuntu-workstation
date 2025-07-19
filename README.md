@@ -10,6 +10,8 @@ This repository is for my own use and shared to inform and accelerate others.
 I have placed it under the MIT licence for simplicity and permissiveness.
 You are welcome to raise issues and submit pull requests but **I reserve the absolute right to refuse as I see fit**.
 
+See [CHANGELOG.md](./CHANGELOG.md) for summaries of changes and reasons.
+
 ## Supporting Materials
 
 - [Show and Tell Video](https://www.youtube.com/watch?v=CyuGg4F850g)
