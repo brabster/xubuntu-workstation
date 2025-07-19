@@ -59,25 +59,26 @@
     mode: '0755'
   when: lookup('env', 'CI') == 'true'
 
-- name: Start the clamd scanning daemon (for CI)
+- name: Start the clamd scanning daemon asynchronously (for CI)
   become: true
-  ansible.builtin.shell:
-    # Run in the foreground to prevent zombie processes, and use '&' to
-    # background it from the shell so the playbook can continue.
-    cmd: clamd --foreground &
+  ansible.builtin.command:
+    # We no longer need the shell '&' operator
+    cmd: clamd --foreground
+  async: 45 # Run for up to 45 seconds in the background
+  poll: 0   # Fire and forget: don't wait for the task to complete
   when: lookup('env', 'CI') == 'true'
-  changed_when: false
 
 - name: Wait for the clamd socket to become available (for CI)
   ansible.builtin.wait_for:
     path: /run/clamav/clamd.ctl
-    timeout: 10
+    # Give it a moment to start, as async is not instantaneous
+    delay: 5
+    timeout: 15
   when: lookup('env', 'CI') == 'true'
 
 - name: Start clamonacc with logging (for CI)
   become: true
   ansible.builtin.command:
-    # Start in the background and tell it to create a log file.
     cmd: clamonacc --log=/var/log/clamav/clamonacc.log &
   when: lookup('env', 'CI') == 'true'
   changed_when: false
