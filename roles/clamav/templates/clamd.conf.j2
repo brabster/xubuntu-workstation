@@ -13,4 +13,4 @@ OnAccessPrevention {{ clamav_on_access_prevention | default('yes') }}
 OnAccessExtraScanning yes
 
 # Action to take when a virus is found.
-VirusEvent /usr/local/bin/clamav-quarantine.sh "%f" "/var/lib/clamav/quarantine" >> /var/log/clamav/quarantine_events.log 2>&1
+VirusEvent /usr/local/bin/clamav-quarantine.sh >> /var/log/clamav/quarantine_events.log 2>&1
