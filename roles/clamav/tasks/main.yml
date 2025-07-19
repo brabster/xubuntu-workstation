@@ -59,10 +59,10 @@
   when: lookup('env', 'CI') == 'true'
 
 - name: Start the clamd scanning daemon directly (for CI)
-  # Run clamd directly to bypass the unreliable init script.
-  # It will read the config and daemonize (background) itself.
-  ansible.builtin.command:
-    cmd: clamd
+  # Run clamd in foreground mode to prevent the daemonization that creates a zombie,
+  # and use the shell's '&' to background the process so the playbook can continue.
+  ansible.builtin.shell:
+    cmd: clamd --foreground &
   when: lookup('env', 'CI') == 'true'
   changed_when: false
 
