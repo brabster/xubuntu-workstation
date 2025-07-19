@@ -56,6 +56,6 @@
 
 - name: Run clamav-daemon in debug mode to see startup errors (for CI)
   ansible.builtin.command:
-    cmd: cmd: /usr/sbin/clamd --debug --foreground
+    cmd: /usr/sbin/clamd --debug --foreground
   when: lookup('env', 'CI') == 'true'
   changed_when: false
