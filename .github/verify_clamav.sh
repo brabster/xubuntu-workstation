@@ -33,8 +33,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-log "Creating EICAR test file at ${EICAR_SOURCE_PATH}..."
-echo "${EICAR_STRING}" > "${EICAR_SOURCE_PATH}"
+log "Creating EICAR test file at ${EICAR_SOURCE_PATH} as user ${TARGET_USER}..."
+runuser -l "${TARGET_USER}" -c "echo '${EICAR_STRING}' > '${EICAR_SOURCE_PATH}'"
 
 # The user and Downloads dir are created in the GitHub Action workflow, so no need to check here.
 
