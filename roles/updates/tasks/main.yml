@@ -22,7 +22,7 @@
     dest: /etc/sudoers
     state: present
     regexp: '^%updaters'
-    line: '%updaters {{ ansible_hostname }}={{ update_script }}'
+    line: '%updaters {{ ansible_hostname }}=NOPASSWD: {{ update_script }}'
     validate: visudo -cf %s
 
 - name: Setup user update script
