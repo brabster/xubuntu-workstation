@@ -18,7 +18,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify: restart clamav-daemon
+  notify: Restart clamav-daemon
 
 - name: Copy quarantine script
   ansible.builtin.copy:
