@@ -6,11 +6,6 @@
       - clamav-daemon
     state: present
 
-- name: Note ClamAV version and sig versions when running updates
-  ansible.builtin.lineinfile:
-    path: '{{ update_script }}'
-    line: freshclam && clamscan --version
-
 - name: Configure clamav daemon
   ansible.builtin.template:
     src: clamd.conf.j2
@@ -33,13 +28,26 @@
     group: clamav
     mode: '0755'
 
-- name: Copy quarantine script
+- name: Deploy quarantine script
   ansible.builtin.copy:
     src: clamav-quarantine.sh
     dest: /usr/local/bin/clamav-quarantine.sh
     owner: root
     group: root
     mode: '0755'
+
+- name: Deploy ClamAV health check script
+  ansible.builtin.copy:
+    src: clamav-verify.sh
+    dest: /usr/local/bin/clamav-verify.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Update signatures and verify on-access scanning is operational
+  ansible.builtin.lineinfile:
+    path: '{{ update_script }}'
+    line: /usr/local/bin/clamav-verify.sh && freshclam && clamscan --version
 
 ## Real environment service management
 - name: Ensure clamav-daemon is running and enabled
@@ -65,7 +73,6 @@
     state: started
     enabled: true
   when: lookup('env', 'CI') != 'true'
-
 
 # --- CI Specific Service Start ---
 
