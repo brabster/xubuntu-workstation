@@ -1,4 +1,16 @@
 ---
+- name: Install general cli tools
+  ansible.builtin.package:
+    name:
+      - jq
+      - httpie
+      - htop
+      - curl
+      - file-roller
+      - galculator
+      - openssh-client
+    state: present
+
 - name: Create SSH dir
   become: true
   become_user: '{{ username }}'
@@ -19,13 +31,3 @@
     cmd: ssh_keygen -t ed25519 -f ~/.ssh/id_ssh
   changed_when: false
 
-- name: Install general cli tools
-  ansible.builtin.package:
-    name:
-      - jq
-      - httpie
-      - htop
-      - curl
-      - file-roller
-      - galculator
-    state: present
