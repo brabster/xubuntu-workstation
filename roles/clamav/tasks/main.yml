@@ -49,6 +49,23 @@
     enabled: true
   when: lookup('env', 'CI') != 'true'
 
+- name: Install systemd service for clamonacc
+  become: true
+  ansible.builtin.template:
+    src: clamonacc.service.j2
+    dest: /etc/systemd/system/clamonacc.service
+    mode: '0644'
+  notify: Reload systemd and restart clamonacc
+  when: lookup('env', 'CI') != 'true'
+
+- name: Ensure clamonacc service is running and enabled
+  become: true
+  ansible.builtin.service:
+    name: clamonacc
+    state: started
+    enabled: true
+  when: lookup('env', 'CI') != 'true'
+
 
 # --- CI Specific Service Start ---
 
@@ -71,7 +88,6 @@
 - name: Start the clamd scanning daemon asynchronously (for CI)
   become: true
   ansible.builtin.command:
-    # We no longer need the shell '&' operator
     cmd: clamd --foreground
   async: 45 # Run for up to 45 seconds in the background
   poll: 0   # Fire and forget: don't wait for the task to complete
