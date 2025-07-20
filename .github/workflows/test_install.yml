@@ -39,34 +39,22 @@ jobs:
           cd $GITHUB_WORKSPACE
           cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
           ansible-playbook -i inventory workstation.yml 
-      # - name: check
-      #   shell: bash -l {0}
-      #   run: |
-      #     su - tester -c "alias"
-      #     su - tester -c "git config --list"
-      #     su - tester -c "python --version"
-      #     su - tester -c "! pip install jsonschema # should not work because no venv"
-      #     su - tester -c "clamscan --version"
-      #     echo "Checking passwordless sudo for update script..."
-      #     su - tester -c "sudo update"
-      #     su - tester -c "! sudo ls /root"
-      #     # su - tester -c "! systemctl is-enabled cups"
-      #     # su - tester -c "sudo systemctl start cups"
-      #     # su - tester -c "sudo systemctl stop cups"
-      #     # su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
+      - name: check
+        shell: bash -l {0}
+        run: |
+          su - tester -c "alias"
+          su - tester -c "git config --list"
+          su - tester -c "python --version"
+          su - tester -c "! pip install jsonschema # should not work because no venv"
+          su - tester -c "clamscan --version"
+          echo "Checking passwordless sudo for update script..."
+          su - tester -c "sudo update"
+          su - tester -c "! sudo ls /root"
+          # su - tester -c "! systemctl is-enabled cups"
+          # su - tester -c "sudo systemctl start cups"
+          # su - tester -c "sudo systemctl stop cups"
+          # su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
       - name: Verify ClamAV On-Access Scanning
         run: |
-          # --- DIAGNOSTICS ---
-          echo "--- 1. Checking for running ClamAV processes ---"
-          ps aux | grep -E '[c]lamd|[c]lamonacc' || echo "No clamd or clamonacc process found."
-
-          echo "--- 2. Displaying clamd log ---"
-          tail -n 100 /var/log/clamav/clamav.log || echo "clamd.log not found or is empty."
-
-          echo "--- 3. Displaying clamonacc log ---" # <-- THIS IS THE CRITICAL STEP
-          sleep 2
-          tail -n 100 /var/log/clamav/clamonacc.log || echo "clamonacc.log not found or is empty."
-
-          echo "--- 5. Running verification script ---"
           chmod +x .github/verify_clamav.sh
           .github/verify_clamav.sh
