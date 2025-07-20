@@ -24,11 +24,6 @@ echo "Downloads complete."
 echo ""
 
 echo "Verifying the GPG signature of ${SUMS_FILE}..."
-if ! gpg --verify "${SIG_FILE}" "${SUMS_FILE}" >/dev/null 2>&1; then
-    echo "   GPG keys not found. Attempting to fetch official Ubuntu keys..."
-    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 0x46181433FBB75451 0xD94AA3F0EFE21092 >/dev/null
-fi
-
 echo "   A 'Good signature' message confirms the checksum file is authentic."
 echo "   A 'key is not certified' warning is normal and can be safely ignored."
 gpg --verify "${SIG_FILE}" "${SUMS_FILE}"

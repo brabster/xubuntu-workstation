@@ -1,4 +1,16 @@
 ---
+- name: Ensure Ubuntu keyring is installed to verify ISO image
+  ansible.builtin.package:
+    name:
+      - ubuntu-keyring
+    state: present
+
+- name: copy ISO download and verify script to unmodifiable location
+  ansible.builtin.copy:
+    src: files/download_verified_iso.sh
+    dest: /usr/local/bin/download_verified_iso.sh
+    mode: 0755
+
 - name: copy media ISO script to unmodifiable location
   ansible.builtin.copy:
     src: files/setup_linux_usb.sh
