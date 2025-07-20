@@ -14,6 +14,8 @@
 
 - name: Disable media automounting
   ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-media/enabled -t 'bool' -s 'false'
+  changed_when: false
 
 - name: Disable drives automounting
   ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-drives/enabled -t 'bool' -s 'false'
+  changed_when: false

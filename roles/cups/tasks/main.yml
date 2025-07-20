@@ -15,7 +15,7 @@
   ansible.builtin.user:
     name: '{{ username }}'
     groups: cups_users
-    append: yes
+    append: true
 
 - name: Allow cups_users group to start cupsd with appropriate privileges
   ansible.builtin.lineinfile:

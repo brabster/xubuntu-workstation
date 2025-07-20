@@ -1,33 +1,29 @@
 ---
-- hosts: localhost
-  become_method: sudo
+- name: Workstation setup
+  hosts: localhost
+  become: true
+  become_method: ansible.builtin.sudo
   vars_files:
     - ./.vars.yml
     - ./vars.yml
   roles:
-  - role: ./roles/networking
-  - role: ./roles/sudo
-  - role: ./roles/cleanup
-  - role: ./roles/updates
-  - role: ./roles/dev
-  - role: ./roles/chrome-browser
-  - role: ./roles/git
-  - role: ./roles/clamav
-
-  - role: ./roles/nordvpn
-    when: not is_gh_actions  # no snapd
-  
-  - role: ./roles/slack
-    when: not is_gh_actions  # no snapd
-  
-  - role: ./roles/vscode
-    when: not is_gh_actions  # no snapd
-
-  - role: ./roles/xfce
-    when: not is_gh_actions  # needs X11
-
-  - role: ./roles/cups
-    when: not is_gh_actions  # no systemctl in container
-
-  - role: ./roles/clipboard
-    when: not is_gh_actions  # no crontab in container
+    - role: networking
+    - role: sudo
+    - role: cleanup
+    - role: updates
+    - role: dev
+    - role: chrome-browser
+    - role: git
+    - role: clamav
+    - role: nordvpn
+      when: not is_gh_actions
+    - role: slack
+      when: not is_gh_actions
+    - role: vscode
+      when: not is_gh_actions
+    - role: xfce
+      when: not is_gh_actions
+    - role: cups
+      when: not is_gh_actions
+    - role: clipboard
+      when: not is_gh_actions

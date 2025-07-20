@@ -2,3 +2,4 @@
 # tasks file for nordvpn
 - name: Install nordvpn
   ansible.builtin.command: snap install nordvpn
+  changed_when: false
