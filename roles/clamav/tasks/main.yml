@@ -44,10 +44,10 @@
     group: root
     mode: '0755'
 
-- name: Update signatures and verify on-access scanning is operational
+- name: Verify on-access scanning is operational
   ansible.builtin.lineinfile:
     path: '{{ update_script }}'
-    line: /usr/local/bin/clamav-verify.sh {{ username }} && freshclam && clamscan --version
+    line: /usr/local/bin/clamav-verify.sh {{ username }}
 
 ## Real environment service management
 - name: Ensure clamav-daemon is running and enabled
