@@ -41,25 +41,14 @@
     group: root
     mode: '0755'
 
-- name: Create dedicated sudoers file for clamav quarantine
-  ansible.builtin.copy:
-    dest: /etc/sudoers.d/99-clamav-quarantine
-    content: |
-      # Allow clamav user to run mv without a TTY for quarantining files.
-      Defaults:clamav !requiretty
-      clamav ALL=(ALL) NOPASSWD: /bin/mv
-    mode: '0440'
-    owner: root
-    group: root
-    validate: 'visudo -cf %s'
-
-## Real environment
+## Real environment service management
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
     name: clamav-daemon
     state: started
     enabled: true
   when: lookup('env', 'CI') != 'true'
+
 
 # --- CI Specific Service Start ---
 
