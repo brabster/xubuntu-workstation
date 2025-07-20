@@ -9,6 +9,10 @@
   - role: ./roles/sudo
   - role: ./roles/cleanup
   - role: ./roles/updates
+  - role: ./roles/dev
+  - role: ./roles/chrome-browser
+  - role: ./roles/git
+  - role: ./roles/clamav
 
   - role: ./roles/nordvpn
     when: not is_gh_actions  # no snapd
@@ -22,12 +26,8 @@
   - role: ./roles/xfce
     when: not is_gh_actions  # needs X11
 
-  - role: ./roles/dev
-  - role: ./roles/chrome-browser
-  - role: ./roles/git
-  - role: ./roles/clamav
   - role: ./roles/cups
     when: not is_gh_actions  # no systemctl in container
+
   - role: ./roles/clipboard
     when: not is_gh_actions  # no crontab in container
-  

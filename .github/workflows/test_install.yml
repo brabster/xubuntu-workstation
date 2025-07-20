@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
+      options: --cap-add SYS_ADMIN
       env:
         DEBIAN_FRONTEND: noninteractive
     steps:
@@ -53,3 +54,5 @@ jobs:
           # su - tester -c "sudo systemctl start cups"
           # su - tester -c "sudo systemctl stop cups"
           # su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
+      - name: Verify ClamAV On-Access Scanning
+        run: clamav-verify.sh tester

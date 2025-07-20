@@ -6,7 +6,111 @@
       - clamav-daemon
     state: present
 
-- name: Note ClamAV version and sig versions when running updates
+- name: Configure clamav daemon
+  ansible.builtin.template:
+    src: clamd.conf.j2
+    dest: /etc/clamav/clamd.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart clamav-daemon
+
+- name: Update virus definitions before first start
+  ansible.builtin.command:
+    cmd: freshclam
+  changed_when: false
+
+- name: Create a global quarantine directory
+  ansible.builtin.file:
+    path: /var/lib/clamav/quarantine
+    state: directory
+    owner: clamav
+    group: clamav
+    mode: '0755'
+
+- name: Deploy quarantine script
+  ansible.builtin.copy:
+    src: clamav-quarantine.sh
+    dest: /usr/local/bin/clamav-quarantine.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy ClamAV health check script
+  ansible.builtin.copy:
+    src: clamav-verify.sh
+    dest: /usr/local/bin/clamav-verify.sh
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Update signatures and verify on-access scanning is operational
   ansible.builtin.lineinfile:
     path: '{{ update_script }}'
-    line: freshclam && clamscan --version
+    line: /usr/local/bin/clamav-verify.sh {{ username }} && freshclam && clamscan --version
+
+## Real environment service management
+- name: Ensure clamav-daemon is running and enabled
+  ansible.builtin.service:
+    name: clamav-daemon
+    state: started
+    enabled: true
+  when: lookup('env', 'CI') != 'true'
+
+- name: Install systemd service for clamonacc
+  become: true
+  ansible.builtin.template:
+    src: clamonacc.service.j2
+    dest: /etc/systemd/system/clamonacc.service
+    mode: '0644'
+  notify: Reload systemd and restart clamonacc
+  when: lookup('env', 'CI') != 'true'
+
+- name: Ensure clamonacc service is running and enabled
+  become: true
+  ansible.builtin.service:
+    name: clamonacc
+    state: started
+    enabled: true
+  when: lookup('env', 'CI') != 'true'
+
+# --- CI Specific Service Start ---
+
+- name: Add clamav user to the tester group
+  ansible.builtin.user:
+    name: clamav
+    groups: tester
+    append: true
+  when: lookup('env', 'CI') == 'true'
+
+- name: Create clamav runtime directory for PID file (for CI)
+  ansible.builtin.file:
+    path: /run/clamav
+    state: directory
+    owner: clamav
+    group: clamav
+    mode: '0755'
+  when: lookup('env', 'CI') == 'true'
+
+- name: Start the clamd scanning daemon asynchronously (for CI)
+  become: true
+  ansible.builtin.command:
+    cmd: clamd --foreground
+  async: 45 # Run for up to 45 seconds in the background
+  poll: 0   # Fire and forget: don't wait for the task to complete
+  when: lookup('env', 'CI') == 'true'
+
+- name: Wait for the clamd socket to become available (for CI)
+  ansible.builtin.wait_for:
+    path: /run/clamav/clamd.ctl
+    # Give it a moment to start, as async is not instantaneous
+    delay: 5
+    timeout: 15
+  when: lookup('env', 'CI') == 'true'
+
+- name: Start clamonacc with logging (for CI)
+  become: true
+  ansible.builtin.command:
+    cmd: clamonacc --log=/var/log/clamav/clamonacc.log &
+  when: lookup('env', 'CI') == 'true'
+  changed_when: false

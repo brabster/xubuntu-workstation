@@ -1,0 +1,19 @@
+---
+- name: Restart clamav-daemon (systemd)
+  ansible.builtin.service:
+    name: clamav-daemon
+    state: restarted
+  when: lookup('env', 'CI') != 'true'
+  listen: "Restart clamav-daemon"
+
+- name: Reload systemd and restart clamonacc
+  ansible.builtin.systemd:
+    daemon_reload: true
+  when: lookup('env', 'CI') != 'true'
+  notify: Restart clamonacc service
+
+- name: Restart clamonacc service
+  ansible.builtin.service:
+    name: clamonacc
+    state: restarted
+  when: lookup('env', 'CI') != 'true'

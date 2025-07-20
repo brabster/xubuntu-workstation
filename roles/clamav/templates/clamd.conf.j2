@@ -1,0 +1,16 @@
+LogFile /var/log/clamav/clamav.log
+PidFile /run/clamav/clamd.pid
+LocalSocket /run/clamav/clamd.ctl
+FixStaleSocket true
+LocalSocketGroup clamav
+LocalSocketMode 666
+User clamav
+
+OnAccessExcludeRootUID yes
+OnAccessExcludeUname clamav
+OnAccessIncludePath {{ user_home }}/Downloads
+OnAccessPrevention {{ clamav_on_access_prevention | default('yes') }}
+OnAccessExtraScanning yes
+
+# Action to take when a virus is found.
+VirusEvent /usr/local/bin/clamav-quarantine.sh >> /var/log/clamav/quarantine_events.log 2>&1

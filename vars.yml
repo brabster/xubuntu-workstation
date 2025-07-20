@@ -8,4 +8,4 @@ user_bashrc: '{{ user_home }}/.bashrc'
 user_profile: '{{ user_home }}/.profile'
 update_script: /usr/local/bin/update
 user_update_script: '{{ user_home }}/.local/bin/update'
-is_gh_actions: '{{ lookup("ansible.builtin.env", "CI", default="World") }}'
+is_gh_actions: '{{ lookup("ansible.builtin.env", "CI", default="true") }}'
