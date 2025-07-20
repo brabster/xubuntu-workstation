@@ -4,7 +4,7 @@
   ansible.builtin.template:
     src: files/update.j2
     dest: '{{ update_script }}'
-    mode: 0755
+    mode: '0755'
 
 - name: Add updaters group
   ansible.builtin.group:
@@ -15,7 +15,7 @@
   ansible.builtin.user:
     name: '{{ username }}'
     groups: updaters
-    append: yes
+    append: true
 
 - name: Allow updaters group to run update script with appropriate privileges
   ansible.builtin.lineinfile:
@@ -29,5 +29,5 @@
   ansible.builtin.template:
     src: files/user_update.j2
     dest: '{{ user_update_script }}'
-    mode: 0755
+    mode: '0755'
     owner: '{{ username }}'

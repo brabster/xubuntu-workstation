@@ -1,3 +1,4 @@
 ---
-- name: install VSCode snap
+- name: Install VSCode snap
   ansible.builtin.command: snap install code --classic
+  changed_when: false

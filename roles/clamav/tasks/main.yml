@@ -44,10 +44,10 @@
     group: root
     mode: '0755'
 
-- name: Update signatures and verify on-access scanning is operational
+- name: Verify on-access scanning is operational
   ansible.builtin.lineinfile:
     path: '{{ update_script }}'
-    line: /usr/local/bin/clamav-verify.sh {{ username }} && freshclam && clamscan --version
+    line: /usr/local/bin/clamav-verify.sh {{ username }}
 
 ## Real environment service management
 - name: Ensure clamav-daemon is running and enabled
@@ -99,6 +99,7 @@
   async: 45 # Run for up to 45 seconds in the background
   poll: 0   # Fire and forget: don't wait for the task to complete
   when: lookup('env', 'CI') == 'true'
+  changed_when: false
 
 - name: Wait for the clamd socket to become available (for CI)
   ansible.builtin.wait_for:

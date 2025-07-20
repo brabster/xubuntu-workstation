@@ -1,10 +1,11 @@
 ---
 - name: Setup git username and email
-  become: yes
+  become: true
   become_user: '{{ username }}'
   ansible.builtin.template:
     src: files/.gitconfig.j2
     dest: '{{ user_home }}/.gitconfig'
+    mode: '0644'
 
 - name: Enable cli completion
   ansible.builtin.blockinfile:
@@ -14,7 +15,7 @@
       source /usr/share/bash-completion/completions/git
 
 - name: Setup bash aliases
-  become: yes
+  become: true
   become_user: '{{ username }}'
   ansible.builtin.blockinfile:
     path: '{{ user_bashrc }}'

@@ -13,19 +13,22 @@
   ansible.builtin.file:
     path: /etc/opt/chrome/policies/recommended
     state: directory
+    mode: '0755'
 
 - name: Configure Recommended Policies
   ansible.builtin.copy:
     src: recommended.json
     dest: /etc/opt/chrome/policies/recommended/prefs.json
+    mode: '0644'
 
 - name: Ensures Chrome policy dir exists
   ansible.builtin.file:
     path: /etc/opt/chrome/policies/managed
     state: directory
+    mode: '0755'
 
 - name: Configure Recommended Policies
   ansible.builtin.copy:
     src: managed.json
     dest: /etc/opt/chrome/policies/managed/prefs.json
-
+    mode: '0644'
