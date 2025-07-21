@@ -45,7 +45,6 @@
     line: /usr/local/bin/clamav-verify.sh {{ username }}
 
 - name: Grant clamav traversal access to the user's home directory
-  become: true
   ansible.posix.acl:
     path: "/home/{{ username }}"
     entity: clamav
@@ -55,7 +54,6 @@
   when: lookup('env', 'CI') != 'true'
 
 - name: Grant clamav rwx access to the user's Downloads directory
-  become: true
   ansible.posix.acl:
     path: "/home/{{ username }}/Downloads"
     entity: clamav
@@ -65,7 +63,6 @@
   when: lookup('env', 'CI') != 'true'
 
 - name: Grant clamav access to delete (quarantine) files in the Downloads directory
-  become: true
   ansible.posix.acl:
     path: "/home/{{ username }}/Downloads/"
     entity: clamav
@@ -76,6 +73,25 @@
   when: lookup('env', 'CI') != 'true'
 
 ## Real environment service management
+
+# TODO refactor to put the overrides in /etc/apparmor.d/local/usr.sbin.clamd
+- name: Add AppArmor rule to allow quarantine from home directories
+  ansible.builtin.blockinfile:
+    path: /etc/apparmor.d/usr.sbin.clamd
+    block: |
+      # Allow clamd to read/write the Downloads directory and the files within it
+      /home/*/Downloads/ rwk,
+      /home/*/Downloads/* rwk,
+      # Allow clamd to execute the quarantine script
+      /usr/bin/dash ix,
+      /usr/bin/touch ix,
+      /usr/local/bin/clamav-quarantine.sh rix,
+      /usr/bin/mv ix,
+    insertafter: '^# Site-specific additions and overrides'
+
+  notify: Reload AppArmor profile
+  when: lookup('env', 'CI') != 'true'
+
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
     name: clamav-daemon
@@ -91,7 +107,6 @@
   when: lookup('env', 'CI') != 'true'
 
 - name: Install systemd service for clamonacc
-  become: true
   ansible.builtin.template:
     src: clamonacc.service.j2
     dest: /etc/systemd/system/clamonacc.service
@@ -100,7 +115,6 @@
   when: lookup('env', 'CI') != 'true'
 
 - name: Ensure clamonacc service is running and enabled
-  become: true
   ansible.builtin.service:
     name: clamonacc
     state: started
@@ -109,7 +123,7 @@
 
 # --- CI Specific Service Start ---
 
-- name: Add clamav user to the tester group
+- name: Add clamav user to the tester group (for CI)
   ansible.builtin.user:
     name: clamav
     groups: tester
@@ -125,14 +139,13 @@
     mode: '0755'
   when: lookup('env', 'CI') == 'true'
 
-- name: Update virus definitions before first start
+- name: Update virus definitions before first start (for CI)
   ansible.builtin.command:
     cmd: freshclam
   changed_when: false
   when: lookup('env', 'CI') == 'true'
 
 - name: Start the clamd scanning daemon asynchronously (for CI)
-  become: true
   ansible.builtin.command:
     cmd: clamd --foreground
   async: 45 # Run for up to 45 seconds in the background
@@ -149,7 +162,6 @@
   when: lookup('env', 'CI') == 'true'
 
 - name: Start clamonacc with logging (for CI)
-  become: true
   ansible.builtin.command:
     cmd: clamonacc --log=/var/log/clamav/clamonacc.log &
   when: lookup('env', 'CI') == 'true'

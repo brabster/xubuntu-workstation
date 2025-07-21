@@ -12,9 +12,6 @@ if [ -z "$INFECTED_FILE" ]; then
     exit 0
 fi
 
-# Ensure the quarantine directory exists.
-mkdir -p "$QUARANTINE_DIR"
-
 # Move the infected file.
 # We no longer need sudo since the quarantine dir is owned by clamav.
 mv "$INFECTED_FILE" "$QUARANTINE_DIR/"
