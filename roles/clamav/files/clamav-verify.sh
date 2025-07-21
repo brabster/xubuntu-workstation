@@ -24,6 +24,13 @@ cleanup() {
   runuser -l "${TARGET_USER}" -c "rm -f '${TEST_FILE_PATH}'" &>/dev/null || true
   rm -f "${QUARANTINED_FILE_PATH}" &>/dev/null || true
 }
+
+echo_latest_updates() {
+  tail -10 /var/log/clamav/freshclam.log
+}
+
+echo_latest_updates
+
 trap cleanup EXIT
 
 runuser -l "${TARGET_USER}" -c "echo '${EICAR_STRING}' > '${TEST_FILE_PATH}'"
