@@ -15,7 +15,7 @@
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
     groups: nordvpn
-    append: yes
+    append: true
   tags: nordvpn
 
 - name: Connect snap interfaces
