@@ -18,6 +18,8 @@ TEST_FILE_PATH="${DOWNLOADS_DIR}/${TEST_FILE_NAME}"
 QUARANTINED_FILE_PATH="${QUARANTINE_DIR}/${TEST_FILE_NAME}"
 
 # --- Main Logic ---
+echo "Verifying AV scanning is operational with test file ${TEST_FILE_NAME}..."
+
 cleanup() {
   runuser -l "${TARGET_USER}" -c "rm -f '${TEST_FILE_PATH}'" &>/dev/null || true
   rm -f "${QUARANTINED_FILE_PATH}" &>/dev/null || true
@@ -43,11 +45,14 @@ echo "--- DIAGNOSTICS ---" >&2
 echo "--- Running Processes:" >&2
 ps aux | grep -E '[c]lamd|[c]lamonacc' || true
 echo "" >&2
-echo "--- clamd.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/clamd.log || true
+echo "--- clamav.log (last 30 lines):" >&2
+tail -n 30 /var/log/clamav/clamav.log || true
 echo "" >&2
 echo "--- clamonacc.log (last 30 lines):" >&2
 tail -n 30 /var/log/clamav/clamonacc.log || true
+echo "-------------------" >&2
+echo "--- quarantine_events.log (last 30 lines):" >&2
+tail -n 30 /var/log/clamav/quarantine_events.log || true
 echo "-------------------" >&2
 
 exit 1
