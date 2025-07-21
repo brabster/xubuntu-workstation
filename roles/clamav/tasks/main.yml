@@ -52,6 +52,7 @@
     etype: group
     permissions: x
     state: present
+  when: lookup('env', 'CI') != 'true'
 
 - name: Grant clamav rwx access to the user's Downloads directory
   become: true
@@ -61,6 +62,7 @@
     etype: group
     permissions: rwx
     state: present
+  when: lookup('env', 'CI') != 'true'
 
 - name: Grant clamav access to delete (quarantine) files in the Downloads directory
   become: true
@@ -71,6 +73,7 @@
     recursive: true
     permissions: rwx
     state: present
+  when: lookup('env', 'CI') != 'true'
 
 ## Real environment service management
 - name: Ensure clamav-daemon is running and enabled
