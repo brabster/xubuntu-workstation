@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [PR#29](https://github.com/brabster/xubuntu-workstation/pull/29)
+
+### Added
+
+-   **Automated ISO Download and Verification**: Introduced a new script to securely download the latest Xubuntu ISO and verify its integrity using SHA256 checksums. This ensures the base operating system image is authentic and has not been tampered with.
+
+### Security
+
+-   **Threat Model Assessment**: This feature **improves the security and integrity of the initial installation media**. By automating the verification of the ISO, it mitigates the risk of installing a compromised or corrupt operating system, which is a critical step in establishing a secure baseline.
+
+## [PR#28](https://github.com/brabster/xubuntu-workstation/pull/28)
+
+### Fixed
+
+-   **Ansible Linting Errors**: Resolved all linting issues reported by `ansible-lint`. This improves the overall quality and maintainability of the Ansible automation code.
+
+### Security
+
+-   **Threat Model Assessment**: This change has **no direct impact on the threat model** of the deployed workstation. It is a maintenance update focused on code quality, which indirectly supports security by ensuring the automation is robust and predictable.
+
 ## [PR#27](https://github.com/brabster/xubuntu-workstation/pull/27)
 
 
