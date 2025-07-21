@@ -27,7 +27,10 @@ To enhance the `nordvpn` Ansible role to automatically configure application per
 
 ### 2. Plan
 
-1.  **Create Configuration Script**: Create a new shell script at `roles/nordvpn/files/configure_nordvpn.sh`. This script will serve as a single, testable unit for applying all settings. The script will contain the following commands:
+1.  **Create `nordvpn` Group and Add User**:
+    *   Add a task to `roles/nordvpn/tasks/main.yml` to create the `nordvpn` group.
+    *   Add a task to add the current user to the `nordvpn` group.
+2.  **Create Configuration Script**: Create a new shell script at `roles/nordvpn/files/configure_nordvpn.sh`. This script will serve as a single, testable unit for applying all settings. The script will contain the following commands:
     ```bash
     #!/bin/bash
     set -euo pipefail
@@ -38,17 +41,17 @@ To enhance the `nordvpn` Ansible role to automatically configure application per
     nordvpn set autoconnect on
     nordvpn set meshnet off
     ```
-2.  **Update Ansible Role**: Modify `roles/nordvpn/tasks/main.yml` to perform the following actions:
+3.  **Update Ansible Role**: Modify `roles/nordvpn/tasks/main.yml` to perform the following actions:
     *   **Connect Snap Interfaces**: Add tasks to connect the required snap interfaces for NordVPN (`hardware-observe`, `network-control`, `network-observe`, `firewall-control`, `login-session-observe`, `system-observe`).
     *   **Deploy and Execute Script**:
         *   Copy the `configure_nordvpn.sh` script to `/usr/local/bin/` on the target machine.
         *   Ensure the script is executable.
         *   Run the script as the logged-in user to apply the settings.
-3.  **Tagging**: Ensure all new tasks are tagged with `nordvpn` for granular execution and testing.
+4.  **Tagging**: Ensure all new tasks are tagged with `nordvpn` for granular execution and testing.
 
 ### 3. Rationale
 
-*   **Permissions**: Connecting the snap interfaces is a mandatory post-installation step. Automating this ensures the application has the necessary permissions to manage network connections securely.
+*   **Permissions**: Creating the `nordvpn` group, adding the user to it, and connecting the snap interfaces are mandatory post-installation steps. Automating this ensures the application has the necessary permissions to manage network connections securely.
 *   **Atomic Configuration**: Consolidating the configuration commands into a single script makes the process atomic and easier to test independently. This is cleaner than a series of individual `command` tasks in Ansible.
 *   **Security**: Enabling the kill switch and threat protection by default enhances the security posture of the workstation immediately upon installation.
 
@@ -81,6 +84,14 @@ The following files will be created or modified:
     ```
 4.  **Post-Execution Verification**:
     After the playbook runs, verify the changes with the following commands:
+    *   Check that the `nordvpn` group exists:
+        ```bash
+        getent group nordvpn
+        ```
+    *   Check that the user is in the `nordvpn` group:
+        ```bash
+        groups
+        ```
     *   Check that the snap interfaces are connected:
         ```bash
         snap connections nordvpn

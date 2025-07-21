@@ -5,6 +5,19 @@
   changed_when: false
   tags: nordvpn
 
+- name: Create nordvpn group
+  ansible.builtin.group:
+    name: nordvpn
+    state: present
+  tags: nordvpn
+
+- name: Add user to nordvpn group
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    groups: nordvpn
+    append: yes
+  tags: nordvpn
+
 - name: Connect snap interfaces
   ansible.builtin.command: snap connect nordvpn:{{ item }}
   loop:
