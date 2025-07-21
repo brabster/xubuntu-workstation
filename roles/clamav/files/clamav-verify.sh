@@ -26,7 +26,8 @@ cleanup() {
 }
 
 echo_latest_updates() {
-  tail -10 /var/log/clamav/freshclam.log
+  echo " --- latest antivirus update log"
+  tail -3 /var/log/clamav/freshclam.log
 }
 
 echo_latest_updates
