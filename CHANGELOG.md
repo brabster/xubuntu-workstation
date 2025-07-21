@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [PR#30](https://github.com/brabster/xubuntu-workstation/pull/30)
+
+### Added
+
+-   **Opinionated NordVPN Configuration**: The `nordvpn` role now automates post-installation configuration to enforce secure defaults. This includes enabling the `killswitch` and `threatprotectionlite` features.
+
+### Security
+
+-   **Threat Model Assessment**: This change **reduces the risk of IP address exposure and malware infection**. By enabling the kill switch, it prevents traffic from leaking if the VPN disconnects. The addition of threat protection blocks malicious websites at the DNS level. Automating these settings ensures a consistent and secure baseline, mitigating risks associated with manual configuration.
+
 ## [PR#29](https://github.com/brabster/xubuntu-workstation/pull/29)
 
 ### Added
