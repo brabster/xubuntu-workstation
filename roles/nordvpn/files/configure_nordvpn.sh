@@ -1,7 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-nordvpn set technology nordlynx
 nordvpn set killswitch on
 nordvpn set threatprotectionlite on
-nordvpn set meshnet off
+
+# already the default, setting a value to same value returns status code 1
+# nordvpn set technology nordlynx
+# nordvpn set meshnet off

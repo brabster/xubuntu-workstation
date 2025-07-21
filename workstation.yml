@@ -15,8 +15,6 @@
     - role: chrome-browser
     - role: git
     - role: clamav
-    - role: nordvpn
-      when: not is_gh_actions
     - role: slack
       when: not is_gh_actions
     - role: vscode
@@ -26,4 +24,8 @@
     - role: cups
       when: not is_gh_actions
     - role: clipboard
+      when: not is_gh_actions
+
+    # must be last, leaves system in a network-disabled state until user activates or disables killswitch
+    - role: nordvpn
       when: not is_gh_actions

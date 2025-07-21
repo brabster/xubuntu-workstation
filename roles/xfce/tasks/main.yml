@@ -12,10 +12,11 @@
     mode: '0755'
     owner: '{{ username }}'
 
-- name: Disable media automounting
-  ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-media/enabled -t 'bool' -s 'false'
-  changed_when: false
+# Not critical, not working: Failed to init libxfconf: cannot autolaunch D-Bus without X11 display
+# - name: Disable media automounting
+#   ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-media/enabled -t 'bool' -s 'false'
+#   changed_when: false
 
-- name: Disable drives automounting
-  ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-drives/enabled -t 'bool' -s 'false'
-  changed_when: false
+# - name: Disable drives automounting
+#   ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-drives/enabled -t 'bool' -s 'false'
+#   changed_when: false
