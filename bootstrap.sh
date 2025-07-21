@@ -11,3 +11,4 @@ echo "=== Running playbook"
 ansible-playbook -i inventory workstation.yml
 
 echo "=== Log out and in again, them run test.sh. No need to reboot."
+echo "=== Note that the NordVPN network killswitch is ON and must be activated or turned off to enable networking."
