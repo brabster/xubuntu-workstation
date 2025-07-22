@@ -1,0 +1,50 @@
+---
+- name: Grant clamav traversal access to the user's home directory
+  ansible.posix.acl:
+    path: "/home/{{ username }}"
+    entity: clamav
+    etype: group
+    permissions: x
+    state: present
+
+- name: Grant clamav rwx access to the user's Downloads directory
+  ansible.posix.acl:
+    path: "/home/{{ username }}/Downloads"
+    entity: clamav
+    etype: group
+    permissions: rwx
+    state: present
+
+- name: Grant clamav access to delete (quarantine) files in the Downloads directory
+  ansible.posix.acl:
+    path: "/home/{{ username }}/Downloads/"
+    entity: clamav
+    etype: group
+    recursive: true
+    permissions: rwx
+    state: present
+
+- name: Ensure clamav-daemon is running and enabled
+  ansible.builtin.service:
+    name: clamav-daemon
+    state: started
+    enabled: true
+
+- name: Ensure freshclam update service is running and enabled
+  ansible.builtin.service:
+    name: clamav-freshclam
+    state: started
+    enabled: true
+
+- name: Install systemd service for clamonacc
+  ansible.builtin.template:
+    src: clamonacc.service.j2
+    dest: /etc/systemd/system/clamonacc.service
+    mode: '0644'
+  notify: Reload systemd and restart clamonacc
+
+- name: Ensure clamonacc service is running and enabled
+  ansible.builtin.service:
+    name: clamonacc
+    state: started
+    enabled: true

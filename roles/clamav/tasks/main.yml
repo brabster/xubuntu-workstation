@@ -17,15 +17,15 @@
 
 - name: Create a global quarantine directory
   ansible.builtin.file:
-    path: /var/lib/clamav/quarantine
+    path: "{{ clamav_quarantine_dir }}"
     state: directory
     owner: clamav
     group: clamav
     mode: '0755'
 
 - name: Deploy ClamAV health check script
-  ansible.builtin.copy:
-    src: clamav-verify.sh
+  ansible.builtin.template:
+    src: clamav-verify.sh.j2
     dest: /usr/local/bin/clamav-verify.sh
     owner: root
     group: root
@@ -36,107 +36,10 @@
     path: '{{ update_script }}'
     line: /usr/local/bin/clamav-verify.sh {{ username }}
 
-- name: Grant clamav traversal access to the user's home directory
-  ansible.posix.acl:
-    path: "/home/{{ username }}"
-    entity: clamav
-    etype: group
-    permissions: x
-    state: present
-  when: lookup('env', 'CI') != 'true'
-
-- name: Grant clamav rwx access to the user's Downloads directory
-  ansible.posix.acl:
-    path: "/home/{{ username }}/Downloads"
-    entity: clamav
-    etype: group
-    permissions: rwx
-    state: present
-  when: lookup('env', 'CI') != 'true'
-
-- name: Grant clamav access to delete (quarantine) files in the Downloads directory
-  ansible.posix.acl:
-    path: "/home/{{ username }}/Downloads/"
-    entity: clamav
-    etype: group
-    recursive: true
-    permissions: rwx
-    state: present
-  when: lookup('env', 'CI') != 'true'
-
-## Real environment service management
-
-- name: Ensure clamav-daemon is running and enabled
-  ansible.builtin.service:
-    name: clamav-daemon
-    state: started
-    enabled: true
-  when: lookup('env', 'CI') != 'true'
-
-- name: Ensure freshclam update service is running and enabled
-  ansible.builtin.service:
-    name: clamav-freshclam
-    state: started
-    enabled: true
-  when: lookup('env', 'CI') != 'true'
-
-- name: Install systemd service for clamonacc
-  ansible.builtin.template:
-    src: clamonacc.service.j2
-    dest: /etc/systemd/system/clamonacc.service
-    mode: '0644'
-  notify: Reload systemd and restart clamonacc
-  when: lookup('env', 'CI') != 'true'
-
-- name: Ensure clamonacc service is running and enabled
-  ansible.builtin.service:
-    name: clamonacc
-    state: started
-    enabled: true
-  when: lookup('env', 'CI') != 'true'
-
-# --- CI Specific Service Start ---
-
-- name: Add clamav user to the tester group (for CI)
-  ansible.builtin.user:
-    name: clamav
-    groups: tester
-    append: true
+- name: Include CI-specific tasks
+  ansible.builtin.include_tasks: ci.yml
   when: lookup('env', 'CI') == 'true'
 
-- name: Create clamav runtime directory for PID file (for CI)
-  ansible.builtin.file:
-    path: /run/clamav
-    state: directory
-    owner: clamav
-    group: clamav
-    mode: '0755'
-  when: lookup('env', 'CI') == 'true'
-
-- name: Update virus definitions before first start (for CI)
-  ansible.builtin.command:
-    cmd: freshclam
-  changed_when: false
-  when: lookup('env', 'CI') == 'true'
-
-- name: Start the clamd scanning daemon asynchronously (for CI)
-  ansible.builtin.command:
-    cmd: clamd --foreground
-  async: 45 # Run for up to 45 seconds in the background
-  poll: 0   # Fire and forget: don't wait for the task to complete
-  when: lookup('env', 'CI') == 'true'
-  changed_when: false
-
-- name: Wait for the clamd socket to become available (for CI)
-  ansible.builtin.wait_for:
-    path: /run/clamav/clamd.ctl
-    # Give it a moment to start, as async is not instantaneous
-    delay: 5
-    timeout: 15
-  when: lookup('env', 'CI') == 'true'
-
-- name: Start clamonacc with logging (for CI)
-  ansible.builtin.command:
-    cmd: clamonacc --move=/var/lib/clamav/quarantine --log=/var/log/clamav/clamonacc.log &
-  when: lookup('env', 'CI') == 'true'
-  changed_when: false
+- name: Include non-CI tasks
+  ansible.builtin.include_tasks: non-ci.yml
+  when: lookup('env', 'CI') != 'true'

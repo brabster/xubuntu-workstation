@@ -10,7 +10,7 @@ if [ -z "$TARGET_USER" ]; then
 fi
 
 DOWNLOADS_DIR="/home/${TARGET_USER}/Downloads"
-QUARANTINE_DIR="/var/lib/clamav/quarantine"
+QUARANTINE_DIR="{{ clamav_quarantine_dir }}"
 
 EICAR_STRING='X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 TEST_FILE_NAME=".health-check-$(date +%s).txt"
