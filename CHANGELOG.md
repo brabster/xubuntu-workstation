@@ -2,19 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [PR#30](https://github.com/brabster/xubuntu-workstation/pull/30)
+## Fixes and security improvement to ClamAV on-access setup
 
-### Added
+- [PR#32](https://github.com/brabster/xubuntu-workstation/pull/32)
+- [PR#31](https://github.com/brabster/xubuntu-workstation/pull/31)
 
--   **Opinionated NordVPN Configuration**: The `nordvpn` role now automates post-installation configuration to enforce secure defaults. This includes enabling the `killswitch` and `threatprotectionlite` features.
+### Changed
+
+- **Disable NordVPN killswitch by default**: unable to login without network access. Updated post-install messaging to remind user.
+- **Modern, lower-risk approach to ClamAV on-access scanning**: switch from `clamd` to `clamonacc` service performing the file quaratine operation, to avoid elevating privileges of `clamd` that scans potentially malicious code.
 
 ### Security
 
--   **Threat Model Assessment**: This change **reduces the risk of IP address exposure and malware infection**. By enabling the kill switch, it prevents traffic from leaking if the VPN disconnects. The addition of threat protection blocks malicious websites at the DNS level. Automating these settings ensures a consistent and secure baseline, mitigating risks associated with manual configuration.
+- **NordVPN killswitch off by default**: no change to threat model, as killswitch must be disabled to log in.
+- **clamonacc performs quarantine**: reduces the risk of infection, by reducing the permissions of the riskier `clamd` service.
 
-## [PR#29](https://github.com/brabster/xubuntu-workstation/pull/29)
+## [Configure NordVPN](https://github.com/brabster/xubuntu-workstation/pull/30)
+
+### Added
+
+-   **Opinionated NordVPN Configuration**: The `nordvpn` role now automates post-installation configuration to enforce secure defaults. This includes enabling the `threatprotectionlite` feature.
+
+### Security
+
+-   **Threat Model Assessment**: This change **reduces the risk of malware infection**. The addition of threat protection blocks malicious websites at the DNS level. Automating these settings ensures a consistent and secure baseline, mitigating risks associated with manual configuration.
+
+## [Automate ISO download and signature verification](https://github.com/brabster/xubuntu-workstation/pull/29)
 
 ### Added
 
@@ -24,7 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -   **Threat Model Assessment**: This feature **improves the security and integrity of the initial installation media**. By automating the verification of the ISO, it mitigates the risk of installing a compromised or corrupt operating system, which is a critical step in establishing a secure baseline.
 
-## [PR#28](https://github.com/brabster/xubuntu-workstation/pull/28)
+## [Fix Ansible lint errors](https://github.com/brabster/xubuntu-workstation/pull/28)
 
 ### Fixed
 
@@ -34,8 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 -   **Threat Model Assessment**: This change has **no direct impact on the threat model** of the deployed workstation. It is a maintenance update focused on code quality, which indirectly supports security by ensuring the automation is robust and predictable.
 
-## [PR#27](https://github.com/brabster/xubuntu-workstation/pull/27)
-
+## [Add ClamAV on-access scanning](https://github.com/brabster/xubuntu-workstation/pull/27)
 
 ### Added
 
@@ -48,7 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     -   **Rationale**: The shift from manual-only scanning to real-time, blocking on-access scanning drastically reduces the window of vulnerability for malware entering via the `~/Downloads` directory. By using the kernel's `fanotify` capabilities, the system prevents any access to a new file until it is confirmed to be safe.
     -   **Benefit**: This proactive and automated threat containment mechanism significantly lowers the risk of accidental malware execution by the user, providing a much more robust defense against common threat vectors.
 
-## [PR#26](https://github.com/brabster/xubuntu-workstation/pull/26)
+## [Passwordless sudo for update script](https://github.com/brabster/xubuntu-workstation/pull/26)
 
 ### Added
 

@@ -68,11 +68,24 @@ A test script is provided to run on the target machine after installation as the
 
 ## Security
 
-### OS install:
+### OS install
+
 - minimal install (minimise unneeded packages)
 - encrypt HDD (optionally same password as user account)
 - remove any packages that I know I don't need
 - disable any services that I rarely need, add service-specific start/stop via sudoers
+
+### ClamAV on-access scanning
+
+This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md#fixes-and-security-improvement-to-clamav-on-access-setup)
+
+| Solution | Pros | Cons |
+| :--- | :--- | :--- |
+| **ClamAV** | ✅ Free and open-source.<br>✅ **Highest supply chain security** due to installation and verification via `apt`.<br>✅ Highly configurable and scriptable. | ❌ On-access scanning is complex to configure correctly.<br>❌ Lacks a central management GUI out of the box.<br>❌ May have lower detection rates for some threats vs. top commercial options. |
+| **Bitdefender** | ✅ Excellent malware detection rates.<br>✅ Modern features like machine learning. | ❌ **Not available for individuals on Linux**; requires a business registration.<br>❌ Opaque software supply chain (direct download). |
+| **ESET** | ✅ Good detection rates from a reputable vendor.<br>✅ Standalone product available for Linux desktops. | ❌ Paid product.<br>❌ **Weak software supply chain**; the direct website download puts the verification burden on the user. |
+| **Sophos** | ✅ Reputable security vendor. | ❌ **No longer offers a standalone/home product for Linux**; it's now part of their business platform.<br>❌ Opaque software supply chain (direct download). |
+
 
 ### Playbook
 - [sudo](roles/sudo) remove sudo timeout - you need to put your password in each time
