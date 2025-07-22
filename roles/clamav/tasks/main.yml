@@ -23,14 +23,6 @@
     group: clamav
     mode: '0755'
 
-- name: Deploy quarantine script
-  ansible.builtin.copy:
-    src: clamav-quarantine.sh
-    dest: /usr/local/bin/clamav-quarantine.sh
-    owner: root
-    group: root
-    mode: '0755'
-
 - name: Deploy ClamAV health check script
   ansible.builtin.copy:
     src: clamav-verify.sh
@@ -73,24 +65,6 @@
   when: lookup('env', 'CI') != 'true'
 
 ## Real environment service management
-
-# TODO refactor to put the overrides in /etc/apparmor.d/local/usr.sbin.clamd
-- name: Add AppArmor rule to allow quarantine from home directories
-  ansible.builtin.blockinfile:
-    path: /etc/apparmor.d/usr.sbin.clamd
-    block: |
-      # Allow clamd to read/write the Downloads directory and the files within it
-      /home/*/Downloads/ rwk,
-      /home/*/Downloads/* rwk,
-      # Allow clamd to execute the quarantine script
-      /usr/bin/dash ix,
-      /usr/bin/touch ix,
-      /usr/local/bin/clamav-quarantine.sh rix,
-      /usr/bin/mv ix,
-    insertafter: '^# Site-specific additions and overrides'
-
-  notify: Reload AppArmor profile
-  when: lookup('env', 'CI') != 'true'
 
 - name: Ensure clamav-daemon is running and enabled
   ansible.builtin.service:
@@ -163,6 +137,6 @@
 
 - name: Start clamonacc with logging (for CI)
   ansible.builtin.command:
-    cmd: clamonacc --log=/var/log/clamav/clamonacc.log &
+    cmd: clamonacc --move=/var/lib/clamav/quarantine --log=/var/log/clamav/clamonacc.log &
   when: lookup('env', 'CI') == 'true'
   changed_when: false

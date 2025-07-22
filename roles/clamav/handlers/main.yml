@@ -17,9 +17,3 @@
     name: clamonacc
     state: restarted
   when: lookup('env', 'CI') != 'true'
-
-- name: Reload AppArmor profile
-  ansible.builtin.command:
-    cmd: apparmor_parser -r /etc/apparmor.d/usr.sbin.clamd
-  when: lookup('env', 'CI') != 'true'
-  listen: "Reload AppArmor profile"
