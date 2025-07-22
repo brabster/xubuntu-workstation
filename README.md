@@ -24,7 +24,7 @@ Most convenient way to do this is to create a bootable USB for the xubuntu distr
 
 The [next_install role](./roles/next_install) places these scripts in a non-user modifiable directory and grants sudo rights to execute them. Some safety checks are in place but user takes responsibility for any data loss that may occur.
 
-NOTE: the setup ends by setting up NordVPN with some security-related settings. **The network killswitch will be ON** and that will disable the network until you sign in to NordVPN and connect. The killswitch can be disabled with `nordvpn set killswitch off` if needed.
+NOTE: the setup ends by setting up NordVPN with some security-related settings. **The network killswitch will be OFF** and will need login to enable. Username/password not required, emailed one-time code option is available to login.
 
 ### Setup Distro USB
 
