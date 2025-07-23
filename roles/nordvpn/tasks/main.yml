@@ -13,7 +13,7 @@
 
 - name: Add user to nordvpn group
   ansible.builtin.user:
-    name: "{{ ansible_user_id }}"
+    name: "{{ username }}"
     groups: nordvpn
     append: true
   tags: nordvpn
@@ -40,6 +40,6 @@
 - name: Run nordvpn configuration script
   ansible.builtin.command: /usr/local/bin/configure_nordvpn.sh
   become: true
-  become_user: "{{ ansible_user_id }}"
+  become_user: "{{ username }}"
   changed_when: false
   tags: nordvpn

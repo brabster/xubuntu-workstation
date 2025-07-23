@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## Fixes and security improvement to ClamAV on-access setup
 
+- [PR#39](https://github.com/brabster/xubuntu-workstation/pull/39)
 - [PR#32](https://github.com/brabster/xubuntu-workstation/pull/32)
 - [PR#31](https://github.com/brabster/xubuntu-workstation/pull/31)
 
