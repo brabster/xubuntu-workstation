@@ -10,6 +10,8 @@
     - role: networking
     - role: sudo
     - role: cleanup
+    - role: cleanup_services
+      when: not is_gh_actions
     - role: updates
     - role: dev
     - role: chrome-browser

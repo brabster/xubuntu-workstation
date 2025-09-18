@@ -88,17 +88,13 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
 
 
 ### Playbook
-- [sudo](roles/sudo) remove sudo timeout - you need to put your password in each time
-- [sudo](roles/sudo) restrict sudo commands to essential tasks
     - applying updates,
     - preparing installation media for the next update
     - temporarily starting and stopping rarely-needed services
-- [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
-- [updates](roles/updates)
     - update all known supply chains, incl. OS, firmware, snap, pip, clamav
     - apply system-level updates as root
     - su to user to apply user updates
-- [firefox](roles/firefox), [chrome](roles/chrome-browser) apply security settings by policy
+ [cleanup_services](roles/cleanup_services): disables and removes unnecessary system services (e.g., ModemManager) to reduce attack surface and meet UK Cyber Essentials requirements. This role is excluded from CI by default using the standard guard pattern (`when: not is_gh_actions`).
 
 ## Testing
 
