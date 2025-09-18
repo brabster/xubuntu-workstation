@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Disable and remove unneeded services by default](https://github.com/brabster/xubuntu-workstation/pull/45)
+
+### Added
+
+- **Unnecessary services disabled and removed**: The cleanup role now disables the ModemManager and avahi-daemon services and removes the associated packages by default. This ensures the services are not running after reboot and the packages are not present unless explicitly required.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces the attack surface and supports compliance with UK Cyber Essentials requirements**.
+    - **Rationale**: Services are not required for most workstation use cases and represents an unnecessary service and software package. Disabling and removing it aligns with the principle of least functionality, as mandated by UK Cyber Essentials, and reduces the risk of exploitation via unused system components.
+    - **Benefit**: Ensures only necessary services are present and running, improving overall system security and regulatory compliance.
+
 ## [Enable UFW Firewall by Default](https://github.com/brabster/xubuntu-workstation/pull/44)
 
 ### Added

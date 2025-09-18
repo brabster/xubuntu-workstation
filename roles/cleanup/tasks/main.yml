@@ -1,5 +1,4 @@
----
-- name: Remove unneeded packages
+- name: Remove unnecessary Bluetooth and mail packages
   ansible.builtin.package:
     name:
       - thunderbird
@@ -10,3 +9,4 @@
     state: absent
     update_cache: true
     autoremove: true
+
