@@ -15,7 +15,7 @@
     name: ModemManager
     state: stopped
 
-- name: Disable ModemManager.service (UK Cyber Essentials: unnecessary services)
+- name: 'Disable ModemManager.service (UK Cyber Essentials: unnecessary services)'
   ansible.builtin.systemd:
     name: ModemManager.service
     enabled: false
