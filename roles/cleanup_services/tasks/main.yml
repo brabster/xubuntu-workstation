@@ -1,16 +1,19 @@
----
-# Remove and disable ModemManager to reduce attack surface (UK Cyber Essentials: unnecessary services)
+# Gather service facts for conditional service management
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
 - name: Stop ModemManager
   ansible.builtin.systemd:
     name: ModemManager
     state: stopped
-  when: not is_gh_actions  # Guard: requires elevated privileges, not CI-compatible
+  when: "'ModemManager.service' in ansible_facts.services"
 
 - name: Disable ModemManager
   ansible.builtin.systemd:
     name: ModemManager
     enabled: false
-  when: not is_gh_actions
+  when: "'ModemManager.service' in ansible_facts.services"
+
 
 - name: Remove modemmanager package
   ansible.builtin.package:
@@ -18,20 +21,19 @@
     state: absent
     autoremove: true
     update_cache: true
-  when: not is_gh_actions
-
-# Remove and disable avahi-daemon to reduce attack surface (UK Cyber Essentials: unnecessary services)
+  
 - name: Stop avahi-daemon
   ansible.builtin.systemd:
     name: avahi-daemon
     state: stopped
-  when: not is_gh_actions  # Guard: requires elevated privileges, not CI-compatible
+  when: "'avahi-daemon.service' in ansible_facts.services"
 
 - name: Disable avahi-daemon
   ansible.builtin.systemd:
     name: avahi-daemon
     enabled: false
-  when: not is_gh_actions
+  when: "'avahi-daemon.service' in ansible_facts.services"
+
 
 - name: Remove avahi-daemon package
   ansible.builtin.package:
@@ -39,4 +41,3 @@
     state: absent
     autoremove: true
     update_cache: true
-  when: not is_gh_actions

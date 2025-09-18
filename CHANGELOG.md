@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Disable and remove unneeded services by default](https://github.com/brabster/xubuntu-workstation/pull/45)
 
+Fixes on [PR#46](https://github.com/brabster/xubuntu-workstation/pull/46).
+
 ### Added
 
 - **Unnecessary services disabled and removed**: The cleanup role now disables the ModemManager and avahi-daemon services and removes the associated packages by default. This ensures the services are not running after reboot and the packages are not present unless explicitly required.
