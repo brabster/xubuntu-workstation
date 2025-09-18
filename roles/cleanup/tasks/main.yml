@@ -10,12 +10,15 @@
     update_cache: true
     autoremove: true
 
-- name: Disable and stop ModemManager.service (UK Cyber Essentials: unnecessary services)
+- name: Stop ModemManager.service (UK Cyber Essentials: unnecessary services)
+  ansible.builtin.systemd:
+    name: ModemManager.service
+    state: stopped
+
+- name: Disable ModemManager.service (UK Cyber Essentials: unnecessary services)
   ansible.builtin.systemd:
     name: ModemManager.service
     enabled: false
-    state: stopped
-
 - name: Remove modemmanager package (UK Cyber Essentials: unnecessary software)
   ansible.builtin.package:
     name: modemmanager
