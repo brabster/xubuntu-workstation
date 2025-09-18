@@ -11,6 +11,16 @@ sudo systemctl start cups
 sudo systemctl stop cups
 ! sudo systemctl enable cups
 
+echo "Checking UFW is active and running"
+if ! systemctl is-active --quiet ufw; then
+    echo "UFW service is not active!"
+    exit 1
+fi
+if ! ufw status | grep -q "Status: active"; then
+    echo "UFW firewall is not enabled!"
+    exit 1
+fi
+
 echo
 echo "Checking venv is required"
 ! pip install jsonschema # should not work because no venv

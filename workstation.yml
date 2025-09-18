@@ -26,6 +26,11 @@
     - role: clipboard
       when: not is_gh_actions
 
+
+    # Enable UFW firewall unless running in CI
+    - role: ufw
+      when: not is_gh_actions
+
     # must be last, leaves system in a network-disabled state until user activates or disables killswitch
     - role: nordvpn
       when: not is_gh_actions

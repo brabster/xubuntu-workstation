@@ -1,0 +1,20 @@
+---
+- name: Ensure UFW is installed
+  become: true
+  ansible.builtin.package:
+    name: ufw
+    state: present
+
+- name: Enable UFW (start on boot)
+  become: true
+  ansible.builtin.command:
+    cmd: ufw --force enable
+  register: ufw_enable_result
+  changed_when: "'Firewall is active' in ufw_enable_result.stdout or 'Firewall already enabled' in ufw_enable_result.stdout"
+
+- name: Ensure UFW service is enabled and started
+  become: true
+  ansible.builtin.service:
+    name: ufw
+    enabled: true
+    state: started

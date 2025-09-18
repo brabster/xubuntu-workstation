@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Enable UFW Firewall by Default](https://github.com/brabster/xubuntu-workstation/pull/44)
+
+### Added
+
+-   **UFW Firewall Enabled and Running After Reboot**: The UFW role now ensures UFW is installed, enabled, and started on boot. This can be selectively enabled or disabled for different environments.
+
+### Security
+
+-   **Threat Model Assessment**: This change **significantly improves the system’s network security posture and facilitates compliance with UK Cyber Essentials requirements**.
+    -   **Rationale**: Enabling UFW by default ensures that only explicitly allowed network traffic is permitted, reducing exposure to remote attacks and unauthorized access. UK Cyber Essentials mandates a properly configured firewall as a baseline control for all internet-connected devices.
+    -   **Benefit**: The firewall acts as a first line of defense against network-based threats, especially important for systems exposed to untrusted networks. Automating its activation and persistence across reboots eliminates the risk of accidental misconfiguration or firewall downtime, and ensures the system meets regulatory requirements for basic cyber hygiene.
+
 ## Fixes and security improvement to ClamAV on-access setup
 
 - [PR#39](https://github.com/brabster/xubuntu-workstation/pull/39)
@@ -74,3 +86,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 -   **Threat Model Assessment for Passwordless Updates**: A threat model assessment was conducted for the passwordless `sudo` feature. The conclusion is that this change represents a **net decrease in overall risk**. (#26)
     -   **Rationale**: While it introduces a minor theoretical risk (an attacker with user-level access can trigger a system update), this is heavily mitigated because the script itself is owned by `root` and cannot be modified by the user.
     -   **Benefit**: The removal of friction for a routine, safe task encourages more frequent system updates. This tangible improvement in security posture outweighs the minor introduced risk.
+
