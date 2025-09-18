@@ -24,11 +24,15 @@ Specific principles we prioritise:
 
 ## Role Modularity and Guards
 
+- All automation should use modular Ansible roles, with each role responsible for a distinct area of system configuration (e.g., `ufw`, `networking`, `clamav`).
+- Roles that require elevated privileges, interact with system-level services, or are known to fail in CI (GitHub Actions) must be guarded using `when: not is_gh_actions` in playbooks.
+- If there is any doubt about CI compatibility, attempt a CI run before excluding the role.
+- The guard pattern (`when: not is_gh_actions`) is the standard and should be used unless evidence suggests a different approach is required.
+- Always document the rationale for excluding a role from CI in both the changelog and code comments.
 
-### Example: cleanup_services role
 
-- The `cleanup_services` role demonstrates modular automation for disabling/removing unnecessary services (e.g., ModemManager) and uses the standard CI guard (`when: not is_gh_actions`). Rationale and compliance impacts are documented in the changelog and code comments.
 
+## Compliance Requirements
 
 - UK Cyber Essentials is the primary compliance framework for this project.
 - Automation and configuration choices (e.g., enabling firewalls by default) must be justified with reference to UK Cyber Essentials requirements where relevant.
