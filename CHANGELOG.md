@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Disable DNS over TLS for NordVPN compatibility](https://github.com/brabster/xubuntu-workstation/pull/47)
+
+### Changed
+
+- **Disabled DNS over TLS in Cloudflare for Families configuration**: The networking role now sets `DNSOverTLS=no` in the systemd-resolved configuration to ensure compatibility with NordVPN.
+
+### Security
+
+- **Threat Model Assessment**: This change **maintains DNS filtering protection while ensuring VPN compatibility**.
+    - **Rationale**: DNS over TLS (DoT) is incompatible with NordVPN's DNS handling, causing name resolution failures when the VPN is active. Disabling DoT preserves the Cloudflare for Families DNS filtering functionality while allowing NordVPN to function properly. The Cloudflare for Families DNS servers (1.1.1.3/1.0.0.3) continue to provide malware and adult content blocking without encryption.
+    - **Benefit**: Ensures reliable DNS resolution when using NordVPN while maintaining family-safe DNS filtering. Users can still benefit from NordVPN's threat protection features and encrypted DNS through the VPN tunnel when connected.
+
 ## [Disable and remove unneeded services by default](https://github.com/brabster/xubuntu-workstation/pull/45)
 
 Fixes on [PR#46](https://github.com/brabster/xubuntu-workstation/pull/46).
