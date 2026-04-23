@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Ubuntu 26.04 compatibility: fix Chrome install on rolling release](https://github.com/brabster/xubuntu-workstation/pull/50)
+
+### Fixed
+
+- **Chrome installation on Ubuntu 26.04+**: Google Chrome's `.deb` package declares a dependency on `libasound2 (>= 1.0.17)`, but in Ubuntu 24.04 the ALSA sound library was renamed to `libasound2t64` as part of the 64-bit `time_t` transition. In Ubuntu 26.04, `libasound2t64` no longer provides `libasound2` as a virtual package, making the dependency unsatisfiable and blocking Chrome installation. The `chrome-browser` role now:
+  1. Pre-installs `libasound2t64` on Ubuntu 24.04+ to ensure the actual ALSA library is present at runtime.
+  2. Falls back to `dpkg --force-depends` when `libasound2` cannot be satisfied by apt, rather than failing the entire playbook. Chrome operates correctly because `libasound2t64` provides the same shared library files (`libsound.so.2`) that Chrome requires at runtime.
+
+### Security
+
+- **Threat Model Assessment**: This change **maintains the existing security posture** while restoring Chrome installation on the latest Ubuntu rolling release.
+    - **Rationale**: Without this fix, Chrome could not be installed on Ubuntu 26.04, leaving users without a managed, policy-controlled browser. The `dpkg --force-depends` fallback is intentionally narrowly scoped: it only applies when the specific `libasound2` dependency is unresolvable, and only after the real ALSA library (`libasound2t64`) has been confirmed present. All other Chrome dependency failures still cause the playbook to abort.
+    - **Benefit**: Chrome's managed policy configuration (enforced HTTPS, Safe Browsing, download restrictions) remains fully applied on Ubuntu 26.04, maintaining the browser security controls required for UK Cyber Essentials compliance. Chrome updates via Google's apt repository (registered automatically by the Chrome installer) remain unaffected.
+
 ## [Disable and remove unneeded services by default](https://github.com/brabster/xubuntu-workstation/pull/45)
 
 Fixes on [PR#46](https://github.com/brabster/xubuntu-workstation/pull/46).
