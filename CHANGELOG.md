@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Chrome installation on Ubuntu 26.04+**: Google Chrome's `.deb` package declares a dependency on `libasound2 (>= 1.0.17)`, but in Ubuntu 24.04 the ALSA sound library was renamed to `libasound2t64` as part of the 64-bit `time_t` transition. In Ubuntu 26.04, `libasound2t64` no longer provides `libasound2` as a virtual package, making the dependency unsatisfiable and blocking Chrome installation. The `chrome-browser` role now:
   1. Pre-installs `libasound2t64` on Ubuntu 24.04+ to ensure the actual ALSA library is present at runtime.
-  2. Falls back to `dpkg --force-depends` when `libasound2` cannot be satisfied by apt, rather than failing the entire playbook. Chrome operates correctly because `libasound2t64` provides the same shared library files (`libsound.so.2`) that Chrome requires at runtime.
+  2. Falls back to `dpkg --force-depends` when `libasound2` cannot be satisfied by apt, rather than failing the entire playbook. Chrome operates correctly because `libasound2t64` provides the same shared library files (`libasound.so.2`) that Chrome requires at runtime.
 
 ### Security
 

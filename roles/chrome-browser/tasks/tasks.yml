@@ -23,9 +23,7 @@
   # On Ubuntu 26.04+, libasound2 is not available (renamed to libasound2t64 and
   # no longer provided as a virtual package). Allow the task to proceed to the
   # dpkg fallback step below; fail on any other error.
-  failed_when:
-    - chrome_install.failed
-    - "'libasound2' not in (chrome_install.msg | default(''))"
+  failed_when: chrome_install.failed and 'libasound2' not in (chrome_install.msg | default(''))
 
 # Fallback: use dpkg --force-depends when the libasound2 dependency cannot be
 # satisfied by apt (Ubuntu 26.04+). The actual ALSA library is present via
