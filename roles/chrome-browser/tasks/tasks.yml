@@ -6,33 +6,15 @@
     dest: /tmp/google-chrome.deb
     mode: '0644'
 
-# In Ubuntu 24.04+, libasound2 was renamed to libasound2t64 as part of the 64-bit
-# time_t transition. In Ubuntu 26.04+, libasound2t64 no longer provides the
-# libasound2 virtual package. Chrome's .deb still declares libasound2 as a dependency,
-# so we pre-install the equivalent library to ensure Chrome works at runtime.
-- name: Install ALSA library for Chrome (libasound2t64 on Ubuntu 24.04+)
+# libasound2t64 is the current name for the ALSA shared library on Ubuntu 24.04+.
+# Pre-installing it satisfies Chrome's runtime library requirement before apt
+# attempts to resolve the package metadata dependency on libasound2.
+- name: Resolve virtual package dependencies
   ansible.builtin.apt:
     name: libasound2t64
     state: present
-  when: ansible_distribution_version is version('24.04', '>=')
+    update_cache: true
 
 - name: Install Chrome
   ansible.builtin.apt:
     deb: /tmp/google-chrome.deb
-  register: chrome_install
-  # On Ubuntu 26.04+, libasound2 is not available (renamed to libasound2t64 and
-  # no longer provided as a virtual package). Allow the task to proceed to the
-  # dpkg fallback step below; fail on any other error.
-  failed_when: chrome_install.failed and 'libasound2' not in (chrome_install.msg | default(''))
-
-# Fallback: use dpkg --force-depends when the libasound2 dependency cannot be
-# satisfied by apt (Ubuntu 26.04+). The actual ALSA library is present via
-# libasound2t64 installed above, so Chrome runs correctly at runtime.
-- name: Install Chrome (force dependencies for Ubuntu 26.04+ libasound2 compatibility)
-  ansible.builtin.command:
-    cmd: dpkg --force-depends -i /tmp/google-chrome.deb
-  when:
-    - chrome_install.failed is defined
-    - chrome_install.failed
-    - "'libasound2' in (chrome_install.msg | default(''))"
-  changed_when: true
