@@ -9,7 +9,7 @@
 # libasound2t64 is the current name for the ALSA shared library on Ubuntu 24.04+.
 # Pre-installing it satisfies Chrome's runtime library requirement before apt
 # attempts to resolve the package metadata dependency on libasound2.
-- name: Resolve virtual package dependencies
+- name: Pre-install ALSA library for Chrome (libasound2t64)
   ansible.builtin.apt:
     name: libasound2t64
     state: present
