@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Ubuntu 26.04 compatibility: fix Chrome install on rolling release](https://github.com/brabster/xubuntu-workstation/pull/52)
+
+### Fixed
+
+- **Chrome installation on Ubuntu 26.04+**: Google Chrome's `.deb` package declares a dependency on `libasound2 (>= 1.0.17)`, but in Ubuntu 24.04 the ALSA sound library was renamed to `libasound2t64` as part of the 64-bit `time_t` transition. In Ubuntu 26.04, `libasound2t64` no longer provides `libasound2` as a virtual package, making the dependency unsatisfiable and blocking Chrome installation. The `chrome-browser` role now pre-installs `libasound2t64` (with a cache refresh) before installing Chrome, which satisfies the runtime library requirement and allows the plain `apt install` of Chrome to succeed.
+
+### Security
+
+- **Threat Model Assessment**: This change **maintains the existing security posture** while restoring Chrome installation on the latest Ubuntu rolling release.
+    - **Rationale**: Without this fix, Chrome could not be installed on Ubuntu 26.04, leaving users without a managed, policy-controlled browser. Pre-installing `libasound2t64` is a minimal, targeted change that ensures the required ALSA shared library is present before Chrome is installed.
+    - **Benefit**: Chrome's managed policy configuration (enforced HTTPS, Safe Browsing, download restrictions) remains fully applied on Ubuntu 26.04, maintaining the browser security controls required for UK Cyber Essentials compliance. Chrome updates via Google's apt repository (registered automatically by the Chrome installer) remain unaffected.
+
 ## [Disable and remove unneeded services by default](https://github.com/brabster/xubuntu-workstation/pull/45)
 
 Fixes on [PR#46](https://github.com/brabster/xubuntu-workstation/pull/46).
