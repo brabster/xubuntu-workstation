@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Set up a minimal devcontainer image](https://github.com/brabster/xubuntu-workstation/pull/55)
+## [Set up a minimal devcontainer image](https://github.com/brabster/xubuntu-workstation/pull/58)
 
 ### Added
 
