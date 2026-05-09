@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Ensure CUPS is disabled by default](https://github.com/brabster/xubuntu-workstation/pull/54)
+
+### Added
+
+- **CUPS disabled by default, startable on-demand**: The `cups` role stops and disables the CUPS printing service so that `cupsd` is not running after a reboot. A dedicated `cups_users` group is created, the workstation user is added to it, and a targeted `sudoers` rule grants members the ability to run `systemctl start cups` and `systemctl stop cups` without requiring membership of the general `sudo` group. CUPS cannot be re-enabled via `sudo` because the `enable` command is not in the allowed list.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces the attack surface by disabling an unneeded network-capable service, supporting compliance with UK Cyber Essentials requirements**.
+    - **Rationale**: CUPS (the Common Unix Printing System) is installed by default on Xubuntu but is not required for normal day-to-day use. Leaving it enabled exposes a listening service that could be exploited by a local or network attacker. Disabling it by default aligns with the principle of least functionality mandated by UK Cyber Essentials. The targeted `sudoers` rule preserves on-demand usability (e.g., printing recovery codes) without granting broad privilege escalation.
+    - **Benefit**: `cupsd` is not running after a reboot, eliminating any associated network attack surface. The user retains the ability to start and stop CUPS explicitly when printing is genuinely needed, and the service is stopped again after the next reboot, limiting exposure to the shortest necessary window.
+
 ## [Set up Copilot coding agent instructions](https://github.com/brabster/xubuntu-workstation/pull/53)
 
 ### Added
