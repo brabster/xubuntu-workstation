@@ -2,10 +2,7 @@ name: test_install
 on:
   push:
     paths-ignore:
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - 'LICENCE.md'
-      - 'AGENTS.md'
+      - '**/*.md'
       - 'prompts/**'
       - '.vars_example.yml'
   workflow_dispatch: {}
