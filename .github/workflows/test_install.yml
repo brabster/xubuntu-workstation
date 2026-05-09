@@ -1,6 +1,13 @@
 name: test_install
 on:
-  push: {}
+  push:
+    paths-ignore:
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'LICENCE.md'
+      - 'AGENTS.md'
+      - 'prompts/**'
+      - '.vars_example.yml'
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"

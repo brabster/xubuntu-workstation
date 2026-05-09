@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Prevent GitHub Actions run on documentation changes](https://github.com/brabster/xubuntu-workstation/pull/55)
+
+### Changed
+
+- **CI path filtering added**: The `push` trigger in `.github/workflows/test_install.yml` now uses `paths-ignore` to skip CI runs when only documentation files are changed (`README.md`, `CHANGELOG.md`, `LICENCE.md`, `AGENTS.md`, `prompts/**`, `.vars_example.yml`). The `workflow_dispatch` and `schedule` triggers are unaffected and continue to run unconditionally.
+
+### Security
+
+- **Threat Model Assessment**: This change **does not affect workstation runtime configuration or security posture**.
+    - **Rationale**: Running the full CI suite on every documentation commit wastes compute resources and adds noise without providing any validation signal, since documentation files are not exercised by the Ansible playbook tests.
+    - **Benefit**: CI runs remain reliable and fast for changes that matter; documentation-only commits no longer consume runner minutes unnecessarily. This does not weaken any control required by UK Cyber Essentials, as the CI validation suite is unchanged.
+
 ## [Disable DNS over TLS to restore name resolution when using NordVPN](https://github.com/brabster/xubuntu-workstation/pull/54)
 
 ### Fixed
