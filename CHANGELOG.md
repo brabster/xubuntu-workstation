@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Set up Copilot coding agent instructions](https://github.com/brabster/xubuntu-workstation/pull/53)
+
+### Added
+
+- **Repository Copilot instructions**: Added `.github/copilot-instructions.md` to define secure and stable coding-agent defaults, faster validation feedback loops, and explicit prompting-quality guidance (including suggesting prompt improvements when interactions are inefficient).
+
+### Security
+
+- **Threat Model Assessment**: This change **improves delivery safety and consistency without changing workstation runtime configuration**.
+    - **Rationale**: Standardized agent instructions reduce the risk of unsafe automation suggestions (for example unnecessary privilege escalation or weak provenance practices), and reinforce evidence-first diagnostics before remediation.
+    - **Benefit**: Improves alignment with UK Cyber Essentials intent by reinforcing secure change behaviour, traceable security rationale, and reliable validation practices in repository contributions.
+
 ## [Ubuntu 26.04 compatibility: fix Chrome install on rolling release](https://github.com/brabster/xubuntu-workstation/pull/52)
 
 ### Fixed
@@ -112,4 +124,3 @@ Fixes on [PR#46](https://github.com/brabster/xubuntu-workstation/pull/46).
 -   **Threat Model Assessment for Passwordless Updates**: A threat model assessment was conducted for the passwordless `sudo` feature. The conclusion is that this change represents a **net decrease in overall risk**. (#26)
     -   **Rationale**: While it introduces a minor theoretical risk (an attacker with user-level access can trigger a system update), this is heavily mitigated because the script itself is owned by `root` and cannot be modified by the user.
     -   **Benefit**: The removal of friction for a routine, safe task encourages more frequent system updates. This tangible improvement in security posture outweighs the minor introduced risk.
-
