@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Managed by Ansible - xubuntu-workstation
+  xfwm4 tile shortcuts configured here so they take effect without needing
+  a live X11/D-Bus session (xfconf-query cannot run headlessly).
+  Super+Left and Super+Right are reserved for tile_left_key and tile_right_key.
+  The Whisker menu Super key grab is disabled separately (see tasks/main.yml).
+-->
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Super&gt;l" type="string" value="xflock4"/>
+      <property name="&lt;Primary&gt;&lt;F2&gt;" type="string" value="xfrun4"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="xfce4-terminal"/>
+    </property>
+    <property name="custom" type="empty"/>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Alt&gt;&lt;Shift&gt;Tab" type="string" value="cycle_reverse_windows_key"/>
+      <property name="&lt;Alt&gt;Tab" type="string" value="cycle_windows_key"/>
+      <property name="&lt;Super&gt;Down" type="string" value="tile_down_key"/>
+      <property name="&lt;Super&gt;Left" type="string" value="tile_left_key"/>
+      <property name="&lt;Super&gt;Right" type="string" value="tile_right_key"/>
+      <property name="&lt;Super&gt;Up" type="string" value="tile_up_key"/>
+    </property>
+    <property name="custom" type="empty"/>
+  </property>
+</channel>
