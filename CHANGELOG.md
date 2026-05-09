@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Robust snap left/right keyboard shortcut configuration](https://github.com/brabster/xubuntu-workstation/pull/55)
+
+### Added
+
+- **Tile left/right keyboard shortcuts configured via direct XML**: The `xfce` role now deploys `~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml` directly using Ansible's `template` module. This bypasses the `xfconf-query` tool, which cannot run headlessly (it requires a live D-Bus/X11 session and fails with `cannot autolaunch D-Bus without X11 display`). The template configures `Super+Left` → tile left and `Super+Right` → tile right, along with the standard XFCE shortcuts.
+- **Whisker menu Super key grab disabled**: In Ubuntu 25.04+, `xfce4-whiskermenu-plugin` can grab the bare Super key at the panel level, preventing xfwm4 from receiving `Super+Left`/`Super+Right`. The `xfce` role now finds all `whiskermenu-*.rc` files and sets `button-trigger=0` (disabled) so tile shortcuts are not stolen.
+
+### Security
+
+- **Threat Model Assessment**: This change **has no impact on the security posture** of the workstation.
+    - **Rationale**: Configuring keyboard shortcuts and disabling a panel-level key grab is a usability change. No new processes, services, or permissions are introduced. File permissions on the xfconf XML file are set to `0600` (user-readable only), consistent with other xfconf configuration files.
+    - **Benefit**: Reliable window tiling shortcut configuration contributes to a consistent, predictable workstation environment, which supports operational hygiene aligned with UK Cyber Essentials principles (reducing unmanaged/misconfigured system states).
+
 ## [Set up Copilot coding agent instructions](https://github.com/brabster/xubuntu-workstation/pull/53)
 
 ### Added
