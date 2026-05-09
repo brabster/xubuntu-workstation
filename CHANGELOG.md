@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Set up a minimal devcontainer image](https://github.com/brabster/xubuntu-workstation/pull/55)
+
+### Added
+
+- **Devcontainer configuration**: Added `.devcontainer/Dockerfile` and `.devcontainer/devcontainer.json` to support development of this project in a GitHub Codespace. The image extends `mcr.microsoft.com/devcontainers/base:ubuntu` and pre-installs `ansible` and `ansible-lint`, providing the minimum tooling needed to edit roles, run linting (`ansible-lint workstation.yml`), and test in check mode (`ansible-playbook --check`).
+
+### Security
+
+- **Threat Model Assessment**: This change **adds a development environment definition without altering workstation runtime configuration**.
+    - **Rationale**: Using the official Microsoft devcontainers base image (`mcr.microsoft.com/devcontainers/base:ubuntu`) ensures a maintained, trusted foundation with a non-root user by default, reducing privilege-escalation risk in the development environment. Only `ansible` and `ansible-lint` are added on top; no secrets or credentials are embedded.
+    - **Benefit**: Contributors can develop and validate Ansible roles in an isolated, reproducible container without needing to configure a local environment manually. This reduces the risk of environment-specific configuration drift and accidental changes to a developer's own system. No production or workstation security controls are affected.
+
 ## [Disable DNS over TLS to restore name resolution when using NordVPN](https://github.com/brabster/xubuntu-workstation/pull/54)
 
 ### Fixed
