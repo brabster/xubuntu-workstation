@@ -20,4 +20,4 @@ Prioritise secure, stable, minimal changes that align with this repository's Ans
 ## Prompting quality
 
 - If a user prompt is underspecified, risky, or inefficient, suggest a better prompt format before or alongside implementation.
-- Include a short “Prompt improvement suggestion” in your response when a more specific prompt would improve speed, safety, or correctness.
+- Include a short "Prompt improvement suggestion" in your response when a more specific prompt would improve speed, safety, or correctness.
