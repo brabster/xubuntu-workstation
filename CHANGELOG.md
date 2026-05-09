@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Disable DNS over TLS to restore name resolution when using NordVPN](https://github.com/brabster/xubuntu-workstation/pull/54)
+
+### Fixed
+
+-   **DNS resolution broken when using NordVPN**: `DNSOverTLS=yes` has been removed from the Cloudflare for Families `systemd-resolved` configuration. DNS over TLS (DoT) requires a direct TLS connection to Cloudflare on port 853, which NordVPN intercepts and breaks, causing name resolution to fail entirely while the VPN is active.
+
+### Security
+
+-   **Threat Model Assessment**: This change **removes DNS over TLS (DoT) from the Cloudflare for Families configuration** to restore compatibility with NordVPN.
+    -   **Rationale**: DoT provides transport-layer encryption for DNS queries, protecting against eavesdropping on the local network path to the resolver. However, when NordVPN is active it routes all DNS traffic through its own encrypted tunnel, so DoT's protection is effectively duplicated. Enabling DoT simultaneously causes TLS handshake failures to port 853, breaking DNS for all applications.
+    -   **Benefit**: DNS resolution is reliable whether or not NordVPN is in use. The Cloudflare for Families content-filtering DNS servers (blocking malware and adult content) remain in effect. When NordVPN is connected, DNS traffic is protected by the VPN tunnel, maintaining confidentiality without requiring DoT. This aligns with UK Cyber Essentials requirements for a functioning, consistently available network configuration.
+
 ## [Set up Copilot coding agent instructions](https://github.com/brabster/xubuntu-workstation/pull/53)
 
 ### Added
