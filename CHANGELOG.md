@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- **CI path filtering added**: The `push` trigger in `.github/workflows/test_install.yml` now uses `paths-ignore` to skip CI runs when only documentation files are changed (`**/*.md`, `prompts/**`, `.vars_example.yml`). The `workflow_dispatch` and `schedule` triggers are unaffected and continue to run unconditionally.
+- **CI path filtering added**: The `push` trigger in `.github/workflows/test_install.yml` now uses `paths-ignore` to skip CI runs when only documentation and meta files are changed (`**/*.md`, `prompts/**`, `.vars_example.yml`). The `workflow_dispatch` and `schedule` triggers are unaffected and continue to run unconditionally.
 
 ### Security
 
