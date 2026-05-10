@@ -1,0 +1,6 @@
+{
+  "name": "xubuntu-workstation",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}
