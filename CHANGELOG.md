@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
 ## [Set up a minimal devcontainer image](https://github.com/brabster/xubuntu-workstation/pull/58)
 
 ### Added
@@ -15,6 +16,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Threat Model Assessment**: This change has a **small net reduction in contributor setup risk** and **no change to managed workstation runtime risk**.
     - **Rationale**: Using the official Microsoft devcontainers base image (`mcr.microsoft.com/devcontainers/base:ubuntu`) ensures a maintained, trusted foundation with a non-root user by default, reducing privilege-escalation risk in the development environment. Only `ansible` and `ansible-lint` are added on top, and no secrets or credentials are embedded.
     - **Benefit**: Contributors can develop and validate Ansible roles in an isolated, reproducible container without needing to configure a local environment manually. This reduces the risk of environment-specific configuration drift and accidental changes to a developer's own system while leaving production and workstation security controls unchanged.
+
+
+## [Prevent GitHub Actions from running on documentation changes](https://github.com/brabster/xubuntu-workstation/pull/55)
+
+### Changed
+
+- **CI path filtering added**: The `push` trigger in `.github/workflows/test_install.yml` now uses `paths-ignore` to skip CI runs when only documentation and meta files are changed (`**/*.md`, `prompts/**`, `.vars_example.yml`). The `workflow_dispatch` and `schedule` triggers are unaffected and continue to run unconditionally.
+
+### Security
+
+- **Threat Model Assessment**: This change **does not affect workstation runtime configuration or security posture**.
+    - **Rationale**: Running the full CI suite on every documentation commit wastes compute resources and adds noise without providing any validation signal, since documentation files are not exercised by the Ansible playbook tests.
+    - **Benefit**: CI runs remain reliable and fast for changes that matter; documentation-only commits no longer consume runner minutes unnecessarily. This does not weaken any control required by UK Cyber Essentials, as the CI validation suite is unchanged.
 
 ## [Disable DNS over TLS to restore name resolution when using NordVPN](https://github.com/brabster/xubuntu-workstation/pull/54)
 
