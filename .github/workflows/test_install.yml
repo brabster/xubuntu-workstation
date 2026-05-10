@@ -9,6 +9,16 @@ on:
   schedule:
     - cron: "0 0 * * 0"
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: install ansible-lint
+        run: pip3 install ansible-lint==26.4.0
+      - name: run ansible-lint
+        run: ansible-lint workstation.yml
+
   test_install:
     strategy:
       matrix:

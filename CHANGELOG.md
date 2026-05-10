@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Run ansible-lint as part of pre-commit hook and in CI build](https://github.com/brabster/xubuntu-workstation/pull/59)
+
+### Added
+
+- **Pre-commit hook for ansible-lint**: Added `.pre-commit-config.yaml` using the official `ansible/ansible-lint` pre-commit hook (v26.4.0). Contributors can run `pre-commit install` to enforce linting on every commit, preventing non-linting Ansible from entering the repository.
+- **CI lint job**: Added a dedicated `lint` job to `.github/workflows/test_install.yml` that installs `ansible-lint` via pip and runs `ansible-lint workstation.yml` on every push and schedule trigger. This runs independently of the installation matrix, providing fast feedback before playbook tests.
+- **`pre-commit` in devcontainer**: Added `pre-commit` to the devcontainer Dockerfile so contributors working in a Codespace can run `pre-commit install` without any additional setup.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces the risk of introducing misconfigured or unsafe Ansible code into the repository**.
+    - **Rationale**: Enforcing `ansible-lint` at both the pre-commit and CI stages ensures that only lint-clean Ansible code is accepted into the codebase. Ansible lint rules include checks for unsafe file permissions, missing idempotency guards, and use of deprecated or risky modules, all of which directly support UK Cyber Essentials baseline controls.
+    - **Benefit**: Non-linting code is blocked before it enters the repository, reducing the chance of insecure or unpredictable workstation configuration reaching end users. The net change to risk is **reduced**.
+
 ## [Set up a minimal devcontainer image](https://github.com/brabster/xubuntu-workstation/pull/58)
 
 ### Added
