@@ -39,7 +39,9 @@ NOTE: the setup ends by setting up NordVPN with some security-related settings. 
 - run:
   - `sudo setup_autoinstall_usb.sh <xubuntu_iso_url> <repo_root_dir> <target_usb_device>`
   - example:
-    - `sudo setup_autoinstall_usb.sh https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.2-desktop-amd64.iso ~/projects/xubuntu-workstation /dev/sda`
+    - `sudo setup_autoinstall_usb.sh https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.2-desktop-amd64.iso ~/projects/xubuntu-workstation /dev/sdb`
+- warning:
+  - always verify the USB target with `lsblk` before writing, to avoid wiping the wrong disk
 
 This command:
 - downloads and verifies the ISO signature/checksum

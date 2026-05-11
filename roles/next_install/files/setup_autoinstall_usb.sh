@@ -151,7 +151,7 @@ if [[ ! -f "${AUTOINSTALL_ISO_PATH}" ]]; then
 
     for boot_cfg in "${ISO_EXTRACT_DIR}/boot/grub/grub.cfg" "${ISO_EXTRACT_DIR}/isolinux/txt.cfg"; do
         if [[ -f "${boot_cfg}" ]]; then
-            sed -i 's|---| autoinstall ds=nocloud\\;s=/cdrom/autoinstall/ ---|g' "${boot_cfg}"
+            sed -i 's| quiet ---| autoinstall ds=nocloud\\;s=/cdrom/autoinstall/ quiet ---|g' "${boot_cfg}"
         fi
     done
 
@@ -182,7 +182,12 @@ else
 fi
 
 echo "Step 3/4: Writing autoinstall ISO to ${USB_DEVICE}"
-lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}" | xargs -r umount -f || true
+if lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}" | grep -q '[^[:space:]]'; then
+    if ! lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}" | xargs -r umount -f; then
+        echo "ERROR: Failed to unmount one or more mount points on ${USB_DEVICE}."
+        exit 1
+    fi
+fi
 dd if="${AUTOINSTALL_ISO_PATH}" of="${USB_DEVICE}" bs=4M status=progress conv=fsync
 sync
 

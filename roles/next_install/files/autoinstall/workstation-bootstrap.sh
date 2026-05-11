@@ -6,6 +6,11 @@ LOG_FILE="/var/log/xubuntu-workstation-bootstrap.log"
 MARKER="/var/lib/xubuntu-workstation/bootstrap.done"
 REPO_DIR="/opt/xubuntu-workstation"
 
+if [[ "${EUID}" -ne 0 ]]; then
+    echo "ERROR: workstation-bootstrap.sh must run as root."
+    exit 1
+fi
+
 mkdir -p "$(dirname "${LOG_FILE}")" "$(dirname "${MARKER}")"
 
 if [[ -f "${MARKER}" ]]; then
@@ -13,7 +18,7 @@ if [[ -f "${MARKER}" ]]; then
 fi
 
 {
-    echo "=== Starting workstation bootstrap: $(date --iso-8601=seconds)"
+    echo "=== Starting workstation bootstrap: $(date -Iseconds)"
     cd "${REPO_DIR}"
 
     if [[ ! -f "${REPO_DIR}/.vars.yml" ]]; then
@@ -25,5 +30,5 @@ fi
 
     touch "${MARKER}"
     systemctl disable --now xubuntu-workstation-bootstrap.service
-    echo "=== Workstation bootstrap complete: $(date --iso-8601=seconds)"
+    echo "=== Workstation bootstrap complete: $(date -Iseconds)"
 } >>"${LOG_FILE}" 2>&1
