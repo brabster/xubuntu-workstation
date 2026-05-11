@@ -60,6 +60,9 @@ This command:
 - on success it creates marker file:
   - `/var/lib/xubuntu-workstation/bootstrap.done`
   - and disables itself
+- on failure it creates:
+  - `/var/lib/xubuntu-workstation/bootstrap.failed`
+  - and keeps the failure details in the bootstrap log
 
 ### Two-USB fallback (backup path only)
 

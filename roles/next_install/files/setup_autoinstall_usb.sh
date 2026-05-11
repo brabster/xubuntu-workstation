@@ -3,7 +3,7 @@
 set -euo pipefail
 
 LOG_FILE="/var/log/setup_autoinstall_usb.log"
-STATE_DIR="${XUBUNTU_AUTOINSTALL_STATE_DIR:-/var/tmp/xubuntu-autoinstall-build}"
+STATE_DIR="${XUBUNTU_AUTOINSTALL_STATE_DIR:-/var/cache/xubuntu-autoinstall-build}"
 
 exec > >(tee -a "${LOG_FILE}") 2>&1
 
@@ -89,6 +89,7 @@ if [[ -z "${AUTOINSTALL_HOSTNAME}" ]]; then
 fi
 
 mkdir -p "${STATE_DIR}"
+chmod 0700 "${STATE_DIR}"
 WORK_DIR="$(mktemp -d)"
 MOUNT_DIR="${WORK_DIR}/iso_mount"
 ISO_EXTRACT_DIR="${WORK_DIR}/iso_extract"
@@ -142,12 +143,10 @@ if [[ ! -f "${AUTOINSTALL_ISO_PATH}" ]]; then
         --exclude='.github' \
         --exclude='.devcontainer' \
         --exclude='.venv' \
+        --exclude='.vars.yml' \
         --exclude='*.retry' \
         "${PROJECT_ROOT}/" "${AUTOINSTALL_DIR}/xubuntu-workstation/"
-
-    if [[ ! -f "${AUTOINSTALL_DIR}/xubuntu-workstation/.vars.yml" ]]; then
-        cp "${VARS_FILE}" "${AUTOINSTALL_DIR}/xubuntu-workstation/.vars.yml"
-    fi
+    cp "${VARS_FILE}" "${AUTOINSTALL_DIR}/xubuntu-workstation/.vars.yml"
 
     for boot_cfg in "${ISO_EXTRACT_DIR}/boot/grub/grub.cfg" "${ISO_EXTRACT_DIR}/isolinux/txt.cfg"; do
         if [[ -f "${boot_cfg}" ]]; then
@@ -182,8 +181,9 @@ else
 fi
 
 echo "Step 3/4: Writing autoinstall ISO to ${USB_DEVICE}"
-if lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}" | grep -q '[^[:space:]]'; then
-    if ! lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}" | xargs -r umount -f; then
+MOUNT_POINTS="$(lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}")"
+if grep -q '[^[:space:]]' <<<"${MOUNT_POINTS}"; then
+    if ! xargs -r umount -f <<<"${MOUNT_POINTS}"; then
         echo "ERROR: Failed to unmount one or more mount points on ${USB_DEVICE}."
         exit 1
     fi
