@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- **Ansible remote_tmp mode 0700 warning**: Added a `pre_tasks` block to `workstation.yml` that pre-creates `~{{ username }}/.ansible/tmp` (the default `remote_tmp` path) with mode `0700` and the correct owner before any `become_user` task runs. Ansible only emits the warning when it must create the directory itself; pre-creating it with the right ownership and permissions eliminates the warning entirely, which is the approach recommended by Ansible's own warning message. A project-level `ansible.cfg` is also added to serve as a stable configuration anchor and document the intent.
+- **Ansible remote_tmp mode 0700 warning**: Added a `pre_tasks` block to `workstation.yml` that pre-creates `~{{ username }}/.ansible/tmp` (the default `remote_tmp` path) with mode `0700` and the correct owner before any `become_user` task runs. Ansible only emits the warning when it must create the directory itself; pre-creating it with the right ownership and permissions eliminates the warning entirely, which is the approach recommended by Ansible's own warning message.
 
 ### Security
 
