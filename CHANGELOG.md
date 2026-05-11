@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Security
 
 - **Threat Model Assessment**: This change has **no net change to risk** for the managed workstation.
-    - **Rationale**: `/tmp/.ansible/tmp` is used only for transient module files during playbook execution. These files contain no secrets beyond what is already present in the playbook run context, and the `/tmp` directory is cleared on reboot. The change does not weaken any control required by UK Cyber Essentials.
+    - **Rationale**: Ansible temporary module files can include module arguments, so the security case does not rely on those files being non-sensitive or on `/tmp` being cleared on reboot. Instead, the risk remains unchanged because Ansible creates its temporary working directory and module files with restrictive permissions (for example `0700` for directories and `0600` for files), and changing the base path to `/tmp/.ansible/tmp` does not weaken any control required by UK Cyber Essentials.
     - **Benefit**: Eliminates a misleading warning that could obscure genuine issues in playbook output, improving signal-to-noise ratio during automated and manual runs.
 
 ## [Fix ISO signature verification by using Ubuntu archive keyring](https://github.com/brabster/xubuntu-workstation/pull/61)
