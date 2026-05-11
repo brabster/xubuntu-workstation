@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
+
+### Fixed
+
+- **Ansible remote_tmp mode 0700 warning**: Added a `pre_tasks` block to `workstation.yml` that pre-creates `~{{ username }}/.ansible/tmp` (the default `remote_tmp` path) with mode `0700` and the correct owner before any `become_user` task runs. Ansible only emits the warning when it must create the directory itself; pre-creating it with the right ownership and permissions eliminates the warning entirely, which is the approach recommended by Ansible's own warning message.
+
+### Security
+
+- **Threat Model Assessment**: This change **does not change the risk** for the managed workstation.
+    - **Rationale**: The `~/.ansible/tmp` directory is still created with mode `0700`, owned by the target user — identical to what Ansible would create. Pre-creating it with explicit ownership ensures the directory belongs to the correct user from the start. No secrets are exposed and no permissions are weakened. The fix does not affect any control required by UK Cyber Essentials.
+    - **Benefit**: Eliminates a warning that could obscure genuine issues in playbook output, improving signal-to-noise ratio in both CI and manual runs.
 ## [Fix updates role Ansible fact deprecation warning](https://github.com/brabster/xubuntu-workstation/pull/66)
 
 ### Fixed
