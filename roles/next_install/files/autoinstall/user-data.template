@@ -21,5 +21,7 @@ autoinstall:
     - "cp -a /cdrom/autoinstall/xubuntu-workstation/. /target/opt/xubuntu-workstation/"
     - "cp /cdrom/autoinstall/workstation-bootstrap.sh /target/usr/local/sbin/workstation-bootstrap.sh"
     - "cp /cdrom/autoinstall/xubuntu-workstation-bootstrap.service /target/etc/systemd/system/xubuntu-workstation-bootstrap.service"
+    - "chown -R root:root /target/opt/xubuntu-workstation"
+    - "chown root:root /target/usr/local/sbin/workstation-bootstrap.sh /target/etc/systemd/system/xubuntu-workstation-bootstrap.service"
     - "chmod 0700 /target/usr/local/sbin/workstation-bootstrap.sh"
     - "curtin in-target --target=/target -- systemctl enable xubuntu-workstation-bootstrap.service"

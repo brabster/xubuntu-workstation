@@ -38,7 +38,7 @@ trap 'on_error ${LINENO}' ERR
         exit 1
     fi
 
-    ansible-playbook -i inventory workstation.yml
+    ansible-playbook -v -i inventory workstation.yml
 
     touch "${MARKER}"
     systemctl disable --now xubuntu-workstation-bootstrap.service

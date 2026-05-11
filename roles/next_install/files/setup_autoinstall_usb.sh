@@ -4,6 +4,7 @@ set -euo pipefail
 
 LOG_FILE="/var/log/setup_autoinstall_usb.log"
 STATE_DIR="${XUBUNTU_AUTOINSTALL_STATE_DIR:-/var/cache/xubuntu-autoinstall-build}"
+DD_BLOCK_SIZE="${XUBUNTU_AUTOINSTALL_DD_BS:-4M}"
 
 exec > >(tee -a "${LOG_FILE}") 2>&1
 
@@ -185,11 +186,11 @@ echo "Step 3/4: Writing autoinstall ISO to ${USB_DEVICE}"
 MOUNT_POINTS="$(lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}")"
 if grep -q '[^[:space:]]' <<<"${MOUNT_POINTS}"; then
     if ! xargs -r umount -f <<<"${MOUNT_POINTS}"; then
-        echo "ERROR: Failed to unmount one or more mount points on ${USB_DEVICE}."
+        echo "ERROR: Failed to unmount one or more mount points on ${USB_DEVICE}. Check active processes with lsof/fuser and retry."
         exit 1
     fi
 fi
-dd if="${AUTOINSTALL_ISO_PATH}" of="${USB_DEVICE}" bs=4M status=progress conv=fsync
+dd if="${AUTOINSTALL_ISO_PATH}" of="${USB_DEVICE}" bs="${DD_BLOCK_SIZE}" status=progress conv=fsync
 sync
 
 echo "Step 4/4: Done"
