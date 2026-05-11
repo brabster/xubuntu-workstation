@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- **Ansible remote_tmp mode 0700 warning**: Added `ansible.cfg` setting `remote_tmp = /tmp/.ansible/tmp`. Previously, Ansible created `~/.ansible/tmp` on first use with mode `0700`, triggering a warning that the directory may cause issues when running as another user. Using a `/tmp`-based path avoids this because `/tmp` already exists with world-writable sticky-bit permissions (`1777`), so Ansible never needs to create it with restrictive permissions.
+- **Ansible remote_tmp mode 0700 warning**: Added `ansible.cfg` setting `remote_tmp = /tmp/.ansible/tmp`. Previously, Ansible created `~/.ansible/tmp` on first use with mode `0700`, triggering a warning that the directory may cause issues when running as another user. Using a `/tmp`-based path avoids this warning because the temp directory is rooted under `/tmp`, whose parent directory already has world-writable sticky-bit permissions (`1777`), rather than under `~/.ansible/tmp`.
 
 ### Security
 
