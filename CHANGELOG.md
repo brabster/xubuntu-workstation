@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Automate single-USB autoinstall and first-boot provisioning](PR pending for branch `copilot/simplify-next-installation-approach`)
+
+### Added
+
+- **Single-command autoinstall media creation**: Added `setup_autoinstall_usb.sh` to build installation media in one flow: verify ISO provenance, inject autoinstall seed data, embed this repository and `.vars.yml`, and write the bootable USB.
+- **Automated first-boot provisioning**: Added autoinstall assets that install and enable a one-shot `xubuntu-workstation-bootstrap.service`, which runs the workstation Ansible playbook automatically and records progress in `/var/log/xubuntu-workstation-bootstrap.log`.
+- **Resumable media build checkpoints**: Added cached artifact reuse in `/var/cache/xubuntu-autoinstall-build` to allow reruns without re-downloading or re-building unchanged ISO artifacts.
+
+### Changed
+
+- **Install path prioritization**: Updated documentation to make the single autoinstall USB path the default and keep the previous two-USB workflow as explicit fallback.
+- **Role integration for least-friction setup**: Added the `next_install` role to `workstation.yml` and granted `install_users` permission for the new `setup_autoinstall_usb.sh` helper alongside existing media scripts.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces risk** overall while preserving existing trust boundaries and privileged controls.
+    - **Rationale**: ISO authenticity verification remains mandatory (Ubuntu archive keyring + signed checksums), while reducing manual root shell steps lowers opportunities for operator error and accidental privilege misuse during rebuilds. The first-boot bootstrap service is constrained to one-shot execution and self-disables on success, reducing persistence risk.
+    - **Benefit**: End users follow a simpler, auditable installation path with fewer privileged manual actions, improving repeatability and supporting UK Cyber Essentials expectations for secure configuration, trusted software sources, and least-privilege operational practice.
+
 ## [Fix ISO signature verification by using Ubuntu archive keyring](https://github.com/brabster/xubuntu-workstation/pull/61)
 
 ### Fixed

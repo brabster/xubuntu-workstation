@@ -1,3 +1,5 @@
 git_name: Your name
 git_email: your email
 username: your system username
+autoinstall_password_hash: '$6$replace_with_openssl_passwd_hash'
+autoinstall_hostname: your-hostname
