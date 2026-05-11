@@ -20,45 +20,51 @@ See [CHANGELOG.md](./CHANGELOG.md) for summaries of changes and reasons.
 
 ## Usage
 
-Most convenient way to do this is to create a bootable USB for the xubuntu distro, and a separate non-bootable USB from this repo. Minimal Xubuntu distro expected.
+Most convenient way is now a single autoinstall USB that handles OS install plus first-boot provisioning. Minimal Xubuntu distro expected.
 
 The [next_install role](./roles/next_install) places these scripts in a non-user modifiable directory and grants sudo rights to execute them. Some safety checks are in place but user takes responsibility for any data loss that may occur.
 
 NOTE: the setup ends by setting up NordVPN with some security-related settings. **The network killswitch will be OFF** and will need login to enable. Username/password not required, emailed one-time code option is available to login.
 
-### Setup Distro USB
+### Prepare variables once
+
+- copy [.vars_example.yml](./.vars_example.yml) to `.vars.yml`
+- set your `git_name`, `git_email`, `username`
+- set `autoinstall_password_hash` using a Linux password hash, for example:
+  - `openssl passwd -6`
+
+### Create one autoinstall USB (primary path)
 
 - wipes any existing USB content
-- run [sudo setup_linux_usb.sh iso_image_path target_usb_device](./roles/next_install/files/setup_linux_usb.sh)
+- run:
+  - `sudo setup_autoinstall_usb.sh <xubuntu_iso_url> <repo_root_dir> <target_usb_device>`
+  - example:
+    - `sudo setup_autoinstall_usb.sh https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.2-desktop-amd64.iso ~/projects/xubuntu-workstation /dev/sda`
 
-### Create Bootstrap USB
+This command:
+- downloads and verifies the ISO signature/checksum
+- injects autoinstall seed files
+- embeds this repo and `.vars.yml`
+- writes a bootable autoinstall USB
 
-- wipes any existing USB content
-- use [vars_example.yml](./vars_example.yml) to create a file .vars.yml with appropriate settings
-- [optional] - edit workstation.yml to one-off customise install
-- run [sudo setup_ansible_usb.sh repo_root_dir target_usb_device](./roles/next_install/files/setup_ansible_usb.sh)
+### Install and auto-bootstrap
 
-### Install Xubuntu
+- boot from the autoinstall USB
+- installer creates the configured user and installs base packages
+- on first boot, a one-shot systemd service runs:
+  - `ansible-playbook -i inventory workstation.yml`
+- service logs to:
+  - `/var/log/xubuntu-workstation-bootstrap.log`
+- on success it creates marker file:
+  - `/var/lib/xubuntu-workstation/bootstrap.done`
+  - and disables itself
 
-- insert bootable USB
-- interrupt boot process, set USB as temp boot device
-- install distro
-    - can connect to network now or in bootstrap
-    - use LVM/encrypt HDD
-    - as this is a single-user device, can use same strong password for disk encryption as for login - one stronger better than two weaker
-- allow reboot
-- remove USB
-- boot, decrypt and log in
+### Two-USB fallback (backup path only)
 
-### Bootstrap
-
-- insert bootstrap USB
-- mount, open terminal in directory
-- `sudo su -` to start a root shell (you will lose ability to `sudo` arbitrarily as part of install to meet Cyber Essentials regulations)
-- `passwd` to set a root password
-- `cd` back to the mount directory
-- ensure connected to network for updates and installs
-- `./bootstrap.sh`
+If autoinstall media is not suitable for your hardware/firmware, keep using the existing scripts:
+- [setup_linux_usb.sh](./roles/next_install/files/setup_linux_usb.sh)
+- [setup_ansible_usb.sh](./roles/next_install/files/setup_ansible_usb.sh)
+- [bootstrap.sh](./bootstrap.sh)
 
 ### Smoke test
 

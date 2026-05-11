@@ -1,0 +1,13 @@
+[Unit]
+Description=Run xubuntu-workstation bootstrap once after first boot
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/var/lib/xubuntu-workstation/bootstrap.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/workstation-bootstrap.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

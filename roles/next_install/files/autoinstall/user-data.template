@@ -1,0 +1,25 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_GB.UTF-8
+  keyboard:
+    layout: gb
+  timezone: Europe/London
+  updates: security
+  identity:
+    hostname: __HOSTNAME__
+    username: __USERNAME__
+    password: "__PASSWORD_HASH__"
+  apt:
+    preserve_sources_list: false
+  packages:
+    - git
+    - ansible
+    - sudo
+  late-commands:
+    - "mkdir -p /target/opt/xubuntu-workstation"
+    - "cp -a /cdrom/autoinstall/xubuntu-workstation/. /target/opt/xubuntu-workstation/"
+    - "cp /cdrom/autoinstall/workstation-bootstrap.sh /target/usr/local/sbin/workstation-bootstrap.sh"
+    - "cp /cdrom/autoinstall/xubuntu-workstation-bootstrap.service /target/etc/systemd/system/xubuntu-workstation-bootstrap.service"
+    - "chmod 0700 /target/usr/local/sbin/workstation-bootstrap.sh"
+    - "curtin in-target --target=/target -- systemctl enable xubuntu-workstation-bootstrap.service"

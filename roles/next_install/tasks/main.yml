@@ -3,6 +3,8 @@
   ansible.builtin.package:
     name:
       - ubuntu-keyring
+      - xorriso
+      - rsync
     state: present
 
 - name: copy ISO download and verify script to unmodifiable location
@@ -23,6 +25,12 @@
     dest: /usr/local/bin/setup_ansible_usb.sh
     mode: 0755
 
+- name: copy media autoinstall script to unmodifiable location
+  ansible.builtin.copy:
+    src: files/setup_autoinstall_usb.sh
+    dest: /usr/local/bin/setup_autoinstall_usb.sh
+    mode: 0755
+
 - name: Add install_users group
   ansible.builtin.group:
     name: install_users
@@ -39,5 +47,5 @@
     dest: /etc/sudoers
     state: present
     regexp: '^%install_users'
-    line: '%install_users {{ ansible_hostname }}=/usr/local/bin/setup_ansible_usb.sh, /usr/local/bin/setup_linux_usb.sh'
+    line: '%install_users {{ ansible_hostname }}=/usr/local/bin/setup_autoinstall_usb.sh, /usr/local/bin/setup_ansible_usb.sh, /usr/local/bin/setup_linux_usb.sh'
     validate: visudo -cf %s
