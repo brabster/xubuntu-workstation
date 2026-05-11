@@ -32,7 +32,7 @@ if [[ ! -r "${KEYRING_FILE}" ]]; then
     echo "Install the 'ubuntu-keyring' package and run again." >&2
     exit 1
 fi
-gpg --no-default-keyring --keyring "${KEYRING_FILE}" --verify "${SIG_FILE}" "${SUMS_FILE}"
+gpgv --keyring "${KEYRING_FILE}" "${SIG_FILE}" "${SUMS_FILE}"
 echo "GPG signature is valid."
 echo ""
 
