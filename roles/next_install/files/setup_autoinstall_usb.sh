@@ -158,7 +158,7 @@ if [[ ! -f "${AUTOINSTALL_ISO_PATH}" ]]; then
     if [[ -f "${ISO_EXTRACT_DIR}/md5sum.txt" ]]; then
         (
             cd "${ISO_EXTRACT_DIR}"
-            find . -type f ! -name md5sum.txt ! -path ./isolinux/boot.cat -print0 | xargs -0 md5sum > md5sum.txt
+            find . -type f ! -name md5sum.txt ! -path './isolinux/boot.cat' -print0 | xargs -0 md5sum > md5sum.txt
         )
     fi
 
