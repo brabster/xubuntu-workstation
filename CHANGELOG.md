@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
+
+### Fixed
+
+- **Ansible remote_tmp mode 0700 warning**: Added `ansible.cfg` setting `remote_tmp = /tmp/.ansible/tmp`. Previously, Ansible created `~/.ansible/tmp` on first use with mode `0700`, triggering a warning that the directory may cause issues when running as another user. Using a `/tmp`-based path avoids this because `/tmp` already exists with world-writable sticky-bit permissions (`1777`), so Ansible never needs to create it with restrictive permissions.
+
+### Security
+
+- **Threat Model Assessment**: This change has **no net change to risk** for the managed workstation.
+    - **Rationale**: `/tmp/.ansible/tmp` is used only for transient module files during playbook execution. These files contain no secrets beyond what is already present in the playbook run context, and the `/tmp` directory is cleared on reboot. The change does not weaken any control required by UK Cyber Essentials.
+    - **Benefit**: Eliminates a misleading warning that could obscure genuine issues in playbook output, improving signal-to-noise ratio during automated and manual runs.
+
 ## [Fix ISO signature verification by using Ubuntu archive keyring](https://github.com/brabster/xubuntu-workstation/pull/61)
 
 ### Fixed
