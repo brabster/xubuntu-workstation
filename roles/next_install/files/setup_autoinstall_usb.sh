@@ -159,6 +159,7 @@ if [[ ! -f "${AUTOINSTALL_ISO_PATH}" ]]; then
     if [[ -f "${ISO_EXTRACT_DIR}/md5sum.txt" ]]; then
         (
             cd "${ISO_EXTRACT_DIR}"
+            # Exclude md5sum.txt itself and El Torito boot catalog to match Ubuntu ISO checksum conventions.
             find . -type f ! -name md5sum.txt ! -path './isolinux/boot.cat' -print0 | xargs -0 md5sum > md5sum.txt
         )
     fi
@@ -183,12 +184,14 @@ else
 fi
 
 echo "Step 3/4: Writing autoinstall ISO to ${USB_DEVICE}"
-MOUNT_POINTS="$(lsblk --noheadings --output MOUNTPOINTS "${USB_DEVICE}")"
-if grep -q '[^[:space:]]' <<<"${MOUNT_POINTS}"; then
-    if ! xargs -r umount -f <<<"${MOUNT_POINTS}"; then
-        echo "ERROR: Failed to unmount one or more mount points on ${USB_DEVICE}. Check active processes with lsof/fuser and retry."
-        exit 1
-    fi
+mapfile -t MOUNT_POINTS < <(lsblk -nrpo MOUNTPOINT "${USB_DEVICE}" | awk 'NF')
+if (( ${#MOUNT_POINTS[@]} > 0 )); then
+    for mount_point in "${MOUNT_POINTS[@]}"; do
+        if ! umount -f "${mount_point}"; then
+            echo "ERROR: Failed to unmount ${mount_point}. Check active processes with lsof/fuser and retry."
+            exit 1
+        fi
+    done
 fi
 dd if="${AUTOINSTALL_ISO_PATH}" of="${USB_DEVICE}" bs="${DD_BLOCK_SIZE}" status=progress conv=fsync
 sync

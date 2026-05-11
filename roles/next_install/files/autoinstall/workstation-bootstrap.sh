@@ -38,6 +38,11 @@ trap 'on_error ${LINENO}' ERR
         exit 1
     fi
 
+    if [[ ! -f "${REPO_DIR}/inventory" ]]; then
+        echo "ERROR: ${REPO_DIR}/inventory is missing."
+        exit 1
+    fi
+
     ansible-playbook -v -i inventory workstation.yml
 
     touch "${MARKER}"
