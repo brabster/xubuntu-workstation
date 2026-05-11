@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Show recent freshclam output when current log is empty](https://github.com/brabster/xubuntu-workstation/pull/70)
+
+### Fixed
+
+- **ClamAV verify output after overnight suspend**: `clamav-verify.sh` now falls back to rotated `freshclam` logs (`freshclam.log.1` and `.gz` archives) when `/var/log/clamav/freshclam.log` is empty. This keeps the "latest antivirus update log" section populated after log rotation windows where no new lines have been appended yet.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces risk** by improving visibility of antivirus update evidence without changing ClamAV execution or privilege boundaries.
+    - **Rationale**: After overnight suspend/resume, log rotation can leave the active `freshclam.log` temporarily empty even when update activity recently occurred, which hides operational evidence and can mask stale-signature conditions during manual checks.
+    - **Benefit**: Operators reliably see recent update events during health checks, supporting UK Cyber Essentials intent for effective malware protection operations and routine verification.
+
 ## [Fix updates role Ansible fact deprecation warning](https://github.com/brabster/xubuntu-workstation/pull/66)
 
 ### Fixed

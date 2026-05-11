@@ -27,7 +27,27 @@ cleanup() {
 
 echo_latest_updates() {
   echo " --- latest antivirus update log"
-  tail -3 /var/log/clamav/freshclam.log
+  local update_log
+  update_log="/var/log/clamav/freshclam.log"
+
+  if [ -s "${update_log}" ]; then
+    tail -n 3 "${update_log}"
+    return
+  fi
+
+  if [ -s "${update_log}.1" ]; then
+    tail -n 3 "${update_log}.1"
+    return
+  fi
+
+  local latest_archived_log
+  latest_archived_log="$(ls -1t "${update_log}".*.gz 2>/dev/null | head -n 1 || true)"
+  if [ -n "${latest_archived_log}" ]; then
+    gzip -cd "${latest_archived_log}" | tail -n 3
+    return
+  fi
+
+  echo "No freshclam update log lines available yet."
 }
 
 echo_latest_updates
