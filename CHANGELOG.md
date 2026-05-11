@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Make cleanup_services idempotent after avahi-daemon removal](https://github.com/brabster/xubuntu-workstation/pull/63)
+
+### Fixed
+
+- **Repeat setup runs after service removal**: The `cleanup_services` role now skips stop/disable actions when `service_facts` reports `not-found` for `avahi-daemon.service` or `ModemManager.service`. This prevents reruns failing after the packages were already removed on a previous run.
+
+### Security
+
+- **Threat Model Assessment**: This change **keeps net risk unchanged** while improving reliability of the hardening workflow.
+    - **Rationale**: The role still removes unnecessary services and packages to reduce exposed functionality. The update only prevents failures when units are already absent, preserving least-functionality controls expected by UK Cyber Essentials.
+    - **Benefit**: Re-running setup remains safe and repeatable without weakening existing service-removal protections.
+
 ## [Fix ISO signature verification by using Ubuntu archive keyring](https://github.com/brabster/xubuntu-workstation/pull/61)
 
 ### Fixed
