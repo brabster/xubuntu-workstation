@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Fix ISO signature verification by using Ubuntu archive keyring](https://github.com/brabster/xubuntu-workstation/pull/61)
+
+### Fixed
+
+- **ISO verification public key failure**: `download_verified_iso.sh` now verifies `SHA256SUMS.gpg` with the system Ubuntu archive keyring (`/usr/share/keyrings/ubuntu-archive-keyring.gpg`) instead of the caller's personal GPG keyring. This resolves `gpg: Can't check signature: No public key` when validating current Xubuntu release images.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces risk** in installation media verification while preserving existing trust boundaries.
+    - **Rationale**: Verifying against the explicit, distro-managed Ubuntu archive keyring prevents false verification failures caused by missing user keyring state, and avoids ad-hoc key imports from keyservers that can increase supply-chain and trust-on-first-use risk.
+    - **Benefit**: ISO authenticity checks are now reliable on clean systems where `ubuntu-keyring` is installed, improving integrity assurance for bootstrap media and supporting UK Cyber Essentials expectations for using trusted software sources and verification.
+
 ## [Set up a minimal devcontainer image](https://github.com/brabster/xubuntu-workstation/pull/58)
 
 ### Added

@@ -12,6 +12,7 @@ ISO_FILE=$(basename "${ISO_URL}")
 BASE_URL=$(dirname "${ISO_URL}")/
 SUMS_FILE="SHA256SUMS"
 SIG_FILE="SHA256SUMS.gpg"
+KEYRING_FILE="/usr/share/keyrings/ubuntu-archive-keyring.gpg"
 
 echo "Verifying: ${ISO_FILE}"
 echo "--------------------------------------------------------"
@@ -26,7 +27,12 @@ echo ""
 echo "Verifying the GPG signature of ${SUMS_FILE}..."
 echo "   A 'Good signature' message confirms the checksum file is authentic."
 echo "   A 'key is not certified' warning is normal and can be safely ignored."
-gpg --verify "${SIG_FILE}" "${SUMS_FILE}"
+if [[ ! -r "${KEYRING_FILE}" ]]; then
+    echo "Error: required keyring '${KEYRING_FILE}' is not available." >&2
+    echo "Install the 'ubuntu-keyring' package and run again." >&2
+    exit 1
+fi
+gpg --no-default-keyring --keyring "${KEYRING_FILE}" --verify "${SIG_FILE}" "${SUMS_FILE}"
 echo "GPG signature is valid."
 echo ""
 
