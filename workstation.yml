@@ -6,6 +6,16 @@
   vars_files:
     - ./.vars.yml
     - ./vars.yml
+  pre_tasks:
+    # Pre-create remote_tmp for the target user so Ansible does not create it
+    # on first module execution with mode 0700 and emit a warning.
+    - name: Ensure Ansible remote_tmp exists for target user
+      ansible.builtin.file:
+        path: "{{ user_home }}/.ansible/tmp"
+        state: directory
+        mode: '0700'
+        owner: "{{ username }}"
+        group: "{{ username }}"
   roles:
     - role: networking
     - role: sudo
