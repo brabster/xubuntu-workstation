@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Fix updates role Ansible fact deprecation warning](https://github.com/brabster/xubuntu-workstation/pull/66)
+
+### Fixed
+
+- **Deprecated fact reference in sudoers update task**: Replaced `ansible_hostname` with `ansible_facts["hostname"]` in `roles/updates/tasks/main.yml` to align with ansible-core deprecation guidance and avoid reliance on top-level fact injection (`INJECT_FACTS_AS_VARS`).
+
+### Security
+
+- **Threat Model Assessment**: This change **slightly reduces operational risk** and does not change workstation privilege boundaries.
+    - **Rationale**: The `updates` role manages privileged update access (`/etc/sudoers`). Removing deprecated fact usage prevents future ansible-core behavior changes from silently breaking this automation path.
+    - **Benefit**: Keeps security update workflows reliable over ansible-core upgrades, supporting UK Cyber Essentials intent for timely, dependable patching processes.
+
 ## [Fix ISO signature verification by using Ubuntu archive keyring](https://github.com/brabster/xubuntu-workstation/pull/61)
 
 ### Fixed
