@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Single-command autoinstall media creation**: Added `setup_autoinstall_usb.sh` to build installation media in one flow: verify ISO provenance, inject autoinstall seed data, embed this repository and `.vars.yml`, and write the bootable USB.
 - **Automated first-boot provisioning**: Added autoinstall assets that install and enable a one-shot `xubuntu-workstation-bootstrap.service`, which runs the workstation Ansible playbook automatically and records progress in `/var/log/xubuntu-workstation-bootstrap.log`.
-- **Resumable media build checkpoints**: Added cached artifact reuse in `/var/tmp/xubuntu-autoinstall-build` to allow reruns without re-downloading or re-building unchanged ISO artifacts.
+- **Resumable media build checkpoints**: Added cached artifact reuse in `/var/cache/xubuntu-autoinstall-build` to allow reruns without re-downloading or re-building unchanged ISO artifacts.
 
 ### Changed
 

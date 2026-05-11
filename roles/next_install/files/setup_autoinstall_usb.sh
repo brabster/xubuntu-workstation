@@ -16,6 +16,7 @@ trap 'on_error ${LINENO}' ERR
 usage() {
     echo "Usage: sudo setup_autoinstall_usb.sh <ISO_URL> <PROJECT_ROOT> <USB_DEVICE>"
     echo "Example: sudo setup_autoinstall_usb.sh https://cdimage.ubuntu.com/xubuntu/releases/24.04/release/xubuntu-24.04.2-desktop-amd64.iso ~/projects/xubuntu-workstation /dev/sda"
+    echo "Optional override: set XUBUNTU_AUTOINSTALL_STATE_DIR to change cached build artifact location."
 }
 
 require_cmd() {

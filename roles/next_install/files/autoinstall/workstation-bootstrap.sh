@@ -21,7 +21,9 @@ fi
 on_error() {
     local line_number="$1"
     touch "${FAILED_MARKER}"
-    echo "ERROR: bootstrap failed at line ${line_number}. See ${LOG_FILE}."
+    local message="ERROR: bootstrap failed at line ${line_number}. See ${LOG_FILE}."
+    echo "${message}"
+    echo "${message}" >>"${LOG_FILE}"
 }
 
 trap 'on_error ${LINENO}' ERR
