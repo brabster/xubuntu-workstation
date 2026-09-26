@@ -18,21 +18,6 @@ if [ "${#staged_scoped_files[@]}" -eq 0 ]; then
   exit 0
 fi
 
-unstaged_scoped_files=()
-for file in "${staged_scoped_files[@]}"; do
-  if ! git diff --quiet -- "${file}"; then
-    unstaged_scoped_files+=("${file}")
-  fi
-done
-
-if [ "${#unstaged_scoped_files[@]}" -gt 0 ]; then
-  echo "Unstaged changes detected in scoped Ansible files; stage or stash these first:" >&2
-  printf '  %s\n' "${unstaged_scoped_files[@]}" >&2
-  exit 1
-fi
-
-echo "Running ansible-lint on scoped Ansible files..."
-
 lint_targets=()
 for target in roles workstation.yml workstation.yaml test.yml test.yaml; do
   if [ -e "${target}" ]; then
@@ -44,5 +29,20 @@ if [ "${#lint_targets[@]}" -eq 0 ]; then
   echo "No scoped Ansible targets found to lint." >&2
   exit 1
 fi
+
+unstaged_scoped_files=()
+for target in "${lint_targets[@]}"; do
+  if ! git diff --quiet -- "${target}"; then
+    unstaged_scoped_files+=("${target}")
+  fi
+done
+
+if [ "${#unstaged_scoped_files[@]}" -gt 0 ]; then
+  echo "Unstaged changes detected in scoped Ansible files; stage or stash these first:" >&2
+  printf '  %s\n' "${unstaged_scoped_files[@]}" >&2
+  exit 1
+fi
+
+echo "Running ansible-lint on scoped Ansible files..."
 
 ansible-lint --offline "${lint_targets[@]}"
