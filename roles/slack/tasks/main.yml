@@ -4,17 +4,29 @@
     name: gnupg
     state: present
 
+- name: Assert Slack architecture is supported
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] == 'x86_64'
+    fail_msg: Slack desktop packages are only configured for amd64/x86_64 workstations.
+
 - name: Ensure APT keyrings directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
 
+- name: Create temporary file for Slack GPG key download
+  ansible.builtin.tempfile:
+    state: file
+    suffix: .asc
+  register: slack_gpg_key_tempfile
+
 - name: Download Slack Packagecloud GPG key candidate
   ansible.builtin.get_url:
     url: https://packagecloud.io/slacktechnologies/slack/gpgkey
-    dest: /tmp/slack.asc
-    mode: '0644'
+    dest: "{{ slack_gpg_key_tempfile.path }}"
+    mode: '0600'
 
 - name: Inspect Slack Packagecloud GPG key fingerprint
   ansible.builtin.command:
@@ -22,7 +34,7 @@
       - gpg
       - --show-keys
       - --with-colons
-      - /tmp/slack.asc
+      - "{{ slack_gpg_key_tempfile.path }}"
   register: slack_gpg_key_details
   changed_when: false
 
@@ -32,10 +44,27 @@
       - slack_gpg_key_details.stdout is regex('(?m)^fpr:::::::::[0-9A-F]*C6ABDCF64DB9A0B2:$')
     fail_msg: Downloaded Slack Packagecloud signing key did not match the published key ID C6ABDCF64DB9A0B2.
 
-- name: Install verified Slack Packagecloud GPG key
+- name: Create temporary file for Slack GPG keyring
+  ansible.builtin.tempfile:
+    state: file
+    suffix: .gpg
+  register: slack_gpg_keyring_tempfile
+
+- name: Dearmor verified Slack Packagecloud GPG key
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --dearmor
+      - --yes
+      - --output
+      - "{{ slack_gpg_keyring_tempfile.path }}"
+      - "{{ slack_gpg_key_tempfile.path }}"
+  changed_when: false
+
+- name: Install verified Slack Packagecloud GPG keyring
   ansible.builtin.copy:
-    src: /tmp/slack.asc
-    dest: /etc/apt/keyrings/slack.asc
+    src: "{{ slack_gpg_keyring_tempfile.path }}"
+    dest: /etc/apt/keyrings/slack.gpg
     remote_src: true
     mode: '0644'
 
@@ -43,7 +72,7 @@
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/slack.list
     content: |
-      deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian jessie main
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
     mode: '0644'
 
 - name: Refresh apt package metadata for Slack
@@ -54,3 +83,12 @@
   ansible.builtin.apt:
     name: slack-desktop
     state: present
+
+- name: Remove temporary Slack GPG files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ slack_gpg_key_tempfile.path }}"
+    - "{{ slack_gpg_keyring_tempfile.path }}"
+  changed_when: false
