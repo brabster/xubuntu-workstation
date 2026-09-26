@@ -99,6 +99,7 @@
       - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
       - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
   changed_when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
+  notify: Refresh Slack apt cache
   when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
 
 - name: Add Slack apt repository
@@ -115,6 +116,12 @@
       - deb
     uris:
       - https://packagecloud.io/slacktechnologies/slack/ubuntu/
+  register: slack_apt_repository
+  notify: Refresh Slack apt cache
+
+- name: Flush Slack apt cache refresh when repo configuration changes
+  ansible.builtin.meta: flush_handlers
+  when: slack_apt_repository.changed or slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
