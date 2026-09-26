@@ -1,23 +1,62 @@
 ---
-- name: Add Slack APT repository
-  ansible.builtin.deb822_repository:
-    name: slack
-    architectures:
-      - amd64
-    components:
-      - main
-    install_python_debian: true
-    signed_by: https://packagecloud.io/slacktechnologies/slack/gpgkey
-    suites:
-      - jessie
-    types:
-      - deb
-    uris:
-      - https://packagecloud.io/slacktechnologies/slack/debian/
+- name: Fetch Slack deb package listing
+  ansible.builtin.uri:
+    url: https://packagecloud.io/slacktechnologies/slack?filter=debs
+    return_content: true
+  register: slack_package_listing
+  changed_when: false
+
+- name: Select latest published Slack package page
+  ansible.builtin.set_fact:
+    slack_package_page_path: >-
+      {{
+        (
+          slack_package_listing.content
+          | regex_findall('/slacktechnologies/slack/packages/debian/jessie/slack-desktop_[^"]+\\.deb\\?distro_version_id=25')
+          | first
+        ) | default('')
+      }}
+
+- name: Assert Slack package page was discovered
+  ansible.builtin.assert:
+    that:
+      - slack_package_page_path != ''
+    fail_msg: Unable to locate a published Slack deb package in packagecloud listing output.
+
+- name: Fetch Slack package details page
+  ansible.builtin.uri:
+    url: "https://packagecloud.io{{ slack_package_page_path }}"
+    return_content: true
+  register: slack_package_page
+  changed_when: false
+
+- name: Select latest published Slack deb download URL
+  ansible.builtin.set_fact:
+    slack_package_download_url: >-
+      {{
+        (
+          slack_package_page.content
+          | regex_findall('https://packagecloud.io/slacktechnologies/slack/packages/debian/jessie/slack-desktop_[^"]+/download\\.deb\\?distro_version_id=25')
+          | first
+        ) | default('')
+      }}
+
+- name: Assert Slack deb download URL was discovered
+  ansible.builtin.assert:
+    that:
+      - slack_package_download_url != ''
+    fail_msg: Unable to locate a Slack deb download URL in the published package details page.
+
+- name: Download Slack desktop package
+  ansible.builtin.get_url:
+    url: "{{ slack_package_download_url }}"
+    dest: /tmp/slack-desktop.deb
+    mode: '0644'
+
+- name: Refresh apt package metadata for Slack dependency resolution
+  ansible.builtin.apt:
+    update_cache: true
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
-    name: slack-desktop
-    state: present
-    update_cache: true
-    cache_valid_time: 3600
+    deb: /tmp/slack-desktop.deb
