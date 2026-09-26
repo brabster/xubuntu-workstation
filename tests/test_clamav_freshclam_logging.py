@@ -38,6 +38,17 @@ class FreshclamLoggingNormalizationTests(unittest.TestCase):
                 task.get("name"),
             )
 
+    def test_parent_directory_for_configured_freshclam_log_is_ensured(self):
+        tasks = self._load_tasks()
+        for task in tasks:
+            if task.get("name") == "Ensure parent directory for configured FreshClam log exists":
+                file_task = task["ansible.builtin.file"]
+                self.assertEqual("{{ clamav_freshclam_log_file | dirname }}", file_task.get("path"))
+                self.assertEqual("directory", file_task.get("state"))
+                self.assertEqual("0755", str(file_task.get("mode")))
+                return
+        self.fail("Expected configured FreshClam log parent-directory task was not found.")
+
 
 if __name__ == "__main__":
     unittest.main()
