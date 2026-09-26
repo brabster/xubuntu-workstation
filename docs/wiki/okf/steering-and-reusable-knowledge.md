@@ -1,3 +1,10 @@
+---
+type: Playbook
+title: Steering and Reusable Knowledge
+description: Session steering decisions and reusable repository knowledge for future contributors and agents.
+tags: [okf, steering, reusable-knowledge]
+---
+
 # Steering and Reusable Knowledge
 
 ## Steering captured from this session

@@ -1,3 +1,10 @@
+---
+type: Reference
+title: Open Knowledge Format Specification v0.2
+description: Imported OKF v0.2 specification reference used for local wiki conformance.
+tags: [okf, specification]
+---
+
 # Open Knowledge Format (OKF)
 
 **Version 0.2**

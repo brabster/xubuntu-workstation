@@ -1,4 +1,11 @@
-# OKF Wiki (Initial, v0.1)
+---
+type: Reference
+title: OKF Wiki Overview
+description: Scope, purpose, and update policy for this repository's OKF-style wiki seed.
+tags: [okf, wiki, steering]
+---
+
+# OKF Wiki Overview
 
 This directory is the repository's working OKF-style wiki seed for agent and contributor bootstrap.
 

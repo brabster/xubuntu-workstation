@@ -23,8 +23,10 @@ Specific principles we prioritise:
 ## Agent bootstrap knowledge source (OKF wiki seed)
 
 - On session start, review:
+  - `docs/wiki/okf/index.md`
   - `docs/wiki/okf/README.md`
   - `docs/wiki/okf/steering-and-reusable-knowledge.md`
+  - `docs/wiki/okf/okc_spec.md`
 - Treat this wiki as operational steering and reusable repository context.
 - If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
 
