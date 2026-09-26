@@ -32,7 +32,7 @@ fi
 
 unstaged_scoped_files=()
 for file in "${staged_scoped_files[@]}"; do
-  if [ -f "${file}" ] && ! git show ":${file}" | cmp -s - "${file}"; then
+  if [ -f "${file}" ] && ! git show ":./${file}" | cmp -s - "${file}"; then
     unstaged_scoped_files+=("${file}")
   fi
 done
