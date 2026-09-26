@@ -1,0 +1,41 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - requirements-dev.txt
+      - roles/requirements.yml
+      - .githooks/pre-commit
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - requirements-dev.txt
+      - roles/requirements.yml
+      - .githooks/pre-commit
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+
+      - name: Configure Git hooks path for agent sessions
+        run: git config --local core.hooksPath .githooks
+
+      - name: Install Ansible lint dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Install Ansible collections for offline lint
+        run: ansible-galaxy collection install -r roles/requirements.yml

@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [PR #84 - Fix missing ClamAV update log lines after overnight suspend](https://github.com/brabster/xubuntu-workstation/pull/84)
+
+### Fixed
+
+- **FreshClam logging now rotates by activity, not just elapsed time**: the role now manages the relevant `freshclam.conf` logging directives directly, keeping `/var/log/clamav/freshclam.log` enabled while turning on ClamAV's built-in `LogRotate` support with `LogFileMaxSize 128K`. On a quiet laptop this keeps the active log current for longer, while still bounding log growth if update logging becomes unexpectedly noisy.
+- **ClamAV health check now exhausts available FreshClam evidence before giving up**: the verification script checks the current FreshClam log first, then scans rotated `freshclam.log.N` and `freshclam.log.N.gz` files in generation order, and finally falls back to current-boot `clamav-freshclam` journal entries containing FreshClam update markers before reporting that no recent update lines were found.
+- **Regression coverage now protects the broader fallback behavior directly**: the helper-script unit tests now cover later rotated logs, compressed rotated logs, and the current-boot journal fallback, while the GitHub Actions smoke test still verifies the managed FreshClam logging directives and a deterministic first-rotation fixture end to end.
+- **Health-check `runuser -l` execution no longer depends on preserved environment variables**: the script now passes test payload and target file paths as positional arguments to the login-shell command so login-mode environment scrubbing cannot blank required values during create/cleanup operations.
+- **FreshClam config tasks are idempotent again and compressed-log regressions are covered**: the role now keeps a single managed FreshClam logging block (avoiding unconditional remove-then-add churn and needless service restarts), creates the FreshClam log file only when absent while separately normalizing ownership/mode without touch-style timestamp churn, and adds a regression test that warns on unreadable `.gz` rotations while continuing to later usable log sources.
+- **CI helper-test expectation now matches the idempotent FreshClam logging approach**: updated the FreshClam logging unit test to assert the old remove-before-reinsert cleanup task is absent, aligning test coverage with the current single-managed-block implementation so `ansible_lint` workflow helper tests no longer fail before linting.
+- **`test_install (ubuntu:latest)` no longer fails on ClamAV verifier template parsing and log-path drift**: fixed a Jinja/bash collision in array-index loops that caused template rendering to fail, aligned FreshClam evidence lookup to use the configured `clamav_freshclam_log_file` path (including rotations) rather than a hard-coded `/var/log/clamav/freshclam.log` prefix, and now ensures the configured FreshClam log parent directory exists before managing the log file.
+
+### Changed
+
+- **Agent bootstrap trimmed to a minimal always-read set**: `AGENTS.md` now points sessions at the OKF root index, overview, a new bootstrap rules page, and a new session workflow page, instead of requiring agents to preload the full wiki tree and specification on every run.
+- **Wiki now distinguishes mandatory rules from lookup-on-demand detail**: the OKF root and overview pages now explicitly separate the small bootstrap set from deeper steering/linting/decision references, and clarify that Copilot memory should remain a sparse complement rather than the main repository rules engine.
+- **Workflow now requires MR-description realignment when implementation direction changes**: the bootstrap rules and session workflow now tell agents to keep early merge request descriptions high-level while decisions are still fluid, then update the description after any material approach change so review bots and human reviewers are not left comparing the code against stale intent.
+- **Copilot agent sessions now bootstrap hook-based lint prerequisites**: added `.github/workflows/copilot-setup-steps.yml` so agent sessions set `core.hooksPath` to `.githooks`, install `requirements-dev.txt`, and install `roles/requirements.yml` collections before coding, making `.githooks/pre-commit` ansible-lint checks consistently available in agent environments.
+- **OKF wiki now captures agent-session lint bootstrap and feedback-loop guidance**: added linting guidance for setup-step prerequisites, restricted-network collection-install behavior, and lint-review scope, and expanded session workflow guidance to explicitly verify lint bootstrap in agent sessions and capture durable steering/linting lessons back into the wiki.
+- **OKF linting KB now captures `ansible_lint` triage order explicitly**: added CI lint guidance that workflow failures should be diagnosed from helper-test output first, before investigating ansible-lint findings, because the job can fail before linting runs.
+
+### Security
+
+- **Threat Model Assessment**: This change **keeps workstation malware-protection risk unchanged while reducing operational and diagnostic risk**.
+    - **Rationale**: The change does not alter ClamAV package sources, scanning scope, service privileges, or quarantine behavior. It hardens login-shell execution by passing values as positional arguments (avoiding reliance on environment-variable preservation in `runuser -l`), keeps FreshClam configuration idempotent to avoid unnecessary service restarts and timestamp churn on unchanged runs, and preserves bounded log handling with resilient fallback across rotated logs and current-boot journal evidence.
+    - **Benefit**: Verification remains reliable after login-shell environment scrubbing, unchanged playbook runs stay quiet, and unreadable compressed logs now produce explicit warnings while still allowing fallback to later usable evidence. This supports UK Cyber Essentials expectations for reliable protective monitoring and controlled, reviewable configuration.
+    - **Net risk statement**: Net runtime protection risk is **unchanged**, while operational execution and diagnostic reliability risk are **reduced**.
+    - **CI fix note**: The verifier template/render fix and configurable FreshClam log-path alignment improve reliability of protective-check execution and evidence collection; workstation runtime protection controls remain **unchanged** while operational false-failure risk is **reduced**, supporting UK Cyber Essentials expectations for dependable, reviewable security checks.
+    - **Bootstrap note**: The wiki/bootstrap restructuring is documentation and agent-guidance only, so workstation runtime risk is **unchanged** while future session context-loading overhead and stale-memory reliance should be reduced.
+    - **Agent setup note**: Copilot setup-step changes affect ephemeral CI/agent preparation only and do not alter workstation runtime controls; net runtime risk is **unchanged** while lint-gate reliability risk is **reduced**.
+    - **Knowledge-capture note**: The new OKF wiki updates are documentation/process guidance only, so workstation runtime risk remains **unchanged** while steering consistency and future-session lint setup reliability risk are **reduced**.
+    - **Lint triage note**: The CI lint KB update is documentation-only; runtime risk is **unchanged** while CI failure triage reliability risk is **reduced**.
+
 ## [PR #77 - Ensure dependencies are up to date with a 3-day cooldown policy](https://github.com/brabster/xubuntu-workstation/pull/77)
 
 ### Changed

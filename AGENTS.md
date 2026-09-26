@@ -25,12 +25,10 @@ Specific principles we prioritise:
 - On session start, review:
   - `docs/wiki/okf/index.md`
   - `docs/wiki/okf/README.md`
-  - `docs/wiki/okf/steering/index.md`
-  - `docs/wiki/okf/linting/index.md`
-  - `docs/wiki/okf/decisions/index.md`
-  - `docs/wiki/okf/log.md`
-  - `docs/wiki/okf/okc_spec.md`
-- Then read each concept page linked from those section `index.md` files before making changes.
+  - `docs/wiki/okf/steering/agent-bootstrap-rules.md`
+  - `docs/wiki/okf/steering/session-workflow.md`
+- Treat the rest of the OKF wiki as lookup-on-demand reference material. Do not read every linked concept page up front.
+- Consult `docs/wiki/okf/steering/index.md`, `docs/wiki/okf/linting/index.md`, `docs/wiki/okf/decisions/index.md`, `docs/wiki/okf/log.md`, and `docs/wiki/okf/okc_spec.md` only when the task needs them.
 - Treat this wiki as operational steering and reusable repository context.
 - If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
 

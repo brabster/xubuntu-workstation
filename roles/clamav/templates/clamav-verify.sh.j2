@@ -9,8 +9,11 @@ if [ -z "$TARGET_USER" ]; then
     exit 1
 fi
 
-DOWNLOADS_DIR="/home/${TARGET_USER}/Downloads"
-QUARANTINE_DIR="{{ clamav_quarantine_dir }}"
+DOWNLOADS_DIR="${CLAMAV_DOWNLOADS_DIR:-/home/${TARGET_USER}/Downloads}"
+QUARANTINE_DIR="${CLAMAV_QUARANTINE_DIR:-{{ clamav_quarantine_dir }}}"
+CLAMAV_LOG_DIR="${CLAMAV_LOG_DIR:-/var/log/clamav}"
+FRESHCLAM_LOG_FILE="{{ clamav_freshclam_log_file }}"
+FRESHCLAM_LOG_DIR="$(dirname -- "${FRESHCLAM_LOG_FILE}")"
 
 EICAR_STRING='X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 TEST_FILE_NAME=".health-check-$(date +%s).txt"
@@ -21,20 +24,150 @@ QUARANTINED_FILE_PATH="${QUARANTINE_DIR}/${TEST_FILE_NAME}"
 echo "Verifying AV scanning is operational with test file ${TEST_FILE_NAME}..."
 
 cleanup() {
-  runuser -l "${TARGET_USER}" -c "rm -f '${TEST_FILE_PATH}'" &>/dev/null || true
+  runuser -l "${TARGET_USER}" -c 'rm -f -- "$1"' -- _ "${TEST_FILE_PATH}" &>/dev/null || true
   rm -f "${QUARANTINED_FILE_PATH}" &>/dev/null || true
 }
 
+show_log_tail_if_nonblank() {
+  grep -q '[^[:space:]]' "$1" 2>/dev/null || return 1
+  tail -n 3 -- "$1" 2>/dev/null || return 1
+}
+
+show_text_tail_if_nonblank() {
+  if printf '%s\n' "$1" | grep '[^[:space:]]' >/dev/null; then
+    printf '%s\n' "$1" | tail -n 3
+    return 0
+  fi
+  return 1
+}
+
+show_compressed_log_tail_if_nonblank() {
+  local decompressed
+  if ! decompressed="$(gzip -cd -- "$1")"; then
+    echo "WARNING: Failed to read compressed antivirus update log ${1}." >&2
+    return 1
+  fi
+
+  show_text_tail_if_nonblank "${decompressed}"
+}
+
+show_current_boot_journal_tail_if_nonblank() {
+  local journal_output journal_lines journal_status
+
+  set +e
+  journal_output="$(journalctl -u clamav-freshclam --boot 0 --no-pager -o cat 2>/dev/null)"
+  journal_status=$?
+  set -e
+
+  if [ "${journal_status}" -ne 0 ]; then
+    echo "WARNING: Failed to read clamav-freshclam journal entries." >&2
+    return 1
+  fi
+
+  set +e
+  journal_lines="$(printf '%s\n' "${journal_output}" | grep -- '->')"
+  journal_status=$?
+  set -e
+
+  if [ "${journal_status}" -eq 0 ]; then
+    show_text_tail_if_nonblank "${journal_lines}"
+    return $?
+  fi
+
+  return 1
+}
+
+list_rotated_freshclam_logs() {
+  local log_path generation compressed suffix
+  local tmp_path tmp_generation tmp_compressed
+  local -a rotated_logs=()
+  local -a rotated_generations=()
+  local -a rotated_compressed=()
+  local i j
+
+  while IFS= read -r -d '' log_path; do
+    if [[ "${log_path}" != "${FRESHCLAM_LOG_FILE}."* ]]; then
+      continue
+    fi
+
+    suffix="${log_path#"${FRESHCLAM_LOG_FILE}."}"
+    if [[ ! "${suffix}" =~ ^([0-9]+)(\.gz)?$ ]]; then
+      continue
+    fi
+
+    generation="${BASH_REMATCH[1]}"
+    compressed=0
+    if [ "${BASH_REMATCH[2]:-}" = ".gz" ]; then
+      compressed=1
+    fi
+
+    rotated_logs+=("${log_path}")
+    rotated_generations+=("${generation}")
+    rotated_compressed+=("${compressed}")
+  done < <(find "${FRESHCLAM_LOG_DIR}" -maxdepth 1 -type f -print0 2>/dev/null)
+
+  for i in "${!rotated_logs[@]}"; do
+    for j in "${!rotated_logs[@]}"; do
+      if (( j <= i )); then
+        continue
+      fi
+      if (( rotated_generations[j] < rotated_generations[i] )) \
+        || (( rotated_generations[j] == rotated_generations[i] \
+          && rotated_compressed[j] < rotated_compressed[i] )); then
+        tmp_path="${rotated_logs[i]}"
+        rotated_logs[i]="${rotated_logs[j]}"
+        rotated_logs[j]="${tmp_path}"
+
+        tmp_generation="${rotated_generations[i]}"
+        rotated_generations[i]="${rotated_generations[j]}"
+        rotated_generations[j]="${tmp_generation}"
+
+        tmp_compressed="${rotated_compressed[i]}"
+        rotated_compressed[i]="${rotated_compressed[j]}"
+        rotated_compressed[j]="${tmp_compressed}"
+      fi
+    done
+  done
+
+  for log_path in "${rotated_logs[@]}"; do
+    printf '%s\0' "${log_path}"
+  done
+}
+
 echo_latest_updates() {
+  local log_path
+
   echo " --- latest antivirus update log"
-  tail -3 /var/log/clamav/freshclam.log
+
+  if [ -f "${FRESHCLAM_LOG_FILE}" ] && show_log_tail_if_nonblank "${FRESHCLAM_LOG_FILE}"; then
+    return
+  fi
+
+  while IFS= read -r -d '' log_path; do
+    if [[ "${log_path}" == *.gz ]]; then
+      if show_compressed_log_tail_if_nonblank "${log_path}"; then
+        return
+      fi
+      continue
+    fi
+
+    if show_log_tail_if_nonblank "${log_path}"; then
+      return
+    fi
+  done < <(list_rotated_freshclam_logs)
+
+  if show_current_boot_journal_tail_if_nonblank; then
+    return
+  fi
+
+  echo "No recent antivirus update log entries were found."
 }
 
 echo_latest_updates
 
 trap cleanup EXIT
 
-runuser -l "${TARGET_USER}" -c "echo '${EICAR_STRING}' > '${TEST_FILE_PATH}'"
+runuser -l "${TARGET_USER}" -c 'printf "%s\n" "$1" > "$2"' -- _ "${EICAR_STRING}" "${TEST_FILE_PATH}"
 
 POLL_TIMEOUT=15
 SECONDS=0
@@ -54,13 +187,13 @@ echo "--- Running Processes:" >&2
 ps aux | grep -E '[c]lamd|[c]lamonacc' || true
 echo "" >&2
 echo "--- clamav.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/clamav.log || true
+tail -n 30 "${CLAMAV_LOG_DIR}/clamav.log" || true
 echo "" >&2
 echo "--- clamonacc.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/clamonacc.log || true
+tail -n 30 "${CLAMAV_LOG_DIR}/clamonacc.log" || true
 echo "-------------------" >&2
 echo "--- quarantine_events.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/quarantine_events.log || true
+tail -n 30 "${CLAMAV_LOG_DIR}/quarantine_events.log" || true
 echo "-------------------" >&2
 
 exit 1
