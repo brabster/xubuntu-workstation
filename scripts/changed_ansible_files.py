@@ -2,6 +2,7 @@
 import argparse
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -36,10 +37,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--event-name", required=True)
     parser.add_argument("--diff-base", default="")
+    parser.add_argument("--null-output", action="store_true")
     args = parser.parse_args()
 
     for file_path in filter_ansible_files(selected_files(args.event_name, args.diff_base)):
-        print(file_path)
+        if args.null_output:
+            sys.stdout.write(f"{file_path}\0")
+        else:
+            print(file_path)
 
 
 if __name__ == "__main__":

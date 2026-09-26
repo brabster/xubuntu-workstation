@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -52,6 +53,14 @@ class ChangedAnsibleFilesTests(unittest.TestCase):
                 os.chdir(original_cwd)
 
         self.assertEqual(filtered, ["roles/example/tasks/main.yml", "workstation.yaml"])
+
+    @patch("changed_ansible_files.filter_ansible_files", return_value=["workstation.yml", "test.yml"])
+    @patch("changed_ansible_files.selected_files", return_value=[])
+    def test_main_supports_nul_output(self, _selected_files, _filter_ansible_files):
+        with patch("sys.argv", ["changed_ansible_files.py", "--event-name", "push", "--null-output"]):
+            with patch("sys.stdout", new_callable=StringIO) as stdout:
+                caf.main()
+        self.assertEqual(stdout.getvalue(), "workstation.yml\0test.yml\0")
 
 
 if __name__ == "__main__":
