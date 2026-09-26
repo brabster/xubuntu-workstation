@@ -75,14 +75,16 @@ echo_latest_updates() {
     [ -n "${rotated_log_name}" ] || continue
     rotated_log_path="${CLAMAV_LOG_DIR}/${rotated_log_name}"
     [ -f "${rotated_log_path}" ] || continue
-    if log_has_nonblank_lines "${rotated_log_path}"; then
+    set +e
+    log_has_nonblank_lines "${rotated_log_path}"
+    log_check_status=$?
+    set -e
+    if [ "${log_check_status}" -eq 0 ]; then
       print_log_tail "${rotated_log_path}"
       return
-    else
-      log_check_status=$?
-      if [ "${log_check_status}" -eq 2 ]; then
-        echo "WARNING: Could not read FreshClam log source ${rotated_log_path}" >&2
-      fi
+    fi
+    if [ "${log_check_status}" -eq 2 ]; then
+      echo "WARNING: Could not read FreshClam log source ${rotated_log_path}" >&2
     fi
   done < <(
     # logrotate numbers the newest rotated log as .1, then older generations as .2, .3, etc.
