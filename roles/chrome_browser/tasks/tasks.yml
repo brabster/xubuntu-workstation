@@ -12,22 +12,24 @@
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
 
-- name: Pre-install ALSA library for Chrome (libasound2t64)
-  ansible.builtin.apt:
-    name: libasound2t64
-    state: present
-  register: chrome_browser_libasound2t64_install
-  ignore_errors: true
+- name: Pre-install ALSA library for Chrome with fallback
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
+  block:
+    - name: Pre-install ALSA library for Chrome (libasound2t64)
+      ansible.builtin.apt:
+        name: libasound2t64
+        state: present
+  rescue:
+    - name: Stop if libasound2t64 failed for reasons other than missing package
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('libasound2t64 install failed') }}"
+      when: "'Unable to locate package libasound2t64' not in (ansible_failed_result.msg | default(''))"
 
-- name: Pre-install ALSA library for Chrome (libasound2 fallback)
-  ansible.builtin.apt:
-    name: libasound2
-    state: present
-  when:
-    - ansible_facts['distribution'] == 'Ubuntu'
-    - chrome_browser_libasound2t64_install is failed
+    - name: Pre-install ALSA library for Chrome (libasound2 fallback)
+      ansible.builtin.apt:
+        name: libasound2
+        state: present
 
 - name: Install Chrome
   ansible.builtin.apt:

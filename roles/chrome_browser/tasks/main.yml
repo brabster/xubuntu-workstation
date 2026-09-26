@@ -21,7 +21,7 @@
     dest: /etc/opt/chrome/policies/recommended/prefs.json
     mode: '0644'
 
-- name: Ensures Chrome policy dir exists
+- name: Ensure Chrome managed policy directory exists
   ansible.builtin.file:
     path: /etc/opt/chrome/policies/managed
     state: directory
