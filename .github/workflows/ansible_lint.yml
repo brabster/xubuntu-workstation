@@ -1,0 +1,55 @@
+name: ansible_lint
+on:
+  push:
+    paths:
+      - '.github/workflows/ansible_lint.yml'
+      - 'roles/**/*.yml'
+      - 'roles/**/*.yaml'
+      - 'workstation.yml'
+      - 'test.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/ansible_lint.yml'
+      - 'roles/**/*.yml'
+      - 'roles/**/*.yaml'
+      - 'workstation.yml'
+      - 'test.yml'
+  workflow_dispatch: {}
+jobs:
+  ansible_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: install ansible-lint
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ansible-lint==26.9.0
+      - name: select changed ansible files
+        id: changed
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+            diff_base="origin/${{ github.base_ref }}"
+          else
+            diff_base="${{ github.event.before }}"
+          fi
+
+          if [ -z "${diff_base}" ] || [ "${diff_base}" = "0000000000000000000000000000000000000000" ]; then
+            changed_files=$(git ls-files 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
+          else
+            changed_files=$(git diff --name-only "${diff_base}...HEAD" -- 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
+          fi
+
+          changed_files=$(echo "${changed_files}" | sed '/^$/d' | tr '\n' ' ' | sed 's/[[:space:]]*$//' || true)
+          echo "files=${changed_files}" >> "${GITHUB_OUTPUT}"
+      - name: run ansible-lint on changed ansible files
+        if: steps.changed.outputs.files != ''
+        run: |
+          echo "${{ steps.changed.outputs.files }}"
+          ANSIBLE_LINT_NODEPS=1 ansible-lint ${{ steps.changed.outputs.files }}
