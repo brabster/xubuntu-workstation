@@ -26,26 +26,36 @@ cleanup() {
   rm -f "${QUARANTINED_FILE_PATH}" &>/dev/null || true
 }
 
+print_log_tail() {
+  case "$1" in
+    *.gz)
+      gzip -cd -- "$1" | tail -n 3
+      ;;
+    *)
+      tail -n 3 -- "$1"
+      ;;
+  esac
+}
+
 echo_latest_updates() {
   echo " --- latest antivirus update log"
 
-  latest_log="$(
-    find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -regextype posix-extended \
-      -regex '.*/freshclam\.log(\.[0-9]+(\.gz)?)?$' \
-      -size +0c -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-
-  )"
-
-  if [ -n "${latest_log}" ]; then
-    case "${latest_log}" in
-      *.gz)
-        gzip -cd -- "${latest_log}" | tail -n 3
-        ;;
-      *)
-        tail -n 3 -- "${latest_log}"
-        ;;
-    esac
+  if [ -s "${CLAMAV_LOG_DIR}/freshclam.log" ]; then
+    print_log_tail "${CLAMAV_LOG_DIR}/freshclam.log"
     return
   fi
+
+  while IFS= read -r rotated_log_name; do
+    [ -n "${rotated_log_name}" ] || continue
+    rotated_log_path="${CLAMAV_LOG_DIR}/${rotated_log_name}"
+    [ -s "${rotated_log_path}" ] || continue
+    print_log_tail "${rotated_log_path}"
+    return
+  done < <(
+    find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -regextype posix-extended \
+      -regex '.*/freshclam\.log\.[0-9]+(\.gz)?$' -printf '%f\n' 2>/dev/null |
+      sort -t. -k3,3n
+  )
 
   journal_lines="$(journalctl -u clamav-freshclam.service -n 3 --no-pager 2>/dev/null || true)"
   if [ -n "${journal_lines}" ]; then

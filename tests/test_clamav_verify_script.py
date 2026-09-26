@@ -117,6 +117,32 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("WARNING: Clamd was NOT notified", result.stdout)
         self.assertIn("ClamAV on-access scanning is working correctly.", result.stdout)
 
+    def test_prefers_current_freshclam_log_over_rotated_logs(self):
+        (self.log_dir / "freshclam.log").write_text(
+            "skip me\n"
+            "current line one\n"
+            "current line two\n"
+            "current line three\n",
+            encoding="utf-8",
+        )
+        rotated_log = self.log_dir / "freshclam.log.1"
+        rotated_log.write_text(
+            "skip me\n"
+            "rotated line one\n"
+            "rotated line two\n"
+            "rotated line three\n",
+            encoding="utf-8",
+        )
+        os.utime(rotated_log, None)
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("current line one", result.stdout)
+        self.assertIn("current line two", result.stdout)
+        self.assertIn("current line three", result.stdout)
+        self.assertNotIn("rotated line one", result.stdout)
+
     def test_uses_latest_non_empty_compressed_rotated_freshclam_log(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         rotated_log = self.log_dir / "freshclam.log.12.gz"
