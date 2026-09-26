@@ -12,7 +12,7 @@ fi
 staged_scoped_files=()
 while IFS= read -r file; do
   [ -n "${file}" ] && staged_scoped_files+=("${file}")
-done < <(git diff --cached --name-only -- roles workstation.yml workstation.yaml test.yml test.yaml)
+done < <(git diff --cached --name-only --diff-filter=ACMT -- roles workstation.yml workstation.yaml test.yml test.yaml)
 
 if [ "${#staged_scoped_files[@]}" -eq 0 ]; then
   exit 0

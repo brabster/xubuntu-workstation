@@ -84,6 +84,17 @@ class PreCommitHookTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0)
 
+    def test_unstaged_edit_in_staged_scoped_file_blocks_commit(self):
+        staged_file = self.repo / "roles" / "example" / "tasks" / "main.yml"
+        staged_file.write_text("- debug: msg='two'\n", encoding="utf-8")
+        self._git("add", "roles/example/tasks/main.yml")
+        staged_file.write_text("- debug: msg='three'\n", encoding="utf-8")
+
+        result = self._run_hook()
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Unstaged changes detected in scoped Ansible files", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
