@@ -3,6 +3,8 @@ type: Playbook
 title: Cost-tiered agent selection
 description: Use lower-cost agents for broad discovery and reserve higher-context work for remediation and integration.
 tags: [steering, agents, cost]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Cost-tiered agent selection

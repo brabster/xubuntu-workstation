@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #86 - Tidy OKF structure and documentation alignment](https://github.com/brabster/xubuntu-workstation/pull/86)
+
+### Changed
+
+- **OKF wiki path is flatter and less redundant**: moved the repository knowledge bundle from `docs/wiki/okf/` to `docs/wiki/`, keeping the same decomposed `steering/`, `linting/`, and `decisions/` structure without the extra single-child `okf/` directory layer.
+- **Imported OKF specification reference is now clearly named and sourced**: renamed the local spec copy to `docs/wiki/okf_spec_v0.2.md` and recorded the canonical GoogleCloudPlatform `open-knowledge-format` source in frontmatter so the file name and provenance both reflect the actual OKF v0.2 document.
+- **Wiki concept frontmatter now captures authorship/freshness signals**: added `generated` and `stale_after` metadata to the non-reserved wiki concept documents so the bootstrap and reference pages expose who last generated the content and when it should be reviewed for staleness, in line with OKF v0.2 lifecycle guidance.
+- **Wiki update history now defaults to normal repository history instead of a separate root log file**: removed the standalone wiki `log.md`, updated bootstrap/session guidance accordingly, and documented that git history plus `CHANGELOG.md` are the default change record unless a future subtree genuinely needs a scope-local prose log.
+- **ADR separation is now explicit rather than implicit**: the wiki `decisions/` section now states that canonical ADR records remain in `docs/adr/`, while the wiki keeps short summaries and links for bootstrap-friendly navigation.
+- **Repository docs are aligned with the tidied wiki layout**: updated `AGENTS.md`, the wiki overview/index pages, and the root `README.md` so contributor and agent guidance points at the new `docs/wiki/` paths and current structure.
+
+### Security
+
+- **Threat Model Assessment**: This change **keeps workstation runtime risk unchanged while reducing documentation ambiguity risk**.
+    - **Rationale**: The change is documentation-only. It does not alter package sources, privilege boundaries, service state, network exposure, or update behavior. The main effect is to reduce ambiguity in where agents and contributors look for repository steering, and to make provenance/freshness metadata explicit on wiki concept pages.
+    - **Benefit**: Clearer bootstrap paths, explicit source provenance for the imported OKF spec, and frontmatter freshness metadata make repository guidance easier to review and less likely to drift silently, supporting UK Cyber Essentials expectations for controlled, reviewable change management.
+    - **Net risk statement**: Net workstation runtime risk is **unchanged**, while documentation-governance and change-traceability risk are **reduced**.
+
 
 ## [PR #84 - Fix missing ClamAV update log lines after overnight suspend](https://github.com/brabster/xubuntu-workstation/pull/84)
 

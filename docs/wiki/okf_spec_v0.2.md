@@ -1,8 +1,11 @@
 ---
 type: Reference
 title: Open Knowledge Format Specification v0.2
-description: Imported OKF v0.2 specification reference used for local wiki conformance.
+description: Imported OKF v0.2 specification reference from GoogleCloudPlatform/open-knowledge-format used for local wiki conformance.
+resource: https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/ad30107c31c06aec8a7d5636e0d1058118604e6f/SPEC.md
 tags: [okf, specification]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Open Knowledge Format (OKF)
