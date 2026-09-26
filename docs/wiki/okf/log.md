@@ -1,6 +1,7 @@
 # OKF Wiki Update Log
 
 ## 2026-09-26
+* **Update**: Expanded `linting/ci-lint-behavior.md` with explicit failure-diagnosis ordering so `ansible_lint` job triage starts at helper-test output before lint findings.
 * **Update**: Added linting guidance for Copilot agent-session bootstrap, including hooks-path setup, dependency/collection prerequisites, restricted-network behavior for collection install failures, and review-scope checks when lint setup changes.
 * **Update**: Expanded session workflow guidance to require agent-session lint-bootstrap verification and explicit capture of durable steering/linting lessons back into the wiki before session close.
 * **Update**: Added explicit bootstrap and workflow guidance to keep merge request descriptions high-level while decisions are fluid, then re-align them whenever the agreed approach changes so review automation sees the same story as the code.

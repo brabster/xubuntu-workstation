@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Workflow now requires MR-description realignment when implementation direction changes**: the bootstrap rules and session workflow now tell agents to keep early merge request descriptions high-level while decisions are still fluid, then update the description after any material approach change so review bots and human reviewers are not left comparing the code against stale intent.
 - **Copilot agent sessions now bootstrap hook-based lint prerequisites**: added `.github/workflows/copilot-setup-steps.yml` so agent sessions set `core.hooksPath` to `.githooks`, install `requirements-dev.txt`, and install `roles/requirements.yml` collections before coding, making `.githooks/pre-commit` ansible-lint checks consistently available in agent environments.
 - **OKF wiki now captures agent-session lint bootstrap and feedback-loop guidance**: added linting guidance for setup-step prerequisites, restricted-network collection-install behavior, and lint-review scope, and expanded session workflow guidance to explicitly verify lint bootstrap in agent sessions and capture durable steering/linting lessons back into the wiki.
+- **OKF linting KB now captures `ansible_lint` triage order explicitly**: added CI lint guidance that workflow failures should be diagnosed from helper-test output first, before investigating ansible-lint findings, because the job can fail before linting runs.
 
 ### Security
 
@@ -33,6 +34,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - **Bootstrap note**: The wiki/bootstrap restructuring is documentation and agent-guidance only, so workstation runtime risk is **unchanged** while future session context-loading overhead and stale-memory reliance should be reduced.
     - **Agent setup note**: Copilot setup-step changes affect ephemeral CI/agent preparation only and do not alter workstation runtime controls; net runtime risk is **unchanged** while lint-gate reliability risk is **reduced**.
     - **Knowledge-capture note**: The new OKF wiki updates are documentation/process guidance only, so workstation runtime risk remains **unchanged** while steering consistency and future-session lint setup reliability risk are **reduced**.
+    - **Lint triage note**: The CI lint KB update is documentation-only; runtime risk is **unchanged** while CI failure triage reliability risk is **reduced**.
 
 ## [PR #77 - Ensure dependencies are up to date with a 3-day cooldown policy](https://github.com/brabster/xubuntu-workstation/pull/77)
 
