@@ -5,7 +5,9 @@ on:
       - 'roles/**/*.yml'
       - 'roles/**/*.yaml'
       - 'workstation.yml'
+      - 'workstation.yaml'
       - 'test.yml'
+      - 'test.yaml'
   pull_request:
     paths:
       - 'roles/**/*.yml'
