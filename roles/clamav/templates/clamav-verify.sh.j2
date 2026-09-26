@@ -40,7 +40,8 @@ print_log_tail() {
 log_has_nonblank_lines() {
   case "$1" in
     *.gz)
-      gzip -cd -- "$1" 2>/dev/null | grep -q '[^[:space:]]'
+      gzip_output="$(gzip -cd -- "$1" 2>/dev/null)" || return 2
+      printf '%s' "${gzip_output}" | grep -q '[^[:space:]]'
       ;;
     *)
       grep -q '[^[:space:]]' "$1"
@@ -51,9 +52,11 @@ log_has_nonblank_lines() {
 echo_latest_updates() {
   echo " --- latest antivirus update log"
 
-  if [ -f "${CLAMAV_LOG_DIR}/freshclam.log" ] && log_has_nonblank_lines "${CLAMAV_LOG_DIR}/freshclam.log"; then
-    print_log_tail "${CLAMAV_LOG_DIR}/freshclam.log"
-    return
+  if [ -f "${CLAMAV_LOG_DIR}/freshclam.log" ]; then
+    if log_has_nonblank_lines "${CLAMAV_LOG_DIR}/freshclam.log"; then
+      print_log_tail "${CLAMAV_LOG_DIR}/freshclam.log"
+      return
+    fi
   fi
 
   shopt -s nullglob
@@ -64,9 +67,15 @@ echo_latest_updates() {
     [ -n "${rotated_log_name}" ] || continue
     rotated_log_path="${CLAMAV_LOG_DIR}/${rotated_log_name}"
     [ -f "${rotated_log_path}" ] || continue
-    log_has_nonblank_lines "${rotated_log_path}" || continue
-    print_log_tail "${rotated_log_path}"
-    return
+    if log_has_nonblank_lines "${rotated_log_path}"; then
+      print_log_tail "${rotated_log_path}"
+      return
+    else
+      log_check_status=$?
+      if [ "${log_check_status}" -eq 2 ]; then
+        echo "WARNING: Could not read FreshClam log source ${rotated_log_path}" >&2
+      fi
+    fi
   done < <(
     # logrotate numbers the newest rotated log as .1, then older generations as .2, .3, etc.
     for rotated_log_path in "${rotated_log_paths[@]}"; do

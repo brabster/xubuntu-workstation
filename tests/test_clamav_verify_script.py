@@ -209,6 +209,26 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("real line two", result.stdout)
         self.assertIn("real line three", result.stdout)
 
+    def test_warns_on_unreadable_compressed_rotated_log_and_uses_older_output(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1.gz").write_text("not really gzip", encoding="utf-8")
+        older_rotated_log = self.log_dir / "freshclam.log.2.gz"
+        with gzip.open(older_rotated_log, "wt", encoding="utf-8") as handle:
+            handle.write(
+                "skip me\n"
+                "usable line one\n"
+                "usable line two\n"
+                "usable line three\n",
+            )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("usable line one", result.stdout)
+        self.assertIn("usable line two", result.stdout)
+        self.assertIn("usable line three", result.stdout)
+        self.assertIn("WARNING: Could not read FreshClam log source", result.stderr)
+
     def test_falls_back_to_journal_when_no_freshclam_log_has_content(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         self.env["TEST_JOURNAL_LINES"] = (
