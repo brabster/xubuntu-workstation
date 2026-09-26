@@ -129,6 +129,12 @@
     content: |
       deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
     mode: '0644'
+  register: slack_apt_source
+
+- name: Refresh apt package metadata for Slack repository changes
+  ansible.builtin.apt:
+    update_cache: true
+  when: (not slack_keyring_is_valid) or slack_apt_source.changed
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
