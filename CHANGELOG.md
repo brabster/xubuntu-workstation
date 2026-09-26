@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Complexity reduction for lint execution**: Removed changed-file selection logic from the lint execution path; linting now runs over the fixed scoped targets for simpler, more predictable behavior.
 - **Hook behavior coverage retained**: Added focused tests for the native git hook fixed-target behavior (`tests/test_pre_commit_hook.py`) and run them in CI before lint execution.
 - **ADR decision finalized**: Updated `docs/adr/0001-lint-tooling-approach.md` to accepted status and documented the selected lower-dependency approach, with explicit revisit criteria if issues emerge.
+- **OKF-style wiki bootstrap for agents**: Added `docs/wiki/okf/README.md` and `docs/wiki/okf/steering-and-reusable-knowledge.md` to capture session steering and reusable repository knowledge, and updated `AGENTS.md` so all agents bootstrap from this wiki seed.
 - **Baseline lint compliance updates**: Resolved outstanding ansible-lint findings across scoped targets, including role rename to `chrome_browser`, role-local variable prefix fixes, FQCN/import updates, safer file permission declarations, idempotency metadata, and YAML hygiene fixes in affected playbooks and role task files.
 
 ### Security
@@ -23,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while reducing local tooling supply-chain surface and simplifying lint execution paths.
     - **Net risk statement**: For runtime package behavior, risk is **unchanged to slightly reduced** because the Chrome ALSA preinstall compatibility task now checks package availability before install, reducing failure risk from hard-coded release assumptions.
     - **Supply-chain note**: Chrome installation still relies on downloading the vendor `.deb` directly over TLS as in prior versions; this PR does not change that trust model, so supply-chain risk in that path remains **unchanged**.
+    - **Documentation/control note**: The OKF wiki addition changes guidance quality, not runtime behavior; net runtime risk is **unchanged**, while decision-traceability and consistency are improved.
 
 ## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
 
