@@ -32,11 +32,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: install pre-commit
+      - name: install ansible-lint version from pre-commit config
+        shell: bash
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pre-commit
-      - name: run ansible-lint hook on changed ansible files
+          ANSIBLE_LINT_VERSION="$(python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          config_text = Path(".pre-commit-config.yaml").read_text(encoding="utf-8")
+          match = re.search(
+              r"- repo:\s*https://github.com/ansible/ansible-lint\s*\n(?:.*\n)*?\s+rev:\s*v?([0-9][0-9A-Za-z.\-]+)",
+              config_text,
+          )
+          if not match:
+              raise SystemExit("Could not determine ansible-lint version from .pre-commit-config.yaml")
+          print(match.group(1))
+          PY
+          )"
+          python -m pip install "ansible-lint==${ANSIBLE_LINT_VERSION}"
+      - name: run ansible-lint on changed ansible files
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -57,4 +72,4 @@ jobs:
           fi
 
           printf '%s\n' "${changed_files[@]}"
-          pre-commit run ansible-lint --files "${changed_files[@]}"
+          ansible-lint --offline "${changed_files[@]}"
