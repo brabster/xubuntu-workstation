@@ -16,7 +16,12 @@
     state: directory
     mode: '0755'
 
-- name: Install Slack from Packagecloud APT repository
+- name: Check whether Slack keyring is already installed
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/slack.gpg
+  register: slack_keyring_stat
+
+- name: Install Slack Packagecloud signing key
   block:
     - name: Create temporary file for Slack GPG key download
       ansible.builtin.tempfile:
@@ -74,20 +79,6 @@
         dest: /etc/apt/keyrings/slack.gpg
         remote_src: true
         mode: '0644'
-
-    - name: Add Slack APT repository
-      ansible.builtin.copy:
-        dest: /etc/apt/sources.list.d/slack.list
-        content: |
-          deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
-        mode: '0644'
-
-    - name: Install Slack desktop package
-      ansible.builtin.apt:
-        name: slack-desktop
-        state: present
-        update_cache: true
-        cache_valid_time: 3600
   always:
     - name: Remove temporary Slack GPG key download file
       ansible.builtin.file:
@@ -102,3 +93,18 @@
         state: absent
       when: slack_gpg_keyring_tempfile is defined
       changed_when: false
+  when: not slack_keyring_stat.stat.exists
+
+- name: Add Slack APT repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/slack.list
+    content: |
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
+    mode: '0644'
+
+- name: Install Slack desktop package
+  ansible.builtin.apt:
+    name: slack-desktop
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
