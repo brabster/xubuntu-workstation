@@ -40,11 +40,11 @@
       register: slack_gpg_key_details
       changed_when: false
 
-    - name: Assert Slack Packagecloud GPG key matches published key ID
+    - name: Assert Slack Packagecloud GPG key matches expected fingerprint
       ansible.builtin.assert:
         that:
-          - slack_gpg_key_details.stdout is regex('(?m)^fpr:::::::::[0-9A-F]*C6ABDCF64DB9A0B2:$')
-        fail_msg: Downloaded Slack Packagecloud signing key did not match the published key ID C6ABDCF64DB9A0B2.
+          - slack_gpg_key_details.stdout is regex('(?m)^fpr:::::::::DB085A08CA13B8ACB917E0F6D938EC0D038651BD:$')
+        fail_msg: Downloaded Slack Packagecloud signing key did not match the expected fingerprint DB085A08CA13B8ACB917E0F6D938EC0D038651BD.
 
     - name: Create temporary file for Slack GPG keyring
       ansible.builtin.tempfile:
