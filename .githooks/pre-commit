@@ -9,14 +9,21 @@ if ! command -v ansible-lint >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! git diff --cached --name-only -- roles workstation.yml workstation.yaml test.yml test.yaml | grep -q .; then
+staged_scoped_files=()
+while IFS= read -r file; do
+  [ -n "${file}" ] && staged_scoped_files+=("${file}")
+done < <(git diff --cached --name-only -- roles workstation.yml workstation.yaml test.yml test.yaml)
+
+if [ "${#staged_scoped_files[@]}" -eq 0 ]; then
   exit 0
 fi
 
 unstaged_scoped_files=()
-while IFS= read -r file; do
-  [ -n "${file}" ] && unstaged_scoped_files+=("${file}")
-done < <(git diff --name-only -- roles workstation.yml workstation.yaml test.yml test.yaml)
+for file in "${staged_scoped_files[@]}"; do
+  if ! git diff --quiet -- "${file}"; then
+    unstaged_scoped_files+=("${file}")
+  fi
+done
 
 if [ "${#unstaged_scoped_files[@]}" -gt 0 ]; then
   echo "Unstaged changes detected in scoped Ansible files; stage or stash these first:" >&2

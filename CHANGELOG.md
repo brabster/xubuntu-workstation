@@ -11,7 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Ansible linting gate in local hooks and CI**: Added a native git hook at `.githooks/pre-commit` and `.github/workflows/ansible_lint.yml` so local checks (when scoped Ansible files are staged) and CI both run `ansible-lint` against the full scoped targets (`roles/`, `workstation.y*ml`, `test.y*ml`).
 - **Shared lint dependency pin**: Added `requirements-dev.txt` so local setup and CI install the same `ansible-lint` version from one place, with straightforward dependency updates.
-- **Complexity reduction for lint execution**: Removed changed-file selection logic and helper tests from lint execution path; linting now runs over the fixed scoped targets for simpler, more predictable behavior.
+- **Complexity reduction for lint execution**: Removed changed-file selection logic from the lint execution path; linting now runs over the fixed scoped targets for simpler, more predictable behavior.
+- **Hook behavior coverage retained**: Added focused tests for the native git hook fixed-target behavior (`tests/test_pre_commit_hook.py`) and run them in CI before lint execution.
 - **ADR decision finalized**: Updated `docs/adr/0001-lint-tooling-approach.md` to accepted status and documented the selected lower-dependency approach, with explicit revisit criteria if issues emerge.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
 
