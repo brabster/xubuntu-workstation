@@ -79,7 +79,7 @@ echo_latest_updates() {
   )
 
   journal_lines="$(journalctl -u clamav-freshclam.service --no-pager -n 50 2>/dev/null | tail -n 3 || true)"
-  if [ -n "${journal_lines}" ]; then
+  if printf '%s' "${journal_lines}" | grep -q '[^[:space:]]'; then
     printf '%s\n' "${journal_lines}"
     return
   fi
