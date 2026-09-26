@@ -6,7 +6,7 @@ while IFS= read -r -d '' file; do
   if [[ "${file}" =~ ^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$ ]]; then
     changed_files+=("${file}")
   fi
-done < <(git diff --cached --name-only -z --diff-filter=ACMRT -- roles workstation.yml workstation.yaml test.yml test.yaml)
+done < <(git diff --cached --name-only -z --diff-filter=ACMT -- roles workstation.yml workstation.yaml test.yml test.yaml)
 
 if [ "${#changed_files[@]}" -eq 0 ]; then
   exit 0
