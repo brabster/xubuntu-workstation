@@ -152,6 +152,7 @@
     cache_valid_time: 3600
     name: slack-desktop
     state: present
+    update_cache: true
 
 - name: Remove Slack repository maintenance cron job
   ansible.builtin.file:
