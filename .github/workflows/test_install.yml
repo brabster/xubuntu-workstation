@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/workflows/ansible_lint.yml'
       - '.github/workflows/test_install.yml'
+      - '.github/dependabot.yml'
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"
