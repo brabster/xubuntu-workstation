@@ -9,10 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- **Ansible linting gate in pre-commit and CI**: Added `.pre-commit-config.yaml` with an `ansible-lint` hook so Ansible changes are linted before commit. Added `.github/workflows/ansible_lint.yml` so GitHub Actions runs `ansible-lint` against changed Ansible files in `roles/`, `workstation.y*ml`, and `test.y*ml` on push and pull request events, with the CI `ansible-lint` version derived from `.pre-commit-config.yaml`.
+- **Ansible linting gate in pre-commit and CI**: Added `.pre-commit-config.yaml` with an `ansible-lint` hook so Ansible changes are linted before commit. Added `.github/workflows/ansible_lint.yml` so GitHub Actions runs `ansible-lint` against changed Ansible files in `roles/`, `workstation.y*ml`, and `test.y*ml` on push and pull request events.
 - **Changed-file selection externalised**: Moved CI changed-file selection into `scripts/changed_ansible_files.py`, including filtering out deleted files before lint execution.
-- **Version extraction externalised**: Moved CI `ansible-lint` version extraction from `.pre-commit-config.yaml` into `scripts/get_ansible_lint_version.py` using YAML parsing instead of inline string matching.
-- **Coverage for CI helper logic**: Added focused unit tests for `scripts/changed_ansible_files.py` (zero-SHA fallback, pull request vs push diff ranges, deleted-file filtering, NUL-output mode) and `scripts/get_ansible_lint_version.py` (success and failure cases).
+- **Simplified CI trade-off**: Removed custom CI version-sync parsing and extra YAML parsing dependency; CI now uses an explicit pinned `ansible-lint` package while still enforcing the same lint checks.
+- **Coverage for CI helper logic**: Added focused unit tests for `scripts/changed_ansible_files.py` (zero-SHA fallback, pull request vs push diff ranges, deleted-file filtering, NUL-output mode).
 - **CI fail-fast test gate for helper scripts**: Added an early unit-test step in `.github/workflows/ansible_lint.yml` to run the helper-script tests before lint execution so failures stop the build immediately.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
 
@@ -20,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Threat Model Assessment**: This change **reduces risk** by preventing non-linting Ansible from being merged.
     - **Rationale**: Linting catches unsafe or error-prone Ansible patterns earlier in the development lifecycle, reducing configuration mistakes that could weaken workstation security controls.
-    - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management. Centralising hook configuration also reduces version-drift risk between local and CI lint checks.
+    - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while keeping CI implementation simpler and easier to maintain.
 
 ## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
 
