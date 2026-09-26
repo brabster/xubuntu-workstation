@@ -9,8 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- **Slack install path moved from snap to native APT package**: The `slack` role now adds Slack's official packagecloud APT repository for the current Ubuntu release and installs `slack-desktop` instead of using `snap install slack`.
-- **Slack repository setup is intentionally minimal**: The role now models the repository directly with Ansible's `deb822_repository` module using Slack's published packagecloud key URL, then installs Slack through normal apt operations with a one-hour cache window.
+- **Slack install path moved from snap to native APT package**: The `slack` role now adds Slack's official packagecloud APT repository using Slack's published Debian `jessie` distribution path and installs `slack-desktop` instead of using `snap install slack`.
+- **Slack repository setup is intentionally minimal**: The role now models the repository directly with Ansible's `deb822_repository` module using Slack's published packagecloud key URL and distribution path, then installs Slack through normal apt operations with a one-hour cache window.
 - **Slack now runs in CI coverage again**: Because Slack is no longer installed through snap, the `slack` role is no longer skipped in GitHub Actions and is exercised as part of the normal workstation playbook path.
 
 ### Security

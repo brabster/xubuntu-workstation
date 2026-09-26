@@ -9,11 +9,11 @@
     install_python_debian: true
     signed_by: https://packagecloud.io/slacktechnologies/slack/gpgkey
     suites:
-      - "{{ ansible_facts['distribution_release'] }}"
+      - jessie
     types:
       - deb
     uris:
-      - https://packagecloud.io/slacktechnologies/slack/ubuntu/
+      - https://packagecloud.io/slacktechnologies/slack/debian/
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
