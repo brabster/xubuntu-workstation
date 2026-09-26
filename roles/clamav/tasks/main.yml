@@ -22,6 +22,17 @@
     state: absent
   notify: Restart clamav-freshclam
 
+- name: Comment out pre-existing active freshclam logging directives
+  ansible.builtin.replace:
+    path: /etc/clamav/freshclam.conf
+    regexp: '{{ item }}'
+    replace: '# \1'
+  loop:
+    - '^([[:space:]]*UpdateLogFile\b.*)$'
+    - '^([[:space:]]*LogRotate\b.*)$'
+    - '^([[:space:]]*LogFileMaxSize\b.*)$'
+  notify: Restart clamav-freshclam
+
 - name: Configure freshclam update logging
   ansible.builtin.blockinfile:
     path: /etc/clamav/freshclam.conf
