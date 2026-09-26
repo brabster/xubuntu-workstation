@@ -103,3 +103,5 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
 ## Testing
 
 [GitHub actions](.github/workflows) runs playbook on a container of the same OS as target. Tasks requiring a graphical target or systemd interaction (snap, systemctl) cannot be tested in a container.
+
+For local commit-time Ansible linting, install [`pre-commit`](https://pre-commit.com/) and run `pre-commit install`. This repository uses `pre-commit` to manage hook versions centrally in `.pre-commit-config.yaml`, so local hooks and CI use the same `ansible-lint` hook definition.

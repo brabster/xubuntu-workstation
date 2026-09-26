@@ -13,7 +13,9 @@ on:
       - 'roles/**/*.yml'
       - 'roles/**/*.yaml'
       - 'workstation.yml'
+      - 'workstation.yaml'
       - 'test.yml'
+      - 'test.yaml'
   workflow_dispatch: {}
 jobs:
   ansible_lint:
@@ -30,11 +32,11 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - name: install ansible-lint
+      - name: install pre-commit
         run: |
           python -m pip install --upgrade pip
-          python -m pip install ansible-lint==26.9.0
-      - name: run ansible-lint on changed ansible files
+          python -m pip install pre-commit
+      - name: run ansible-lint hook on changed ansible files
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -43,27 +45,11 @@ jobs:
             diff_base="${{ github.event.before }}"
           fi
 
-          files=()
-          if [ -z "${diff_base}" ] || [ "${diff_base}" = "0000000000000000000000000000000000000000" ]; then
-            while IFS= read -r -d '' file; do
-              files+=("${file}")
-            done < <(git ls-files -z roles workstation.yml workstation.yaml test.yml test.yaml)
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            while IFS= read -r -d '' file; do
-              files+=("${file}")
-            done < <(git diff --name-only -z "${diff_base}...HEAD" -- roles workstation.yml workstation.yaml test.yml test.yaml)
-          else
-            while IFS= read -r -d '' file; do
-              files+=("${file}")
-            done < <(git diff --name-only -z "${diff_base}..HEAD" -- roles workstation.yml workstation.yaml test.yml test.yaml)
-          fi
-
-          changed_files=()
-          for file in "${files[@]}"; do
-    if [[ -f "${file}" && "${file}" =~ ^roles/.*\.ya?ml$|^workstation\.ya?ml$|^test\.ya?ml$ ]]; then
-              changed_files+=("${file}")
-            fi
-          done
+          mapfile -t changed_files < <(
+            python3 scripts/changed_ansible_files.py \
+              --event-name "${{ github.event_name }}" \
+              --diff-base "${diff_base}"
+          )
 
           if [ "${#changed_files[@]}" -eq 0 ]; then
             echo "No changed Ansible files to lint."
@@ -71,4 +57,4 @@ jobs:
           fi
 
           printf '%s\n' "${changed_files[@]}"
-          ansible-lint --offline "${changed_files[@]}"
+          pre-commit run ansible-lint --files "${changed_files[@]}"
