@@ -23,11 +23,11 @@
     path: /etc/clamav/freshclam.conf
     before: '^# BEGIN ANSIBLE MANAGED FRESHCLAM LOGGING$'
     regexp: '{{ item }}'
-    replace: '# \1'
+    replace: '\1# \2'
   loop:
-    - '^(UpdateLogFile\b.*)$'
-    - '^(LogRotate\b.*)$'
-    - '^(LogFileMaxSize\b.*)$'
+    - '^(\s*)(UpdateLogFile\b.*)$'
+    - '^(\s*)(LogRotate\b.*)$'
+    - '^(\s*)(LogFileMaxSize\b.*)$'
   notify: Restart clamav-freshclam
 
 # Manage FreshClam logging explicitly so verification reads a predictable
