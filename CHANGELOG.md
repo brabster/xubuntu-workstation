@@ -13,12 +13,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **ClamAV health check simplified to match the new logging policy**: the verification script now checks the current FreshClam log first and then falls back only to the first rotated log (`freshclam.log.1`) before reporting that no recent update lines were found. This removes the broader rotated-log scan and journal fallback now that the intended behavior is "rotate after meaningful activity, not merely after time has passed."
 - **CI coverage now proves the intended fallback path directly**: the GitHub Actions smoke test now verifies the managed FreshClam logging directives and forces a deterministic rotated-log fixture before rerunning `clamav-verify.sh`, so the branch validates the simplified current-log/first-rotation behavior end to end in CI as well as in helper-script unit tests.
 
+### Changed
+
+- **Agent bootstrap trimmed to a minimal always-read set**: `AGENTS.md` now points sessions at the OKF root index, overview, a new bootstrap rules page, and a new session workflow page, instead of requiring agents to preload the full wiki tree and specification on every run.
+- **Wiki now distinguishes mandatory rules from lookup-on-demand detail**: the OKF root and overview pages now explicitly separate the small bootstrap set from deeper steering/linting/decision references, and clarify that Copilot memory should remain a sparse complement rather than the main repository rules engine.
+
 ### Security
 
 - **Threat Model Assessment**: This change **keeps workstation malware-protection risk unchanged while reducing diagnostic noise and configuration ambiguity**.
     - **Rationale**: The change does not alter ClamAV package sources, scanning scope, service privileges, or quarantine behavior. It narrows the solution to two low-risk controls: size-based built-in FreshClam log rotation and a simple health-check fallback to the first rotated log. That reduces the chance of empty update output after quiet overnight runtime without introducing unbounded logging.
     - **Benefit**: Recent update evidence now tracks actual logging activity more closely than wall-clock time, and CI can validate both the managed logging policy and the first-rotation fallback deterministically. This supports UK Cyber Essentials expectations for reliable protective monitoring and controlled, reviewable configuration.
     - **Net risk statement**: Net runtime protection risk is **unchanged**, while operational diagnostic risk is **reduced**.
+    - **Bootstrap note**: The wiki/bootstrap restructuring is documentation and agent-guidance only, so workstation runtime risk is **unchanged** while future session context-loading overhead and stale-memory reliance should be reduced.
 
 ## [PR #77 - Ensure dependencies are up to date with a 3-day cooldown policy](https://github.com/brabster/xubuntu-workstation/pull/77)
 

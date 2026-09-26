@@ -1,6 +1,8 @@
 # OKF Wiki Update Log
 
 ## 2026-09-26
+* **Update**: Added `steering/agent-bootstrap-rules.md` and `steering/session-workflow.md` so sessions can start from a minimal always-read rules/workflow set and look up detailed guidance only when needed.
+* **Update**: Updated the OKF root index, overview, and `AGENTS.md` bootstrap guidance to distinguish mandatory bootstrap pages from lookup-on-demand reference pages, and clarified that Copilot memory should remain a sparse complement to the wiki rather than the primary repository rules engine.
 * **Update**: Added `steering/activity-driven-thresholds.md` to capture the preference for activity-based triggers such as size-based log rotation when elapsed-time behavior creates avoidable noise on quiet systems and deterministic CI validation is valuable.
 * **Update**: Added `steering/dependency-update-governance.md` to capture repository preference for automated point-of-use dependency updates gated by CI evidence, with cooldown retained and explicit acknowledgment of interim risk until a centralized control plane exists.
 * **Update**: Added `steering/ci-feedback-playbook-ordering.md` to capture the rule that active or failing roles can be moved earlier in `workstation.yml` to fail faster in CI while they are being stabilised.

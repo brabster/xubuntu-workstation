@@ -9,6 +9,16 @@ tags: [okf, wiki, steering]
 
 This directory is the repository's working OKF-style wiki for agent and contributor bootstrap.
 
+## Bootstrap model
+
+- always-read bootstrap pages should stay minimal:
+  - root navigation (`index.md`)
+  - this overview (`README.md`)
+  - [agent bootstrap rules](./steering/agent-bootstrap-rules.md)
+  - [session workflow](./steering/session-workflow.md)
+- other steering, linting, and decision pages are lookup-on-demand reference material
+- avoid preloading the whole wiki tree unless a task genuinely depends on it
+
 ## Purpose
 
 - capture steering from active sessions
@@ -24,6 +34,14 @@ This directory is the repository's working OKF-style wiki for agent and contribu
 - [Decisions](./decisions/): ADR-backed decision summaries.
 - [Specification reference](./okc_spec.md): local OKF v0.2 reference.
 - [Update log](./log.md): dated history of wiki-level changes.
+
+## Memory versus wiki
+
+- the wiki is the primary repository knowledge system
+- Copilot memory should be sparse and complementary:
+  - durable user preferences
+  - a few expensive-to-rediscover facts
+- repository rules, workflow, examples, and decision rationale should live in versioned wiki pages, not in broad memory injection
 
 ## Authoring rules (OKF v0.2 aligned)
 
