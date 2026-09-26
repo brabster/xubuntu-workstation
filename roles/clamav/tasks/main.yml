@@ -30,28 +30,16 @@
     state: absent
   notify: Restart clamav-freshclam
 
-# Preserve earlier active logging directives as comments so the final
-# managed block is the only live definition, while still keeping local
-# context and sample configuration text for review.
-- name: Comment out pre-existing active freshclam logging directives
-  ansible.builtin.replace:
-    path: /etc/clamav/freshclam.conf
-    regexp: '{{ item }}'
-    replace: '\1# \2'
-  loop:
-    - '^(\s*)(UpdateLogFile\b.*)$'
-    - '^(\s*)(LogRotate\b.*)$'
-    - '^(\s*)(LogFileMaxSize\b.*)$'
-  notify: Restart clamav-freshclam
-
 # Manage FreshClam logging explicitly so verification reads a predictable
 # log location while log growth remains bounded on quiet laptops and in CI.
+# Inserting the block at BOF ensures these directives win by first occurrence
+# without rewriting unrelated packaged or third-party config elsewhere.
 - name: Configure freshclam update logging
   ansible.builtin.blockinfile:
     path: /etc/clamav/freshclam.conf
     marker: "# {mark} ANSIBLE MANAGED FRESHCLAM LOGGING"
     append_newline: true
-    insertafter: EOF
+    insertbefore: BOF
     block: |
       UpdateLogFile {{ clamav_freshclam_log_file }}
       LogRotate yes
