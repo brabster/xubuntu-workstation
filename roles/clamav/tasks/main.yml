@@ -19,8 +19,6 @@
   ansible.builtin.file:
     path: /var/log/clamav
     state: directory
-    owner: clamav
-    group: clamav
     mode: '0755'
 
 - name: Remove previous managed freshclam logging block before normalization
@@ -45,6 +43,14 @@
       LogRotate yes
       LogFileMaxSize {{ clamav_freshclam_log_max_size }}
   notify: Restart clamav-freshclam
+
+- name: Ensure FreshClam log file exists with service write access
+  ansible.builtin.file:
+    path: "{{ clamav_freshclam_log_file }}"
+    state: touch
+    owner: clamav
+    group: clamav
+    mode: '0644'
 
 - name: Create a global quarantine directory
   ansible.builtin.file:
