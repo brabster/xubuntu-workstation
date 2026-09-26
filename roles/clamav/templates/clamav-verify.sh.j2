@@ -50,20 +50,26 @@ show_compressed_log_tail_if_nonblank() {
 }
 
 show_current_boot_journal_tail_if_nonblank() {
-  local journal_lines journal_status
+  local journal_output journal_lines journal_status
 
   set +e
-  journal_lines="$(journalctl -u clamav-freshclam --boot 0 --no-pager -o cat 2>/dev/null | grep -- '->')"
+  journal_output="$(journalctl -u clamav-freshclam --boot 0 --no-pager -o cat 2>/dev/null)"
+  journal_status=$?
+  set -e
+
+  if [ "${journal_status}" -ne 0 ]; then
+    echo "WARNING: Failed to read clamav-freshclam journal entries." >&2
+    return 1
+  fi
+
+  set +e
+  journal_lines="$(printf '%s\n' "${journal_output}" | grep -- '->')"
   journal_status=$?
   set -e
 
   if [ "${journal_status}" -eq 0 ]; then
     show_text_tail_if_nonblank "${journal_lines}"
     return $?
-  fi
-
-  if [ "${journal_status}" -gt 1 ]; then
-    echo "WARNING: Failed to read clamav-freshclam journal entries." >&2
   fi
 
   return 1

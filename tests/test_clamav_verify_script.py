@@ -76,6 +76,15 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "  cat \"${TEST_JOURNAL_OUTPUT_FILE}\"\n"
             "fi\n",
         )
+        self._write_executable(
+            "grep",
+            "#!/usr/bin/env bash\n"
+            "set -euo pipefail\n"
+            "if [ \"${#}\" -gt 0 ] && [ \"${TEST_GREP_FAIL_PATH:-}\" = \"${!#}\" ]; then\n"
+            "  exit 2\n"
+            "fi\n"
+            "/usr/bin/grep \"$@\"\n",
+        )
 
         self.env = os.environ.copy()
         self.env["PATH"] = f"{self.fake_bin}:{self.env.get('PATH', '')}"
@@ -248,7 +257,7 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("compressed two three", result.stdout)
         self.assertNotIn("plain ten one", result.stdout)
 
-    def test_reports_when_first_rotated_log_cannot_be_read(self):
+    def test_reports_when_first_rotated_log_reader_fails(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         rotated_log = self.log_dir / "freshclam.log.1"
         rotated_log.write_text(
@@ -258,11 +267,7 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "hidden line three\n",
             encoding="utf-8",
         )
-        rotated_log.chmod(0)
-        self.addCleanup(
-            lambda: rotated_log.exists()
-            and rotated_log.chmod(stat.S_IRUSR | stat.S_IWUSR)
-        )
+        self.env["TEST_GREP_FAIL_PATH"] = str(rotated_log)
 
         result = self._run_script()
 
