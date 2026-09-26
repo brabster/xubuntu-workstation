@@ -98,8 +98,15 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
     - update all known supply chains, incl. OS, firmware, snap, pip, clamav
     - apply system-level updates as root
     - su to user to apply user updates
-- [firefox](roles/firefox), [chrome](roles/chrome-browser) apply security settings by policy
+- [firefox](roles/firefox), [chrome](roles/chrome_browser) apply security settings by policy
 
 ## Testing
 
 [GitHub actions](.github/workflows) runs playbook on a container of the same OS as target. Tasks requiring a graphical target or systemd interaction (snap, systemctl) cannot be tested in a container.
+
+For local commit-time Ansible linting, install dev dependencies and enable repository git hooks:
+
+- `python3 -m pip install -r requirements-dev.txt`
+- `git config core.hooksPath .githooks`
+
+CI independently enforces `ansible-lint` for the same scoped files before merge.

@@ -20,6 +20,20 @@ Specific principles we prioritise:
 
 - we value simplicity, and start with the simplest thing that can work. We add complexity when we see evidence that it is needed and not before.
 
+## Agent bootstrap knowledge source (OKF wiki seed)
+
+- On session start, review:
+  - `docs/wiki/okf/index.md`
+  - `docs/wiki/okf/README.md`
+  - `docs/wiki/okf/steering/index.md`
+  - `docs/wiki/okf/linting/index.md`
+  - `docs/wiki/okf/decisions/index.md`
+  - `docs/wiki/okf/log.md`
+  - `docs/wiki/okf/okc_spec.md`
+- Then read each concept page linked from those section `index.md` files before making changes.
+- Treat this wiki as operational steering and reusable repository context.
+- If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
+
 
 
 ## Role Modularity and Guards

@@ -4,8 +4,14 @@
   ansible.builtin.file:
     path: /etc/firefox/policies
     state: directory
+    owner: root
+    group: root
+    mode: '0755'
 
 - name: Setup default preferences
   ansible.builtin.copy:
     src: policies.json
     dest: /etc/firefox/policies/policies.json
+    owner: root
+    group: root
+    mode: '0644'

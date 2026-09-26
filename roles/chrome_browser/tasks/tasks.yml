@@ -1,0 +1,43 @@
+---
+# tasks file for chrome-browser
+- name: Fetch Chrome Browser
+  ansible.builtin.get_url:
+    url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+    dest: /tmp/google-chrome.deb
+    mode: '0644'
+
+- name: Refresh apt package metadata for Chrome dependency resolution
+  ansible.builtin.apt:
+    update_cache: true
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Check for libasound2t64 package availability
+  ansible.builtin.command: apt-cache show libasound2t64
+  register: chrome_browser_libasound2t64_pkg
+  changed_when: false
+  failed_when: false
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+
+- name: Pre-install ALSA library for Chrome (libasound2t64)
+  ansible.builtin.apt:
+    name: libasound2t64
+    state: present
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - chrome_browser_libasound2t64_pkg.rc == 0
+
+- name: Pre-install ALSA library for Chrome (libasound2 fallback)
+  ansible.builtin.apt:
+    name: libasound2
+    state: present
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - chrome_browser_libasound2t64_pkg.rc != 0
+
+- name: Install Chrome
+  ansible.builtin.apt:
+    deb: /tmp/google-chrome.deb
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'

@@ -7,6 +7,6 @@
 
 - name: Remove user from sudo group
   ansible.builtin.command: 'gpasswd -d {{ username }} sudo'
-  register: command_result
-  changed_when: "not 'is not a member of' in command_result.stderr"
+  register: sudo_command_result
+  changed_when: "not 'is not a member of' in sudo_command_result.stderr"
   failed_when: false

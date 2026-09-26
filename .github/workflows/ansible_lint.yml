@@ -1,0 +1,56 @@
+name: ansible_lint
+on:
+  push:
+    paths:
+      - 'roles/**/*.yml'
+      - 'roles/**/*.yaml'
+      - 'workstation.yml'
+      - 'workstation.yaml'
+      - 'test.yml'
+      - 'test.yaml'
+  pull_request:
+    paths:
+      - 'roles/**/*.yml'
+      - 'roles/**/*.yaml'
+      - 'workstation.yml'
+      - 'workstation.yaml'
+      - 'test.yml'
+      - 'test.yaml'
+  workflow_dispatch: {}
+jobs:
+  ansible_lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: install ansible-lint
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+      - name: run lint hook unit tests
+        run: |
+          python3 -m unittest tests/test_pre_commit_hook.py
+      - name: run ansible-lint on scoped ansible files
+        run: |
+          lint_targets=()
+          for target in roles workstation.yml workstation.yaml test.yml test.yaml; do
+            if [ -e "${target}" ]; then
+              lint_targets+=("${target}")
+            fi
+          done
+
+          if [ "${#lint_targets[@]}" -eq 0 ]; then
+            echo "No scoped Ansible targets found to lint." >&2
+            exit 1
+          fi
+
+          ansible-lint --offline "${lint_targets[@]}"

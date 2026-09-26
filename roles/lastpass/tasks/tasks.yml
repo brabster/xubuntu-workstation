@@ -4,11 +4,13 @@
   ansible.builtin.get_url:
     url: https://download.cloud.lastpass.com/linux/lplinux.tar.bz2
     dest: /tmp/lplinux.tar.bz2
+    mode: '0644'
 
 - name: Create LastPass extract dir
   ansible.builtin.file:
     path: /tmp/lplinux
     state: directory
+    mode: '0755'
 
 - name: Decompress LastPass archive
   ansible.builtin.unarchive:
@@ -19,8 +21,10 @@
   ansible.builtin.command: ./install_lastpass.sh
   args:
     chdir: /tmp/lplinux
+    creates: '{{ user_home }}/.lastpass_is_installed'
 
 - name: Mark installed
   ansible.builtin.file:
     path: '{{ user_home }}/.lastpass_is_installed'
     state: touch
+    mode: '0644'

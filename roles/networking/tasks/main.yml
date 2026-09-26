@@ -17,4 +17,3 @@
       DNSStubListener=yes
     mode: '0644'
   notify: Restart resolved
-

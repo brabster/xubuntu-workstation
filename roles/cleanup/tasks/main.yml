@@ -9,4 +9,3 @@
     state: absent
     update_cache: true
     autoremove: true
-

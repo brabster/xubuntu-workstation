@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Run ansible-lint as part of pre-commit hook and in CI build](https://github.com/brabster/xubuntu-workstation/pull/71)
+
+### Added
+
+- **Ansible linting gate in local hooks and CI**: Added a native git hook at `.githooks/pre-commit` and `.github/workflows/ansible_lint.yml` so local checks (when scoped Ansible files are staged) and CI both run `ansible-lint` against the full scoped targets (`roles/`, `workstation.y*ml`, `test.y*ml`).
+- **Shared lint dependency pin**: Added `requirements-dev.txt` so local setup and CI install the same `ansible-lint` version from one place, with straightforward dependency updates.
+- **Complexity reduction for lint execution**: Removed changed-file selection logic from the lint execution path; linting now runs over the fixed scoped targets for simpler, more predictable behavior.
+- **Hook behavior coverage retained**: Added focused tests for the native git hook fixed-target behavior (`tests/test_pre_commit_hook.py`) and run them in CI before lint execution.
+- **ADR decision finalized**: Updated `docs/adr/0001-lint-tooling-approach.md` to accepted status and documented the selected lower-dependency approach, with explicit revisit criteria if issues emerge.
+- **OKF-style wiki bootstrap for agents**: Added `docs/wiki/okf/README.md` and `docs/wiki/okf/steering-and-reusable-knowledge.md` to capture session steering and reusable repository knowledge, and updated `AGENTS.md` so agents review this wiki seed on session start.
+- **OKF v0.2 conformance alignment for wiki seed**: Added `docs/wiki/okf/index.md` with `okf_version: "0.2"` and added concept frontmatter metadata to non-reserved wiki markdown files so the local wiki proposal matches the uploaded OKF v0.2 structure more closely.
+- **OKF concept decomposition and linking model**: Replaced the single combined steering page with topic-grouped concept documents under `docs/wiki/okf/steering/`, `docs/wiki/okf/linting/`, and `docs/wiki/okf/decisions/`, each connected via reserved `index.md` navigation and cross-links between related concepts.
+- **Wiki change history support**: Added `docs/wiki/okf/log.md` at wiki root for dated update tracking using OKF `log.md` conventions.
+- **Baseline lint compliance updates**: Resolved outstanding ansible-lint findings across scoped targets, including role rename to `chrome_browser`, role-local variable prefix fixes, FQCN/import updates, safer file permission declarations, idempotency metadata, and YAML hygiene fixes in affected playbooks and role task files.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces risk** by preventing non-linting Ansible from being merged.
+    - **Rationale**: Linting catches unsafe or error-prone Ansible patterns earlier in the development lifecycle, reducing configuration mistakes that could weaken workstation security controls.
+    - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while reducing local tooling supply-chain surface and simplifying lint execution paths.
+    - **Net risk statement**: For runtime package behavior, risk is **unchanged to slightly reduced** because the Chrome ALSA preinstall compatibility task now checks package availability before install, reducing failure risk from hard-coded release assumptions.
+    - **Supply-chain note**: Chrome installation still relies on downloading the vendor `.deb` directly over TLS as in prior versions; this PR does not change that trust model, so supply-chain risk in that path remains **unchanged**.
+    - **Documentation/control note**: The OKF wiki addition, decomposition, and v0.2 conformance alignment change guidance quality, not runtime behavior; net runtime risk is **unchanged**, while decision-traceability, discoverability, and consistency are improved.
+
 ## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
 
 ### Fixed
