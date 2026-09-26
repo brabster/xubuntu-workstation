@@ -23,17 +23,22 @@ def selected_files(event_name, diff_base):
     return git_paths(["git", "diff", "--name-only", "-z", f"{diff_base}..HEAD", "--", *SCOPE_PATHS])
 
 
+def filter_ansible_files(paths):
+    for file_path in paths:
+        if not ANSIBLE_PATH_PATTERN.match(file_path):
+            continue
+        if not Path(file_path).is_file():
+            continue
+        yield file_path
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--event-name", required=True)
     parser.add_argument("--diff-base", default="")
     args = parser.parse_args()
 
-    for file_path in selected_files(args.event_name, args.diff_base):
-        if not ANSIBLE_PATH_PATTERN.match(file_path):
-            continue
-        if not Path(file_path).is_file():
-            continue
+    for file_path in filter_ansible_files(selected_files(args.event_name, args.diff_base)):
         print(file_path)
 
 
