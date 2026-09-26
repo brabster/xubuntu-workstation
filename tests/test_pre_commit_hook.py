@@ -72,7 +72,7 @@ class PreCommitHookTests(unittest.TestCase):
         lint_args = self.lint_log.read_text(encoding="utf-8").splitlines()
         self.assertEqual(lint_args, ["--offline", "roles", "workstation.yml", "test.yml"])
 
-    def test_unstaged_scoped_file_blocks_commit(self):
+    def test_unstaged_unrelated_scoped_file_does_not_block_commit(self):
         staged_file = self.repo / "roles" / "example" / "tasks" / "main.yml"
         staged_file.write_text("- debug: msg='two'\n", encoding="utf-8")
         self._git("add", "roles/example/tasks/main.yml")
@@ -82,8 +82,7 @@ class PreCommitHookTests(unittest.TestCase):
 
         result = self._run_hook()
 
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Unstaged changes detected in scoped Ansible files", result.stderr)
+        self.assertEqual(result.returncode, 0)
 
     def test_unstaged_edit_in_staged_scoped_file_blocks_commit(self):
         staged_file = self.repo / "roles" / "example" / "tasks" / "main.yml"

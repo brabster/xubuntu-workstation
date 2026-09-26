@@ -31,9 +31,9 @@ if [ "${#lint_targets[@]}" -eq 0 ]; then
 fi
 
 unstaged_scoped_files=()
-for target in "${lint_targets[@]}"; do
-  if ! git diff-files --quiet -- "${target}"; then
-    unstaged_scoped_files+=("${target}")
+for file in "${staged_scoped_files[@]}"; do
+  if ! git diff-files --quiet -- "${file}"; then
+    unstaged_scoped_files+=("${file}")
   fi
 done
 
