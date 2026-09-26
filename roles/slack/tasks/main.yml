@@ -33,21 +33,49 @@
     state: directory
     mode: '0755'
 
+- name: Check whether Slack apt keyring already exists
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
+  register: slack_apt_keyring
+
 - name: Download Slack apt signing key
   ansible.builtin.get_url:
     url: https://packagecloud.io/slacktechnologies/slack/gpgkey
     dest: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
     mode: '0644'
+  register: slack_apt_signing_key
+
+- name: Verify Slack apt signing key ID
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --show-keys
+      - --with-colons
+      - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
+  register: slack_apt_key_info
+  changed_when: false
+  failed_when: '"C6ABDCF64DB9A0B2" not in slack_apt_key_info.stdout'
+
+- name: Convert Slack apt signing key to keyring format
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --dearmor
+      - --yes
+      - --output
+      - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
+      - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
+  changed_when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
+  when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
 
 - name: Add Slack apt repository
   ansible.builtin.deb822_repository:
-    name: slack
     architectures:
       - amd64
     components:
       - main
-    install_python_debian: true
-    signed_by: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
+    name: slack
+    signed_by: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
     suites:
       - >-
         {{
@@ -59,12 +87,13 @@
       - deb
     uris:
       - https://packagecloud.io/slacktechnologies/slack/ubuntu/
-  notify: Refresh apt cache
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
+    cache_valid_time: 3600
     name: slack-desktop
     state: present
+    update_cache: true
 
 - name: Remove Slack repository maintenance cron job
   ansible.builtin.file:
