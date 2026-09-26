@@ -38,7 +38,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
       - name: run lint hook unit tests
         run: |
-          python3 -m unittest tests/test_pre_commit_hook.py
+          python3 -m unittest discover -s tests -p 'test_*.py'
       - name: run ansible-lint on scoped ansible files
         run: |
           lint_targets=()

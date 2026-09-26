@@ -28,7 +28,6 @@
     - role: git
     - role: clamav
     - role: slack
-      when: not is_gh_actions
     - role: vscode
       when: not is_gh_actions
     - role: xfce

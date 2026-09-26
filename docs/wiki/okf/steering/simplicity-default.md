@@ -12,6 +12,7 @@ tags: [steering, simplicity]
 - Revisit if reliability, maintainability, or contributor experience degrades.
 
 Related concepts:
+- [Recent-Ubuntu simple paths](./recent-ubuntu-simple-paths.md)
 - [Evidence-first diagnostics](./evidence-first-diagnostics.md)
 - [CI as enforcement gate](./ci-as-enforcement-gate.md)
 - [Cost-tiered agent selection](./cost-tiered-agent-selection.md)

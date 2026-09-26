@@ -38,3 +38,4 @@ This directory is the repository's working OKF-style wiki for agent and contribu
 - prefer evidence-backed statements over assumptions
 - keep entries short, practical, and action-oriented
 - when a decision changes, update the wiki entry and link the relevant ADR/PR
+- add new canonical guidance in the decomposed section pages (`steering/`, `linting/`, `decisions/`)

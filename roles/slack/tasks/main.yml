@@ -1,4 +1,170 @@
 ---
-- name: Install Slack
-  ansible.builtin.command: snap install slack
+- name: Ensure GnuPG is installed for Slack key verification
+  ansible.builtin.apt:
+    name: gnupg
+    state: present
+
+- name: Check Debian package architecture
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --print-architecture
+  register: slack_dpkg_architecture
   changed_when: false
+
+- name: Assert Slack architecture is supported
+  ansible.builtin.assert:
+    that:
+      - slack_dpkg_architecture.stdout == 'amd64'
+    fail_msg: Slack desktop packages are only configured for amd64 workstations.
+
+- name: Ensure APT keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Check whether Slack keyring is already installed
+  ansible.builtin.stat:
+    path: /etc/apt/keyrings/slack.gpg
+  register: slack_keyring_stat
+
+- name: Inspect installed Slack keyring fingerprint
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --show-keys
+      - --with-colons
+      - /etc/apt/keyrings/slack.gpg
+  register: slack_installed_keyring_details
+  changed_when: false
+  failed_when: false
+  when: slack_keyring_stat.stat.exists
+
+- name: Extract installed Slack keyring fingerprints
+  ansible.builtin.set_fact:
+    slack_installed_pubkey_count: "{{ slack_installed_keyring_details.stdout | default('') | regex_findall('(?m)^pub:') | length }}"
+    slack_installed_fingerprints: >-
+      {{
+        (
+          slack_installed_keyring_details.stdout | default('')
+        ) | regex_findall('(?m)^fpr:::::::::([0-9A-F]+):$')
+      }}
+
+- name: Set Slack keyring validity fact
+  ansible.builtin.set_fact:
+    slack_keyring_is_valid: >-
+      {{
+        slack_keyring_stat.stat.exists
+        and (slack_installed_pubkey_count | default(0)) == 1
+        and ((slack_installed_fingerprints | default([])) | length >= 1)
+        and (((slack_installed_fingerprints | default([])) | first | default('')) == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD')
+      }}
+
+- name: Install Slack Packagecloud signing key
+  when: not slack_keyring_is_valid
+  block:
+    - name: Create temporary file for Slack GPG key download
+      ansible.builtin.tempfile:
+        state: file
+        suffix: .asc
+      register: slack_gpg_key_tempfile
+
+    - name: Stage vendored Slack Packagecloud GPG key candidate
+      ansible.builtin.copy:
+        src: slack-packagecloud.asc
+        dest: "{{ slack_gpg_key_tempfile.path }}"
+        mode: '0600'
+
+    - name: Inspect Slack Packagecloud GPG key fingerprint
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --show-keys
+          - --with-colons
+          - "{{ slack_gpg_key_tempfile.path }}"
+      register: slack_gpg_key_details
+      changed_when: false
+
+    - name: Extract Slack Packagecloud GPG key fingerprints
+      ansible.builtin.set_fact:
+        slack_gpg_pubkey_count: "{{ slack_gpg_key_details.stdout | regex_findall('(?m)^pub:') | length }}"
+        slack_gpg_fingerprints: "{{ slack_gpg_key_details.stdout | regex_findall('(?m)^fpr:::::::::([0-9A-F]+):$') }}"
+
+    - name: Assert Slack Packagecloud GPG key matches expected fingerprint
+      ansible.builtin.assert:
+        that:
+          - slack_gpg_pubkey_count == 1
+          - slack_gpg_fingerprints | length >= 1
+          - slack_gpg_fingerprints[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'
+        fail_msg: Downloaded Slack Packagecloud signing key did not match the expected fingerprint DB085A08CA13B8ACB917E0F6D938EC0D038651BD.
+
+    - name: Create temporary file for Slack GPG keyring
+      ansible.builtin.tempfile:
+        state: file
+        suffix: .gpg
+      register: slack_gpg_keyring_tempfile
+
+    - name: Dearmor verified Slack Packagecloud GPG key
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --dearmor
+          - --yes
+          - --output
+          - "{{ slack_gpg_keyring_tempfile.path }}"
+          - "{{ slack_gpg_key_tempfile.path }}"
+      changed_when: false
+
+    - name: Install verified Slack Packagecloud GPG keyring
+      ansible.builtin.copy:
+        src: "{{ slack_gpg_keyring_tempfile.path }}"
+        dest: /etc/apt/keyrings/slack.gpg
+        remote_src: true
+        mode: '0644'
+  always:
+    - name: Remove temporary Slack GPG key download file
+      ansible.builtin.file:
+        path: "{{ slack_gpg_key_tempfile.path }}"
+        state: absent
+      when: slack_gpg_key_tempfile is defined
+      changed_when: false
+
+    - name: Remove temporary Slack GPG keyring file
+      ansible.builtin.file:
+        path: "{{ slack_gpg_keyring_tempfile.path }}"
+        state: absent
+      when: slack_gpg_keyring_tempfile is defined
+      changed_when: false
+- name: Add Slack APT repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/slack.list
+    content: |
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
+    mode: '0644'
+  register: slack_apt_source
+
+- name: Check for cached Slack apt metadata
+  ansible.builtin.find:
+    paths: /var/lib/apt/lists
+    patterns: '*packagecloud.io*slacktechnologies*slack*'
+    file_type: file
+    recurse: false
+  register: slack_apt_list_files
+  failed_when: false
+
+- name: Refresh apt package metadata for Slack bootstrap
+  ansible.builtin.apt:
+    update_cache: true
+  when: (not slack_keyring_is_valid) or slack_apt_source.changed or slack_apt_list_files.matched == 0
+
+- name: Refresh apt package metadata for stale Slack cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: slack_keyring_is_valid and (not slack_apt_source.changed) and slack_apt_list_files.matched > 0
+
+- name: Install Slack desktop package
+  ansible.builtin.apt:
+    name: slack-desktop
+    state: present

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [PR #73 - Switch Slack installation from snap to the official APT package](https://github.com/brabster/xubuntu-workstation/pull/73)
+
+### Changed
+
+- **Slack install path moved from snap to native APT package**: The `slack` role now adds Slack's official packagecloud APT repository using Slack's published Debian `jessie` distribution path and installs `slack-desktop` instead of using `snap install slack`.
+- **Slack repository setup is intentionally minimal**: The role now verifies a vendored copy of Slack's packagecloud signing key against the expected full fingerprint before installing a dearmored keyring into `/etc/apt/keyrings/slack.gpg`, manages `/etc/apt/sources.list.d/slack.list` directly as a plain APT source file with an explicit `amd64` architecture constraint, hardcodes Slack's published `debian jessie` suite, and installs `slack-desktop` through normal apt operations.
+- **Slack now runs in CI coverage again**: Because Slack is no longer installed through snap, the `slack` role is no longer skipped in GitHub Actions and is exercised as part of the normal workstation playbook path.
+- **OKF wiki compatibility cleanup**: Removed the temporary `docs/wiki/okf/steering-and-reusable-knowledge.md` compatibility pointer so the new wiki uses the decomposed `steering/`, `linting/`, and `decisions/` structure directly.
+
+### Security
+
+- **Threat Model Assessment**: This change **keeps net workstation risk broadly unchanged while shifting the risk profile toward desktop compatibility and away from opaque repository bootstrap behavior**.
+    - **Rationale**: Moving from the snap package to the native `slack-desktop` package removes snap strict-confinement protections, so a compromised Slack desktop process would have the normal access of the logged-in user rather than snap's tighter sandbox. In exchange, Slack is now installed through the vendor's published Ubuntu/Debian package channel using repository configuration expressed directly in Ansible rather than a bootstrap shell script.
+    - **Benefit**: Slack should integrate more reliably with desktop workflows such as file selection and screen sharing, while updates continue to flow through the standard apt path already covered by this repository's controlled update workflow. Running the role in CI again also improves change confidence for this part of the workstation build, supporting UK Cyber Essentials expectations for repeatable, validated system configuration.
+    - **Net risk statement**: Net workstation risk is **unchanged overall**: snap confinement is removed, but repository trust is now explicitly pinned and validated in Ansible while CI coverage for the Slack role is restored.
+- **Threat Model Assessment (OKF wiki compatibility cleanup)**: Removing the temporary OKF compatibility pointer **does not change workstation runtime risk**.
+    - **Rationale**: This is a documentation-only cleanup that removes a transitional wiki page now that the decomposed OKF structure is established. It changes contributor guidance clarity, not package sources, privileges, or runtime controls.
+    - **Benefit**: Repository knowledge becomes easier to navigate and harder to duplicate, improving documentation hygiene without weakening any UK Cyber Essentials-relevant control.
+
+
 ## [Run ansible-lint as part of pre-commit hook and in CI build](https://github.com/brabster/xubuntu-workstation/pull/71)
 
 ### Added

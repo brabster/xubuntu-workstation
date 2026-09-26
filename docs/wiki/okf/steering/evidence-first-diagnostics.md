@@ -13,4 +13,5 @@ tags: [steering, diagnostics]
 
 Related concepts:
 - [Simplicity by default](./simplicity-default.md)
+- [Vendor repo diagnostics](./vendor-repo-diagnostics.md)
 - [CI as enforcement gate](./ci-as-enforcement-gate.md)
