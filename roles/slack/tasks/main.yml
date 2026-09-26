@@ -131,16 +131,20 @@
     mode: '0644'
   register: slack_apt_source
 
-- name: Refresh apt package metadata for Slack repository changes
-  ansible.builtin.apt:
-    update_cache: true
-  when: (not slack_keyring_is_valid) or slack_apt_source.changed
+- name: Check Slack package visibility in apt cache
+  ansible.builtin.command:
+    argv:
+      - apt-cache
+      - policy
+      - slack-desktop
+  register: slack_package_policy
+  changed_when: false
+  failed_when: false
 
-- name: Refresh apt package metadata for Slack when cache is stale
+- name: Refresh apt package metadata for Slack
   ansible.builtin.apt:
     update_cache: true
-    cache_valid_time: 3600
-  when: not ((not slack_keyring_is_valid) or slack_apt_source.changed)
+  when: (not slack_keyring_is_valid) or slack_apt_source.changed or ('Candidate: (none)' in slack_package_policy.stdout)
 
 - name: Install Slack desktop package
   ansible.builtin.apt:

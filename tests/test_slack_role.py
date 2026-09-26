@@ -50,11 +50,14 @@ class SlackRoleTests(unittest.TestCase):
         repository_task = self._task("Add Slack APT repository")
         self.assertEqual(repository_task.get("register"), "slack_apt_source")
 
-        refresh_task = self._task("Refresh apt package metadata for Slack repository changes")
+        package_visibility_task = self._task("Check Slack package visibility in apt cache")
         self.assertEqual(
-            refresh_task.get("when"),
-            "(not slack_keyring_is_valid) or slack_apt_source.changed",
+            package_visibility_task["ansible.builtin.command"]["argv"],
+            ["apt-cache", "policy", "slack-desktop"],
         )
+
+        refresh_task = self._task("Refresh apt package metadata for Slack")
+        self.assertEqual(refresh_task.get("when"), "(not slack_keyring_is_valid) or slack_apt_source.changed or ('Candidate: (none)' in slack_package_policy.stdout)")
 
 
 if __name__ == "__main__":
