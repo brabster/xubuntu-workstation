@@ -37,7 +37,7 @@ jobs:
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: setup
         run: |
           cd $GITHUB_WORKSPACE

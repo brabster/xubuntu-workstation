@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [PR #75 - Fix GitHub Actions Node.js 20 deprecation warning](https://github.com/brabster/xubuntu-workstation/pull/75)
+
+### Changed
+
+- **GitHub Actions Node runtime compatibility update**: Upgraded workflow action versions from `actions/checkout@v4` to `actions/checkout@v5` and from `actions/setup-python@v5` to `actions/setup-python@v6` so workflows no longer rely on Node.js 20-based action majors.
+
+### Security
+
+- **Threat Model Assessment**: This change **slightly reduces operational risk** with **no change to workstation runtime risk**.
+    - **Rationale**: The update only changes CI action majors to supported Node.js 24-compatible releases and does not alter local workstation packages, privileges, or network exposure. Staying on maintained action runtimes reduces CI supply-chain and reliability risk from deprecated execution environments.
+    - **Benefit**: CI remains aligned with supported GitHub runner behavior, preserving dependable validation and supporting UK Cyber Essentials expectations for controlled, repeatable change assurance.
+    - **Net risk statement**: Net risk is **reduced** for CI operations and **unchanged** for managed workstation runtime behavior.
+
 ## [PR #73 - Switch Slack installation from snap to the official APT package](https://github.com/brabster/xubuntu-workstation/pull/73)
 
 ### Changed
