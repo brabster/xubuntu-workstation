@@ -25,7 +25,7 @@
 - name: Remove existing freshclam logging directives
   ansible.builtin.replace:
     path: /etc/clamav/freshclam.conf
-    regexp: '^(#\s*)?(UpdateLogFile|LogRotate|LogFileMaxSize)\b.*\n'
+    regexp: '^\s*(#\s*)?(UpdateLogFile|LogRotate|LogFileMaxSize)\b.*\n'
     replace: ''
   notify: Restart clamav-freshclam
 
