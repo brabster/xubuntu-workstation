@@ -26,6 +26,15 @@
     - ansible_facts['distribution'] == 'Ubuntu'
     - chrome_browser_libasound2t64_pkg.rc == 0
 
+- name: Pre-install ALSA library for Chrome (libasound2 fallback)
+  ansible.builtin.apt:
+    name: libasound2
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts['distribution'] == 'Ubuntu'
+    - chrome_browser_libasound2t64_pkg.rc != 0
+
 - name: Install Chrome
   ansible.builtin.apt:
     deb: /tmp/google-chrome.deb
