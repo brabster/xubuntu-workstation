@@ -206,7 +206,10 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             encoding="utf-8",
         )
         rotated_log.chmod(0)
-        self.addCleanup(rotated_log.chmod, stat.S_IRUSR | stat.S_IWUSR)
+        self.addCleanup(
+            lambda: rotated_log.exists()
+            and rotated_log.chmod(stat.S_IRUSR | stat.S_IWUSR)
+        )
 
         result = self._run_script()
 
