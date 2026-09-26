@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- **Ansible linting gate in pre-commit and CI**: Added `.pre-commit-config.yaml` with an `ansible-lint` hook so Ansible changes are linted before commit. Added `.github/workflows/ansible_lint.yml` so GitHub Actions runs `ansible-lint workstation.yml` on push and pull request changes to YAML/workflow files.
+- **Ansible linting gate in pre-commit and CI**: Added `.pre-commit-config.yaml` with an `ansible-lint` hook so Ansible changes are linted before commit. Added `.github/workflows/ansible_lint.yml` so GitHub Actions runs `ansible-lint` for changed Ansible files in `roles/`, `workstation.yml`, and `test.yml` on push and pull request events.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
 
 ### Security
