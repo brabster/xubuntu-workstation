@@ -22,17 +22,22 @@
     state: absent
   notify: Restart clamav-freshclam
 
+# Preserve earlier active logging directives as comments so the final
+# managed block is the only live definition, while still keeping local
+# context and sample configuration text for review.
 - name: Comment out pre-existing active freshclam logging directives
   ansible.builtin.replace:
     path: /etc/clamav/freshclam.conf
     regexp: '{{ item }}'
     replace: '# \1'
   loop:
-    - '^(?![[:space:]]*#)([[:space:]]*UpdateLogFile\b.*)$'
-    - '^(?![[:space:]]*#)([[:space:]]*LogRotate\b.*)$'
-    - '^(?![[:space:]]*#)([[:space:]]*LogFileMaxSize\b.*)$'
+    - '^(UpdateLogFile\b.*)$'
+    - '^(LogRotate\b.*)$'
+    - '^(LogFileMaxSize\b.*)$'
   notify: Restart clamav-freshclam
 
+# Manage FreshClam logging explicitly so verification reads a predictable
+# log location while log growth remains bounded on quiet laptops and in CI.
 - name: Configure freshclam update logging
   ansible.builtin.blockinfile:
     path: /etc/clamav/freshclam.conf
