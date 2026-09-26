@@ -47,7 +47,9 @@
 - name: Ensure FreshClam log file exists with service write access
   ansible.builtin.file:
     path: "{{ clamav_freshclam_log_file }}"
-    state: touch
+state: touch
+    access_time: preserve
+    modification_time: preserve
     owner: clamav
     group: clamav
     mode: '0644'
