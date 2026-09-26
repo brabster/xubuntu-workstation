@@ -15,19 +15,13 @@
     mode: '0644'
   notify: Restart clamav-daemon
 
-- name: Remove superseded managed freshclam logging block
-  ansible.builtin.blockinfile:
-    path: /etc/clamav/freshclam.conf
-    marker: "# {mark} ANSIBLE MANAGED FRESHCLAM LOGGING"
-    state: absent
-  notify: Restart clamav-freshclam
-
 # Preserve earlier active logging directives as comments so the final
 # managed block is the only live definition, while still keeping local
 # context and sample configuration text for review.
 - name: Comment out pre-existing active freshclam logging directives
   ansible.builtin.replace:
     path: /etc/clamav/freshclam.conf
+    before: '^# BEGIN ANSIBLE MANAGED FRESHCLAM LOGGING$'
     regexp: '{{ item }}'
     replace: '# \1'
   loop:

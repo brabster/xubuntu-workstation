@@ -76,50 +76,34 @@ show_current_boot_journal_tail_if_nonblank() {
 }
 
 list_rotated_freshclam_logs() {
-  local log_path generation compressed
-  local tmp_path tmp_generation tmp_compressed
-  local -a rotated_logs=()
-  local -a rotated_generations=()
-  local -a rotated_compressed=()
-  local i j
+  python3 - <<'PY' "${CLAMAV_LOG_DIR}"
+import os
+import re
+import sys
 
-  while IFS= read -r -d '' log_path; do
-    if [[ ! "${log_path}" =~ /freshclam\.log\.([0-9]+)(\.gz)?$ ]]; then
-      continue
-    fi
+log_dir = sys.argv[1]
+pattern = re.compile(r"^freshclam\.log\.(\d+)(\.gz)?$")
+entries = []
 
-    generation="${BASH_REMATCH[1]}"
-    compressed=0
-    if [ "${BASH_REMATCH[2]:-}" = ".gz" ]; then
-      compressed=1
-    fi
+try:
+    for name in os.listdir(log_dir):
+        match = pattern.fullmatch(name)
+        if not match:
+            continue
 
-    rotated_logs+=("${log_path}")
-    rotated_generations+=("${generation}")
-    rotated_compressed+=("${compressed}")
-  done < <(find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -print0 2>/dev/null)
+        path = os.path.join(log_dir, name)
+        if not os.path.isfile(path):
+            continue
 
-  for ((i = 0; i < ${#rotated_logs[@]}; i++)); do
-    for ((j = i + 1; j < ${#rotated_logs[@]}; j++)); do
-      if (( rotated_generations[j] < rotated_generations[i] )) \
-        || (( rotated_generations[j] == rotated_generations[i] \
-          && rotated_compressed[j] < rotated_compressed[i] )); then
-        tmp_path="${rotated_logs[i]}"
-        rotated_logs[i]="${rotated_logs[j]}"
-        rotated_logs[j]="${tmp_path}"
+        generation = int(match.group(1))
+        compressed = 1 if match.group(2) else 0
+        entries.append((generation, compressed, path))
+except OSError:
+    sys.exit(0)
 
-        tmp_generation="${rotated_generations[i]}"
-        rotated_generations[i]="${rotated_generations[j]}"
-        rotated_generations[j]="${tmp_generation}"
-
-        tmp_compressed="${rotated_compressed[i]}"
-        rotated_compressed[i]="${rotated_compressed[j]}"
-        rotated_compressed[j]="${tmp_compressed}"
-      fi
-    done
-  done
-
-  printf '%s\n' "${rotated_logs[@]}"
+for _, _, path in sorted(entries):
+    print(path)
+PY
 }
 
 echo_latest_updates() {
