@@ -35,7 +35,7 @@ jobs:
       - name: install ansible-lint
         run: |
           python -m pip install --upgrade pip
-          python -m pip install ansible-lint==26.9.0
+          python -m pip install -r requirements-dev.txt
       - name: run CI helper script unit tests
         run: |
           python3 -m unittest tests/test_changed_ansible_files.py

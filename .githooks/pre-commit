@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+changed_files=()
+while IFS= read -r -d '' file; do
+  if [[ -f "${file}" && "${file}" =~ ^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$ ]]; then
+    changed_files+=("${file}")
+  fi
+done < <(git diff --cached --name-only -z --diff-filter=ACMRTUXB -- roles workstation.yml workstation.yaml test.yml test.yaml)
+
+if [ "${#changed_files[@]}" -eq 0 ]; then
+  exit 0
+fi
+
+if ! command -v ansible-lint >/dev/null 2>&1; then
+  echo "ansible-lint is not installed. Install dependencies with: python3 -m pip install -r requirements-dev.txt" >&2
+  exit 1
+fi
+
+echo "Running ansible-lint on staged Ansible files..."
+ansible-lint --offline "${changed_files[@]}"

@@ -1,15 +1,15 @@
 # ADR 0001: Local lint hook and version management approach
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-26
 - Related PR: [#71](https://github.com/brabster/xubuntu-workstation/pull/71)
 
 ## Context
 
-This repository now lint-gates scoped Ansible files in CI and also provides local pre-commit linting.
+This repository now lint-gates scoped Ansible files in CI and also provides local lint checks before commit.
 Recent discussion requested a comparison between:
 
-1. Current approach:
+1. Previous approach:
    - pre-commit manages local hook wiring and hook definition
    - CI installs a pinned ansible-lint version and enforces checks on changed scoped files
 2. Alternative approach:
@@ -18,15 +18,15 @@ Recent discussion requested a comparison between:
    - use a standard `.git/hooks/pre-commit` script and README setup instructions
    - optionally add VSCode task/sync automation for developer convenience
 
-## Decision to review
+## Decision
 
-Prefer the simpler local setup model for review:
+Adopt the lower-dependency local setup model now, and revisit only if developer experience or reliability issues appear:
 
 - Manage `ansible-lint` version in normal Python dependency management (`requirements.txt` or `pyproject.toml`)
 - Keep CI as the central enforcement gate
 - Replace pre-commit package dependency with a standard git hook script and explicit setup instructions
 
-Status remains **Proposed** pending maintainer approval and implementation sequencing.
+Implementation for this repository uses `requirements-dev.txt` plus `.githooks/pre-commit`.
 
 ## Options compared
 
@@ -63,6 +63,7 @@ Cons
   - More responsibility on repository docs/scripts to ensure local git hook installation is performed consistently
 - Neutral:
   - CI lint gate remains the key control, so merge protection behavior is unchanged
+  - Revisit trigger: if hook setup friction, drift, or platform issues become recurring, reassess pre-commit or alternative tooling.
 
 ## Security and compliance assessment
 
