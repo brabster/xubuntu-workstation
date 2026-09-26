@@ -47,8 +47,23 @@ class SlackRoleTests(unittest.TestCase):
         )
 
     def test_repository_changes_trigger_explicit_cache_refresh(self):
-        install_task = self._task("Install Slack desktop package")
-        self.assertTrue(install_task["ansible.builtin.apt"]["update_cache"])
+        repository_task = self._task("Add Slack APT repository")
+        self.assertEqual(repository_task.get("register"), "slack_apt_source")
+
+        apt_list_task = self._task("Check for cached Slack apt metadata")
+        self.assertEqual(apt_list_task["ansible.builtin.find"]["paths"], "/var/lib/apt/lists")
+
+        bootstrap_refresh = self._task("Refresh apt package metadata for Slack bootstrap")
+        self.assertEqual(
+            bootstrap_refresh.get("when"),
+            "(not slack_keyring_is_valid) or slack_apt_source.changed or slack_apt_list_files.matched == 0",
+        )
+
+        stale_refresh = self._task("Refresh apt package metadata for stale Slack cache")
+        self.assertEqual(
+            stale_refresh.get("when"),
+            "slack_keyring_is_valid and (not slack_apt_source.changed) and slack_apt_list_files.matched > 0",
+        )
 
 
 if __name__ == "__main__":

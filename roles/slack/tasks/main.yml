@@ -137,9 +137,29 @@
     content: |
       deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
     mode: '0644'
+  register: slack_apt_source
+
+- name: Check for cached Slack apt metadata
+  ansible.builtin.find:
+    paths: /var/lib/apt/lists
+    patterns: '*packagecloud.io*slacktechnologies*slack*'
+    file_type: file
+    recurse: false
+  register: slack_apt_list_files
+  failed_when: false
+
+- name: Refresh apt package metadata for Slack bootstrap
+  ansible.builtin.apt:
+    update_cache: true
+  when: (not slack_keyring_is_valid) or slack_apt_source.changed or slack_apt_list_files.matched == 0
+
+- name: Refresh apt package metadata for stale Slack cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: slack_keyring_is_valid and (not slack_apt_source.changed) and slack_apt_list_files.matched > 0
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
     name: slack-desktop
     state: present
-    update_cache: true
