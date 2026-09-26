@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Complexity reduction for lint execution**: Removed changed-file selection logic from the lint execution path; linting now runs over the fixed scoped targets for simpler, more predictable behavior.
 - **Hook behavior coverage retained**: Added focused tests for the native git hook fixed-target behavior (`tests/test_pre_commit_hook.py`) and run them in CI before lint execution.
 - **ADR decision finalized**: Updated `docs/adr/0001-lint-tooling-approach.md` to accepted status and documented the selected lower-dependency approach, with explicit revisit criteria if issues emerge.
-- **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
+- **Baseline lint compliance updates**: Resolved outstanding ansible-lint findings across scoped targets, including role rename to `chrome_browser`, role-local variable prefix fixes, FQCN/import updates, safer file permission declarations, idempotency metadata, and YAML hygiene fixes in affected playbooks and role task files.
 
 ### Security
 

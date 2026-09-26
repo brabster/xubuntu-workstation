@@ -3,11 +3,11 @@
 - name: Check that chrome not already installed
   ansible.builtin.stat:
     path: '/usr/bin/google-chrome'
-  register: chrome
+  register: chrome_browser_stat
 
 - name: Run Playbook
   ansible.builtin.import_tasks: tasks.yml
-  when: not chrome.stat.exists
+  when: not chrome_browser_stat.stat.exists
 
 - name: Ensures Chrome policy dir exists
   ansible.builtin.file:

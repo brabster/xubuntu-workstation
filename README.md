@@ -98,7 +98,7 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
     - update all known supply chains, incl. OS, firmware, snap, pip, clamav
     - apply system-level updates as root
     - su to user to apply user updates
-- [firefox](roles/firefox), [chrome](roles/chrome-browser) apply security settings by policy
+- [firefox](roles/firefox), [chrome](roles/chrome_browser) apply security settings by policy
 
 ## Testing
 
