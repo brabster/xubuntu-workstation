@@ -1,4 +1,10 @@
 ---
+- name: Ensure APT keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
 - name: Download Slack Packagecloud GPG key
   ansible.builtin.get_url:
     url: https://packagecloud.io/slacktechnologies/slack/gpgkey
@@ -6,10 +12,14 @@
     mode: '0644'
 
 - name: Add Slack APT repository
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian jessie main"
-    state: present
-    filename: slack
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/slack.list
+    content: |
+      deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian jessie main
+    mode: '0644'
+
+- name: Refresh apt package metadata for Slack
+  ansible.builtin.apt:
     update_cache: true
 
 - name: Install Slack desktop package
