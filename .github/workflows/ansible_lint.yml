@@ -2,14 +2,12 @@ name: ansible_lint
 on:
   push:
     paths:
-      - '.github/workflows/ansible_lint.yml'
       - 'roles/**/*.yml'
       - 'roles/**/*.yaml'
       - 'workstation.yml'
       - 'test.yml'
   pull_request:
     paths:
-      - '.github/workflows/ansible_lint.yml'
       - 'roles/**/*.yml'
       - 'roles/**/*.yaml'
       - 'workstation.yml'
@@ -60,4 +58,4 @@ jobs:
         run: |
           mapfile -t files <<< "${{ steps.changed.outputs.files }}"
           printf '%s\n' "${files[@]}"
-          ANSIBLE_LINT_NODEPS=1 ansible-lint "${files[@]}"
+          ansible-lint --offline "${files[@]}"
