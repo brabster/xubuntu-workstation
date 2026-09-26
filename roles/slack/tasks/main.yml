@@ -38,6 +38,7 @@
       - /etc/apt/keyrings/slack.gpg
   register: slack_installed_keyring_details
   changed_when: false
+  failed_when: false
   when: slack_keyring_stat.stat.exists
 
 - name: Extract installed Slack keyring fingerprints
