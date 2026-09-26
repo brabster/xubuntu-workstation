@@ -21,6 +21,7 @@
       - snap
       - remove
       - slack
+  changed_when: true
   when:
     - slack_snap_binary.stat.exists
     - slack_snap_list.rc == 0
@@ -45,12 +46,7 @@
       - deb
     uris:
       - https://packagecloud.io/slacktechnologies/slack/ubuntu/
-  register: slack_apt_repository
-
-- name: Refresh apt cache when Slack repository changes
-  ansible.builtin.apt:
-    update_cache: true
-  when: slack_apt_repository.changed
+  notify: Refresh apt cache
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
