@@ -17,7 +17,7 @@
     name: libasound2t64
     state: present
   register: chrome_browser_libasound2t64_install
-  failed_when: false
+  ignore_errors: true
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
 
