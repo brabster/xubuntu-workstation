@@ -30,18 +30,13 @@ class FreshclamLoggingNormalizationTests(unittest.TestCase):
                 task.get("name"),
             )
 
-    def test_previous_managed_block_is_removed_before_reinsertion(self):
+    def test_previous_managed_block_cleanup_task_was_removed(self):
         tasks = self._load_tasks()
         for task in tasks:
-            if task.get("name") == "Remove previous managed freshclam logging block before normalization":
-                blockinfile = task["ansible.builtin.blockinfile"]
-                self.assertEqual("absent", blockinfile.get("state"))
-                self.assertEqual(
-                    "# {mark} ANSIBLE MANAGED FRESHCLAM LOGGING",
-                    blockinfile.get("marker"),
-                )
-                return
-        self.fail("Expected managed freshclam cleanup task was not found.")
+            self.assertNotEqual(
+                "Remove previous managed freshclam logging block before normalization",
+                task.get("name"),
+            )
 
 
 if __name__ == "__main__":

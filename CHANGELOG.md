@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Regression coverage now protects the broader fallback behavior directly**: the helper-script unit tests now cover later rotated logs, compressed rotated logs, and the current-boot journal fallback, while the GitHub Actions smoke test still verifies the managed FreshClam logging directives and a deterministic first-rotation fixture end to end.
 - **Health-check `runuser -l` execution no longer depends on preserved environment variables**: the script now passes test payload and target file paths as positional arguments to the login-shell command so login-mode environment scrubbing cannot blank required values during create/cleanup operations.
 - **FreshClam config tasks are idempotent again and compressed-log regressions are covered**: the role now keeps a single managed FreshClam logging block (avoiding unconditional remove-then-add churn and needless service restarts), creates the FreshClam log file only when absent while separately normalizing ownership/mode without touch-style timestamp churn, and adds a regression test that warns on unreadable `.gz` rotations while continuing to later usable log sources.
+- **CI helper-test expectation now matches the idempotent FreshClam logging approach**: updated the FreshClam logging unit test to assert the old remove-before-reinsert cleanup task is absent, aligning test coverage with the current single-managed-block implementation so `ansible_lint` workflow helper tests no longer fail before linting.
 
 ### Changed
 
