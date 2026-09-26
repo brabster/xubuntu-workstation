@@ -69,6 +69,7 @@
         dest: /etc/apt/keyrings/slack.gpg
         remote_src: true
         mode: '0644'
+      register: slack_gpg_keyring_install
 
     - name: Add Slack APT repository
       ansible.builtin.copy:
@@ -76,10 +77,12 @@
         content: |
           deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
         mode: '0644'
+      register: slack_apt_source
 
     - name: Refresh apt package metadata for Slack
       ansible.builtin.apt:
         update_cache: true
+      when: slack_gpg_keyring_install.changed or slack_apt_source.changed
 
     - name: Install Slack desktop package
       ansible.builtin.apt:
