@@ -9,15 +9,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- **Slack install path moved from snap to native APT package**: The `slack` role now removes an existing `slack` snap if present, adds Slack's official packagecloud APT repository with a repository-specific signing key, and installs the `slack-desktop` package instead of using `snap install slack`.
-- **Slack repository trust is now managed declaratively**: The role uses Ansible's repository management rather than vendor shell bootstrap scripts, verifies the expected Slack packagecloud signing-key fingerprint shape before creating the local keyring, refreshes apt metadata through the package install path when the cache is older than one hour, and removes Slack's repository maintenance cron job if it is present so repository trust remains under playbook control.
-- **Slack repo suite selection is now explicit**: The role accepts Slack's currently verified Ubuntu suites (`focal`, `jammy`, `noble`) by default and fails with a clear message on newer codenames unless an explicit `slack_apt_suite_override` is provided after verifying packagecloud support for that release.
+- **Slack install path moved from snap to native APT package**: The `slack` role now adds Slack's official packagecloud APT repository for the current Ubuntu release and installs `slack-desktop` instead of using `snap install slack`.
+- **Slack repository setup is intentionally minimal**: The role now models the repository directly with Ansible's `deb822_repository` module using Slack's published packagecloud key URL, then installs Slack through normal apt operations with a one-hour cache window.
+- **Slack now runs in CI coverage again**: Because Slack is no longer installed through snap, the `slack` role is no longer skipped in GitHub Actions and is exercised as part of the normal workstation playbook path.
 
 ### Security
 
 - **Threat Model Assessment**: This change **keeps net workstation risk broadly unchanged while shifting the risk profile toward desktop compatibility and away from opaque repository bootstrap behavior**.
-    - **Rationale**: Moving from the snap package to the native `slack-desktop` package removes snap strict-confinement protections, so a compromised Slack desktop process would have the normal access of the logged-in user rather than snap's tighter sandbox. In exchange, the role now manages Slack's package signing key and repository definition declaratively, removes Slack's repository maintenance cron job when present, and avoids running vendor-provided bootstrap scripts as root.
-    - **Benefit**: Slack should integrate more reliably with the desktop, file pickers, and screen-sharing workflows that are important on a developer workstation, while still receiving updates through the standard apt update path already covered by this repository's controlled update workflow. This keeps change control explicit and aligns with UK Cyber Essentials expectations for using supported software sources and repeatable patch management.
+    - **Rationale**: Moving from the snap package to the native `slack-desktop` package removes snap strict-confinement protections, so a compromised Slack desktop process would have the normal access of the logged-in user rather than snap's tighter sandbox. In exchange, Slack is now installed through the vendor's published Ubuntu/Debian package channel using repository configuration expressed directly in Ansible rather than a bootstrap shell script.
+    - **Benefit**: Slack should integrate more reliably with desktop workflows such as file selection and screen sharing, while updates continue to flow through the standard apt path already covered by this repository's controlled update workflow. Running the role in CI again also improves change confidence for this part of the workstation build, supporting UK Cyber Essentials expectations for repeatable, validated system configuration.
 
 
 ## [Run ansible-lint as part of pre-commit hook and in CI build](https://github.com/brabster/xubuntu-workstation/pull/71)

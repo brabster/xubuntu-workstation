@@ -1,4 +1,0 @@
----
-- name: Refresh Slack apt cache
-  ansible.builtin.apt:
-    update_cache: true

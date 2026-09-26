@@ -1,160 +1,23 @@
 ---
-- name: Check whether snap is available
-  ansible.builtin.stat:
-    path: /usr/bin/snap
-  register: slack_snap_binary
-
-- name: Check whether Slack snap is installed
-  ansible.builtin.command:
-    argv:
-      - snap
-      - list
-      - slack
-  register: slack_snap_list
-  changed_when: false
-  failed_when: false
-  when: slack_snap_binary.stat.exists
-
-- name: Remove Slack snap before installing Slack desktop package
-  ansible.builtin.command:
-    argv:
-      - snap
-      - remove
-      - slack
-  register: slack_snap_remove
-  changed_when: slack_snap_remove.rc == 0
-  when:
-    - slack_snap_binary.stat.exists
-    - slack_snap_list.rc == 0
-
-- name: Assert Slack apt suite is supported or explicitly overridden
-  ansible.builtin.assert:
-    that:
-      - slack_apt_suite_override is defined or ansible_facts["distribution_release"] in ["focal", "jammy", "noble"]
-    fail_msg: >-
-      Slack packagecloud support has not been verified for Ubuntu codename
-      {{ ansible_facts["distribution_release"] }}. Set slack_apt_suite_override
-      explicitly after confirming the correct Slack repo suite for this release.
-
-- name: Choose Slack apt suite
-  ansible.builtin.set_fact:
-    slack_apt_suite: "{{ slack_apt_suite_override | default(ansible_facts['distribution_release']) }}"
-
-- name: Assert Slack apt architecture is supported or explicitly overridden
-  ansible.builtin.assert:
-    that:
-      - slack_apt_architecture_override is defined or ansible_facts["architecture"] == "x86_64"
-    fail_msg: >-
-      Slack packagecloud support has not been verified for architecture
-      {{ ansible_facts["architecture"] }}. Set slack_apt_architecture_override
-      explicitly after confirming the correct Slack repo architecture.
-
-- name: Choose Slack apt architecture
-  ansible.builtin.set_fact:
-    slack_apt_architecture: "{{ slack_apt_architecture_override | default('amd64') }}"
-
-- name: Ensure GnuPG is installed for Slack key validation
-  ansible.builtin.apt:
-    name: gnupg
-    state: present
-
-- name: Ensure apt keyring directory exists
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: '0755'
-
-- name: Check whether Slack apt keyring already exists
-  ansible.builtin.stat:
-    path: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
-  register: slack_apt_keyring
-
-- name: Download Slack apt signing key
-  ansible.builtin.get_url:
-    url: https://packagecloud.io/slacktechnologies/slack/gpgkey
-    dest: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
-    mode: '0644'
-  register: slack_apt_signing_key
-
-- name: Verify Slack apt signing key ID
-  ansible.builtin.command:
-    argv:
-      - gpg
-      - --show-keys
-      - --with-colons
-      - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
-  register: slack_apt_key_info
-  changed_when: false
-
-- name: Capture Slack apt primary signing fingerprint
-  ansible.builtin.set_fact:
-    slack_apt_primary_fingerprint: >-
-      {{
-        (
-          slack_apt_key_info.stdout_lines
-          | select("match", "^fpr:")
-          | list
-          | first
-          | default("fpr::::::::::")
-        ).split(":")[9]
-      }}
-
-- name: Assert Slack apt signing fingerprint format
-  ansible.builtin.assert:
-    that:
-      - slack_apt_primary_fingerprint == "D537997ABE0E1079C0E8EBD6C6ABDCF64DB9A0B2"
-    fail_msg: >-
-      Slack apt signing key fingerprint {{ slack_apt_primary_fingerprint | default("missing") }}
-      did not match the expected Slack packagecloud signing fingerprint.
-
-- name: Convert Slack apt signing key to keyring format
-  ansible.builtin.command:
-    argv:
-      - gpg
-      - --dearmor
-      - --yes
-      - --output
-      - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
-      - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
-  register: slack_apt_signing_key_dearmor
-  changed_when: >-
-    slack_apt_signing_key_dearmor.rc == 0 and
-    (slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists)
-  notify: Refresh Slack apt cache
-  when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
-
-- name: Add Slack apt repository
+- name: Add Slack APT repository
   ansible.builtin.deb822_repository:
+    name: slack
     architectures:
-      - "{{ slack_apt_architecture }}"
+      - amd64
     components:
       - main
-    name: slack
-    signed_by: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
+    install_python_debian: true
+    signed_by: https://packagecloud.io/slacktechnologies/slack/gpgkey
     suites:
-      - "{{ slack_apt_suite }}"
+      - "{{ ansible_facts['distribution_release'] }}"
     types:
       - deb
     uris:
       - https://packagecloud.io/slacktechnologies/slack/ubuntu/
-  register: slack_apt_repository
-  notify: Refresh Slack apt cache
-
-- name: Flush Slack apt cache refresh when repo configuration changes
-  ansible.builtin.meta: flush_handlers
-  when: >-
-    slack_apt_repository.changed or
-    slack_apt_signing_key.changed or
-    (slack_apt_signing_key_dearmor is defined and slack_apt_signing_key_dearmor.changed)
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
-    cache_valid_time: 3600
     name: slack-desktop
     state: present
     update_cache: true
-
-- name: Remove Slack repository maintenance cron job
-  ansible.builtin.file:
-    path: /etc/cron.daily/slack
-    state: absent
+    cache_valid_time: 3600
