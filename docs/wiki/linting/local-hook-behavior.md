@@ -3,6 +3,8 @@ type: Playbook
 title: Local hook behavior
 description: The native pre-commit hook runs ansible-lint for scoped Ansible changes and validates staged-to-working-tree consistency.
 tags: [linting, hooks, pre-commit]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Local hook behavior

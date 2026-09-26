@@ -3,6 +3,8 @@ type: Playbook
 title: Activity-driven thresholds
 description: Prefer activity-based triggers over elapsed-time triggers when time-only behavior creates avoidable noise and activity better matches intent.
 tags: [steering, simplicity, testing]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Activity-driven thresholds

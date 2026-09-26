@@ -3,6 +3,8 @@ type: Playbook
 title: CI feedback playbook ordering
 description: Move actively changing or failing roles earlier in the playbook when that will shorten CI feedback loops.
 tags: [steering, ci, playbook-order]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # CI feedback playbook ordering

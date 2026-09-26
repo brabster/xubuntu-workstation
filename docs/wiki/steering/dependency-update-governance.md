@@ -3,6 +3,8 @@ type: Playbook
 title: Dependency update governance
 description: Prefer automated point-of-use dependency updates gated by CI tests, with cooldown and explicit recording of resolved versions.
 tags: [steering, dependencies, supply-chain]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Dependency update governance

@@ -10,5 +10,5 @@ okf_version: "0.2"
 * [Steering](./steering/) - Operational steering playbooks and guiding principles.
 * [Linting](./linting/) - Ansible linting references and operational behavior.
 * [Decisions](./decisions/) - Summaries of ADR-backed decisions and links to canonical ADRs.
-* [Update Log](./log.md) - Chronological wiki updates for this scope.
-* [OKF Specification v0.2](./okc_spec.md) - Reference specification used to shape this wiki.
+* [OKF Specification v0.2](./okf_spec_v0.2.md) - Imported GoogleCloudPlatform reference used to shape this wiki.
+* [Repository changelog](../../CHANGELOG.md) - Default durable change record for contributor-facing updates, including wiki-structure changes.

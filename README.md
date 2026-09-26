@@ -34,7 +34,7 @@ NOTE: the setup ends by setting up NordVPN with some security-related settings. 
 ### Create Bootstrap USB
 
 - wipes any existing USB content
-- use [vars_example.yml](./vars_example.yml) to create a file .vars.yml with appropriate settings
+- use [.vars_example.yml](./.vars_example.yml) to create a file .vars.yml with appropriate settings
 - [optional] - edit workstation.yml to one-off customise install
 - run [sudo setup_ansible_usb.sh repo_root_dir target_usb_device](./roles/next_install/files/setup_ansible_usb.sh)
 
@@ -110,3 +110,5 @@ For local commit-time Ansible linting, install dev dependencies and enable repos
 - `git config core.hooksPath .githooks`
 
 CI independently enforces `ansible-lint` for the same scoped files before merge.
+
+Contributor and agent steering for this repository lives in [AGENTS.md](./AGENTS.md) and the versioned wiki under [docs/wiki/](./docs/wiki/).

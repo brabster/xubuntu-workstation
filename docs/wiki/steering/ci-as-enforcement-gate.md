@@ -3,6 +3,8 @@ type: Playbook
 title: CI as enforcement gate
 description: Use required CI checks as the merge-time control while local hooks provide fast local feedback.
 tags: [steering, ci, controls]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # CI as enforcement gate

@@ -3,7 +3,9 @@ type: Reference
 title: Slack package source
 description: Summary of the repository decision to install Slack from Slack's packagecloud APT repository instead of snap.
 tags: [decisions, slack, package-management]
-resource: ../../../../roles/slack/tasks/main.yml
+resource: ../../../roles/slack/tasks/main.yml
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Slack package source
@@ -17,9 +19,9 @@ resource: ../../../../roles/slack/tasks/main.yml
 - Supply-chain note: vendoring the public key is only acceptable with explicit fingerprint validation and clear provenance; do not replace one opaque bootstrap path with another.
 
 Canonical sources:
-- [Slack role tasks](../../../../roles/slack/tasks/main.yml)
-- [Vendored Slack packagecloud key](../../../../roles/slack/files/slack-packagecloud.asc)
-- [PR #73 changelog entry](../../../../CHANGELOG.md)
+- [Slack role tasks](../../../roles/slack/tasks/main.yml)
+- [Vendored Slack packagecloud key](../../../roles/slack/files/slack-packagecloud.asc)
+- [PR #73 changelog entry](../../../CHANGELOG.md)
 
 Related concepts:
 - [Vendor repo diagnostics](../steering/vendor-repo-diagnostics.md)

@@ -3,6 +3,8 @@ type: Playbook
 title: Agent session lint bootstrap
 description: How Copilot agent sessions should prepare and verify hook-based Ansible lint behavior.
 tags: [linting, agent, bootstrap]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Agent session lint bootstrap

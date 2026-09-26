@@ -3,6 +3,8 @@ type: Playbook
 title: Agent bootstrap rules
 description: Minimal always-read rules for agent behavior in this repository.
 tags: [steering, bootstrap, rules]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # Agent bootstrap rules

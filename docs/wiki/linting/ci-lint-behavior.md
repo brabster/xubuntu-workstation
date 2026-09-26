@@ -3,6 +3,8 @@ type: Playbook
 title: CI lint behavior
 description: The ansible_lint workflow runs hook tests before lint and enforces full-scope ansible-lint on repository-scoped Ansible targets.
 tags: [linting, ci, workflow]
+generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
+stale_after: 2027-03-26T00:00:00Z
 ---
 
 # CI lint behavior
