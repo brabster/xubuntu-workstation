@@ -1,4 +1,67 @@
 ---
-- name: Install Slack
-  ansible.builtin.command: snap install slack
+- name: Check whether snap is available
+  ansible.builtin.stat:
+    path: /usr/bin/snap
+  register: slack_snap_binary
+
+- name: Check whether Slack snap is installed
+  ansible.builtin.command:
+    argv:
+      - snap
+      - list
+      - slack
+  register: slack_snap_list
   changed_when: false
+  failed_when: false
+  when: slack_snap_binary.stat.exists
+
+- name: Remove Slack snap before installing Slack desktop package
+  ansible.builtin.command:
+    argv:
+      - snap
+      - remove
+      - slack
+  when:
+    - slack_snap_binary.stat.exists
+    - slack_snap_list.rc == 0
+
+- name: Choose supported Slack apt suite
+  ansible.builtin.set_fact:
+    slack_apt_suite: >-
+      {{
+        ansible_distribution_release
+        if ansible_distribution_release in ["focal", "jammy", "noble"]
+        else "noble"
+      }}
+
+- name: Add Slack apt repository
+  ansible.builtin.deb822_repository:
+    name: slack
+    architectures:
+      - amd64
+    components:
+      - main
+    install_python_debian: true
+    signed_by: https://packagecloud.io/slacktechnologies/slack/gpgkey
+    suites:
+      - "{{ slack_apt_suite }}"
+    types:
+      - deb
+    uris:
+      - https://packagecloud.io/slacktechnologies/slack/ubuntu/
+  register: slack_apt_repository
+
+- name: Refresh apt cache when Slack repository changes
+  ansible.builtin.apt:
+    update_cache: true
+  when: slack_apt_repository.changed
+
+- name: Install Slack desktop package
+  ansible.builtin.apt:
+    name: slack-desktop
+    state: present
+
+- name: Remove Slack repository maintenance cron job
+  ansible.builtin.file:
+    path: /etc/cron.daily/slack
+    state: absent

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [Switch Slack installation from snap to the official APT package](https://github.com/brabster/xubuntu-workstation/pull/73)
+
+### Changed
+
+- **Slack install path moved from snap to native APT package**: The `slack` role now removes an existing `slack` snap if present, adds Slack's official packagecloud APT repository with a repository-specific signing key, and installs the `slack-desktop` package instead of using `snap install slack`.
+- **Slack repository trust is now managed declaratively**: The role uses Ansible's repository management rather than vendor shell bootstrap scripts, refreshes apt metadata only when the repository definition changes, and removes Slack's repository maintenance cron job if it is present so repository trust remains under playbook control.
+- **Slack repo compatibility fallback for newer Ubuntu releases**: The role uses the current Ubuntu codename when Slack's repository is known to support it (`focal`, `jammy`, `noble`) and otherwise falls back to `noble`, which keeps the role usable on newer rolling Ubuntu/Xubuntu releases while Slack catches up with explicit suite metadata.
+
+### Security
+
+- **Threat Model Assessment**: This change **keeps net workstation risk broadly unchanged while shifting the risk profile toward desktop compatibility and away from opaque repository bootstrap behavior**.
+    - **Rationale**: Moving from the snap package to the native `slack-desktop` package removes snap strict-confinement protections, so a compromised Slack desktop process would have the normal access of the logged-in user rather than snap's tighter sandbox. In exchange, the role now manages Slack's package signing key and repository definition declaratively, removes Slack's repository maintenance cron job when present, and avoids running vendor-provided bootstrap scripts as root.
+    - **Benefit**: Slack should integrate more reliably with the desktop, file pickers, and screen-sharing workflows that are important on a developer workstation, while still receiving updates through the standard apt update path already covered by this repository's controlled update workflow. This keeps change control explicit and aligns with UK Cyber Essentials expectations for using supported software sources and repeatable patch management.
+
+
 ## [Run ansible-lint as part of pre-commit hook and in CI build](https://github.com/brabster/xubuntu-workstation/pull/71)
 
 ### Added
