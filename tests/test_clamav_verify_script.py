@@ -25,9 +25,10 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.fake_bin.mkdir()
         self.script_path = self.root / "clamav-verify.sh"
 
-        script = SCRIPT_TEMPLATE.read_text(encoding="utf-8").replace(
-            "{{ clamav_quarantine_dir }}",
-            str(self.quarantine_dir),
+        script = (
+            SCRIPT_TEMPLATE.read_text(encoding="utf-8")
+            .replace("{{ clamav_quarantine_dir }}", str(self.quarantine_dir))
+            .replace("{{ clamav_freshclam_log_file }}", str(self.log_dir / "freshclam.log"))
         )
         self.script_path.write_text(script, encoding="utf-8")
         self.script_path.chmod(self.script_path.stat().st_mode | stat.S_IXUSR)
@@ -166,6 +167,26 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("current line two", result.stdout)
         self.assertIn("current line three", result.stdout)
         self.assertNotIn("rotated line one", result.stdout)
+
+    def test_uses_configured_freshclam_log_file_even_when_clamav_log_dir_env_differs(self):
+        alternate_log_dir = self.root / "alternate-logs"
+        alternate_log_dir.mkdir()
+        self.env["CLAMAV_LOG_DIR"] = str(alternate_log_dir)
+
+        (self.log_dir / "freshclam.log").write_text(
+            "skip me\n"
+            "configured line one\n"
+            "configured line two\n"
+            "configured line three\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("configured line one", result.stdout)
+        self.assertIn("configured line two", result.stdout)
+        self.assertIn("configured line three", result.stdout)
 
     def test_reports_when_no_further_rotated_or_journal_entries_exist(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")

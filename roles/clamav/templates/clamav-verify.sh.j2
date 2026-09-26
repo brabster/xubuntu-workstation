@@ -12,6 +12,8 @@ fi
 DOWNLOADS_DIR="${CLAMAV_DOWNLOADS_DIR:-/home/${TARGET_USER}/Downloads}"
 QUARANTINE_DIR="${CLAMAV_QUARANTINE_DIR:-{{ clamav_quarantine_dir }}}"
 CLAMAV_LOG_DIR="${CLAMAV_LOG_DIR:-/var/log/clamav}"
+FRESHCLAM_LOG_FILE="{{ clamav_freshclam_log_file }}"
+FRESHCLAM_LOG_DIR="$(dirname -- "${FRESHCLAM_LOG_FILE}")"
 
 EICAR_STRING='X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 TEST_FILE_NAME=".health-check-$(date +%s).txt"
@@ -76,7 +78,7 @@ show_current_boot_journal_tail_if_nonblank() {
 }
 
 list_rotated_freshclam_logs() {
-  local log_path generation compressed
+  local log_path generation compressed suffix
   local tmp_path tmp_generation tmp_compressed
   local -a rotated_logs=()
   local -a rotated_generations=()
@@ -84,7 +86,12 @@ list_rotated_freshclam_logs() {
   local i j
 
   while IFS= read -r -d '' log_path; do
-    if [[ ! "${log_path}" =~ /freshclam\.log\.([0-9]+)(\.gz)?$ ]]; then
+    if [[ "${log_path}" != "${FRESHCLAM_LOG_FILE}."* ]]; then
+      continue
+    fi
+
+    suffix="${log_path#"${FRESHCLAM_LOG_FILE}."}"
+    if [[ ! "${suffix}" =~ ^([0-9]+)(\.gz)?$ ]]; then
       continue
     fi
 
@@ -97,10 +104,13 @@ list_rotated_freshclam_logs() {
     rotated_logs+=("${log_path}")
     rotated_generations+=("${generation}")
     rotated_compressed+=("${compressed}")
-  done < <(find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -print0 2>/dev/null)
+  done < <(find "${FRESHCLAM_LOG_DIR}" -maxdepth 1 -type f -print0 2>/dev/null)
 
-  for ((i = 0; i < ${#rotated_logs[@]}; i++)); do
-    for ((j = i + 1; j < ${#rotated_logs[@]}; j++)); do
+  for i in "${!rotated_logs[@]}"; do
+    for j in "${!rotated_logs[@]}"; do
+      if (( j <= i )); then
+        continue
+      fi
       if (( rotated_generations[j] < rotated_generations[i] )) \
         || (( rotated_generations[j] == rotated_generations[i] \
           && rotated_compressed[j] < rotated_compressed[i] )); then
@@ -129,7 +139,7 @@ echo_latest_updates() {
 
   echo " --- latest antivirus update log"
 
-  if [ -f "${CLAMAV_LOG_DIR}/freshclam.log" ] && show_log_tail_if_nonblank "${CLAMAV_LOG_DIR}/freshclam.log"; then
+  if [ -f "${FRESHCLAM_LOG_FILE}" ] && show_log_tail_if_nonblank "${FRESHCLAM_LOG_FILE}"; then
     return
   fi
 
