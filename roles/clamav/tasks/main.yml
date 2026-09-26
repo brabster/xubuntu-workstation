@@ -15,10 +15,17 @@
     mode: '0644'
   notify: Restart clamav-daemon
 
+- name: Remove superseded managed freshclam logging block
+  ansible.builtin.blockinfile:
+    path: /etc/clamav/freshclam.conf
+    marker: "# {mark} ANSIBLE MANAGED FRESHCLAM LOGGING"
+    state: absent
+  notify: Restart clamav-freshclam
+
 - name: Configure freshclam update logging
   ansible.builtin.lineinfile:
     path: /etc/clamav/freshclam.conf
-    regexp: '^{{ item.key }}\b'
+    regexp: '^#?\s*{{ item.key }}\b'
     line: '{{ item.key }} {{ item.value }}'
     insertafter: EOF
   loop:
