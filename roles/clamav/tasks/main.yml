@@ -28,11 +28,11 @@
     regexp: '{{ item.regexp }}'
     replace: '{{ item.line }}'
   loop:
-    - regexp: '^\s*#?\s*UpdateLogFile\s+\S+\s*$'
+    - regexp: '^\s*#?\s*UpdateLogFile\b[^\n]*$'
       line: 'UpdateLogFile {{ clamav_freshclam_log_file }}'
-    - regexp: '^\s*#?\s*LogRotate\s+(yes|no)\s*$'
+    - regexp: '^\s*#?\s*LogRotate\b[^\n]*$'
       line: 'LogRotate yes'
-    - regexp: '^\s*#?\s*LogFileMaxSize\s+\S+\s*$'
+    - regexp: '^\s*#?\s*LogFileMaxSize\b[^\n]*$'
       line: 'LogFileMaxSize {{ clamav_freshclam_log_max_size }}'
   notify: Restart clamav-freshclam
 

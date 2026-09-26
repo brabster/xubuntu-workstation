@@ -195,6 +195,26 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("compressed line two", result.stdout)
         self.assertIn("compressed line three", result.stdout)
 
+    def test_reports_when_first_rotated_log_cannot_be_read(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        rotated_log = self.log_dir / "freshclam.log.1"
+        rotated_log.write_text(
+            "skip me\n"
+            "hidden line one\n"
+            "hidden line two\n"
+            "hidden line three\n",
+            encoding="utf-8",
+        )
+        rotated_log.chmod(0)
+        self.addCleanup(rotated_log.chmod, stat.S_IRUSR | stat.S_IWUSR)
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("No recent antivirus update log entries were found.", result.stdout)
+        self.assertEqual("", result.stderr)
+        self.assertNotIn("hidden line one", result.stdout)
+
     def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
 
