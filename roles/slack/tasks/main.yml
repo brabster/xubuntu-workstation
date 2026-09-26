@@ -40,6 +40,24 @@
   ansible.builtin.set_fact:
     slack_apt_suite: "{{ slack_apt_suite_override | default(ansible_facts['distribution_release']) }}"
 
+- name: Assert Slack apt architecture is supported or explicitly overridden
+  ansible.builtin.assert:
+    that:
+      - slack_apt_architecture_override is defined or ansible_facts["architecture"] == "x86_64"
+    fail_msg: >-
+      Slack packagecloud support has not been verified for architecture
+      {{ ansible_facts["architecture"] }}. Set slack_apt_architecture_override
+      explicitly after confirming the correct Slack repo architecture.
+
+- name: Choose Slack apt architecture
+  ansible.builtin.set_fact:
+    slack_apt_architecture: "{{ slack_apt_architecture_override | default('amd64') }}"
+
+- name: Ensure GnuPG is installed for Slack key validation
+  ansible.builtin.apt:
+    name: gnupg
+    state: present
+
 - name: Ensure apt keyring directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
@@ -98,14 +116,17 @@
       - --output
       - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
       - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
-  changed_when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
+  register: slack_apt_signing_key_dearmor
+  changed_when: >-
+    slack_apt_signing_key_dearmor.rc == 0 and
+    (slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists)
   notify: Refresh Slack apt cache
   when: slack_apt_signing_key.changed or not slack_apt_keyring.stat.exists
 
 - name: Add Slack apt repository
   ansible.builtin.deb822_repository:
     architectures:
-      - amd64
+      - "{{ slack_apt_architecture }}"
     components:
       - main
     name: slack
