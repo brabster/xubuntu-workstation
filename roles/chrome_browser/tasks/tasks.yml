@@ -16,7 +16,7 @@
     update_cache: true
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
-    - ansible_facts['distribution_major_version'] | int >= 24
+    - ansible_facts['distribution_major_version'] | int in [24, 26]
 
 - name: Install Chrome
   ansible.builtin.apt:

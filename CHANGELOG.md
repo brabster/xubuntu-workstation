@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Threat Model Assessment**: This change **reduces risk** by preventing non-linting Ansible from being merged.
     - **Rationale**: Linting catches unsafe or error-prone Ansible patterns earlier in the development lifecycle, reducing configuration mistakes that could weaken workstation security controls.
     - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while reducing local tooling supply-chain surface and simplifying lint execution paths.
+    - **Net risk statement**: For runtime package behavior, risk is **unchanged to slightly reduced** because the Chrome ALSA preinstall compatibility task is now explicitly gated to validated Ubuntu major releases (24 and 26), reducing failure risk from unchecked assumptions on future releases.
 
 ## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
 
