@@ -34,21 +34,75 @@ show_log_tail_if_nonblank() {
   return 1
 }
 
+show_text_tail_if_nonblank() {
+  if printf '%s\n' "$1" | grep -q '[^[:space:]]'; then
+    printf '%s\n' "$1" | tail -n 3
+    return 0
+  fi
+  return 1
+}
+
+show_compressed_log_tail_if_nonblank() {
+  local decompressed
+  if ! decompressed="$(gzip -cd -- "$1")"; then
+    echo "WARNING: Failed to read compressed antivirus update log ${1}." >&2
+    return 1
+  fi
+
+  show_text_tail_if_nonblank "${decompressed}"
+}
+
+show_current_boot_journal_tail_if_nonblank() {
+  local journal_lines journal_status
+
+  set +e
+  journal_lines="$(journalctl -u clamav-freshclam --boot 0 --no-pager -o cat 2>/dev/null | grep -- '->')"
+  journal_status=$?
+  set -e
+
+  if [ "${journal_status}" -eq 0 ]; then
+    show_text_tail_if_nonblank "${journal_lines}"
+    return $?
+  fi
+
+  if [ "${journal_status}" -gt 1 ]; then
+    echo "WARNING: Failed to read clamav-freshclam journal entries." >&2
+  fi
+
+  return 1
+}
+
+list_rotated_freshclam_logs() {
+  find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -print 2>/dev/null \
+    | grep -E '/freshclam\.log\.[0-9]+(\.gz)?$' \
+    | sort -V || true
+}
+
 echo_latest_updates() {
+  local log_path
+
   echo " --- latest antivirus update log"
 
-  for log_path in \
-    "${CLAMAV_LOG_DIR}/freshclam.log" \
-    "${CLAMAV_LOG_DIR}/freshclam.log.1"; do
-    [ -f "${log_path}" ] || continue
-    set +e
-    show_log_tail_if_nonblank "${log_path}"
-    log_check_status=$?
-    set -e
-    if [ "${log_check_status}" -eq 0 ]; then
+  if [ -f "${CLAMAV_LOG_DIR}/freshclam.log" ] && show_log_tail_if_nonblank "${CLAMAV_LOG_DIR}/freshclam.log"; then
+    return
+  fi
+
+  while IFS= read -r log_path; do
+    if [[ "${log_path}" == *.gz ]]; then
+      if show_compressed_log_tail_if_nonblank "${log_path}"; then
+        return
+      fi
+      continue
+    fi
+
+    if show_log_tail_if_nonblank "${log_path}"; then
       return
     fi
-  done
+  done < <(list_rotated_freshclam_logs)
+
+  if show_current_boot_journal_tail_if_nonblank; then
+    return
+  fi
 
   echo "No recent antivirus update log entries were found."
 }

@@ -1,3 +1,4 @@
+import gzip
 import os
 import stat
 import subprocess
@@ -64,6 +65,17 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "  done\n"
             "fi\n",
         )
+        self._write_executable(
+            "journalctl",
+            "#!/usr/bin/env bash\n"
+            "set -euo pipefail\n"
+            "if [ -n \"${TEST_JOURNALCTL_ARGS_FILE:-}\" ]; then\n"
+            "  printf '%s\\n' \"$@\" > \"$TEST_JOURNALCTL_ARGS_FILE\"\n"
+            "fi\n"
+            "if [ -n \"${TEST_JOURNAL_OUTPUT_FILE:-}\" ] && [ -f \"${TEST_JOURNAL_OUTPUT_FILE}\" ]; then\n"
+            "  cat \"${TEST_JOURNAL_OUTPUT_FILE}\"\n"
+            "fi\n",
+        )
 
         self.env = os.environ.copy()
         self.env["PATH"] = f"{self.fake_bin}:{self.env.get('PATH', '')}"
@@ -72,6 +84,10 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.env["CLAMAV_LOG_DIR"] = str(self.log_dir)
         self.env["TEST_DOWNLOADS_DIR"] = str(self.downloads_dir)
         self.env["TEST_QUARANTINE_DIR"] = str(self.quarantine_dir)
+        self.journal_output_file = self.root / "journal-output.log"
+        self.journal_args_file = self.root / "journal-args.log"
+        self.env["TEST_JOURNAL_OUTPUT_FILE"] = str(self.journal_output_file)
+        self.env["TEST_JOURNALCTL_ARGS_FILE"] = str(self.journal_args_file)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -143,7 +159,7 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn("No recent antivirus update log entries were found.", result.stdout)
 
-    def test_ignores_later_rotated_logs_after_first_rotation(self):
+    def test_uses_later_rotated_log_when_first_rotation_is_blank(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
         (self.log_dir / "freshclam.log.2").write_text(
@@ -157,8 +173,27 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         result = self._run_script()
 
         self.assertEqual(result.returncode, 0, msg=result.stderr)
-        self.assertIn("No recent antivirus update log entries were found.", result.stdout)
-        self.assertNotIn("later line one", result.stdout)
+        self.assertIn("later line one", result.stdout)
+        self.assertIn("later line two", result.stdout)
+        self.assertIn("later line three", result.stdout)
+
+    def test_uses_compressed_rotated_log_when_plain_rotations_are_blank(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        with gzip.open(self.log_dir / "freshclam.log.2.gz", "wt", encoding="utf-8") as handle:
+            handle.write(
+                "skip me\n"
+                "compressed line one\n"
+                "compressed line two\n"
+                "compressed line three\n"
+            )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("compressed line one", result.stdout)
+        self.assertIn("compressed line two", result.stdout)
+        self.assertIn("compressed line three", result.stdout)
 
     def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
@@ -168,6 +203,28 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn(" --- latest antivirus update log", result.stdout)
         self.assertIn("No recent antivirus update log entries were found.", result.stdout)
+
+    def test_uses_current_boot_journal_when_logs_have_no_usable_entries(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        self.journal_output_file.write_text(
+            "noise line\n"
+            "Mon May 11 19:07:36 2026 -> daily.cld updated\n"
+            "Mon May 11 19:07:36 2026 -> bytecode.cvd updated\n"
+            "Mon May 11 19:07:36 2026 -> Database updated (431223 signatures)\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("daily.cld updated", result.stdout)
+        self.assertIn("bytecode.cvd updated", result.stdout)
+        self.assertIn("Database updated (431223 signatures)", result.stdout)
+        self.assertEqual(
+            self.journal_args_file.read_text(encoding="utf-8").splitlines(),
+            ["-u", "clamav-freshclam", "--boot", "0", "--no-pager", "-o", "cat"],
+        )
 
     def test_metacharacters_in_downloads_dir_do_not_trigger_shell_injection(self):
         marker = self.root / "injected"
