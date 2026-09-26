@@ -44,8 +44,10 @@ jobs:
 
           if [ -z "${diff_base}" ] || [ "${diff_base}" = "0000000000000000000000000000000000000000" ]; then
             changed_files=$(git ls-files 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
-          else
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
             changed_files=$(git diff --name-only "${diff_base}...HEAD" -- 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
+          else
+            changed_files=$(git diff --name-only "${diff_base}..HEAD" -- 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
           fi
 
           changed_files=$(echo "${changed_files}" | sed '/^$/d' | tr '\n' ' ' | sed 's/[[:space:]]*$//' || true)
