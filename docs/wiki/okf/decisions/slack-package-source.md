@@ -12,6 +12,7 @@ resource: ../../../../roles/slack/tasks/main.yml
 - Selected approach: install Slack from Slack's packagecloud APT repository and install `slack-desktop`; do not use the snap package in this repository.
 - Verified published path: use `https://packagecloud.io/slacktechnologies/slack/debian/` with suite `jessie`, even on recent Ubuntu releases.
 - Evidence basis: this was validated from CI failure analysis after the Ubuntu-codename packagecloud path added successfully but did not expose `slack-desktop` to apt.
+- Implementation note: manage `/etc/apt/sources.list.d/slack.list` directly so Ansible owns the same source file path Slack's package hooks may touch after install.
 
 Canonical sources:
 - [Slack role tasks](../../../../roles/slack/tasks/main.yml)
