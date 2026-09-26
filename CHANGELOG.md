@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Ansible linting gate in pre-commit and CI**: Added `.pre-commit-config.yaml` with an `ansible-lint` hook so Ansible changes are linted before commit. Added `.github/workflows/ansible_lint.yml` so GitHub Actions runs `ansible-lint` against changed Ansible files in `roles/`, `workstation.y*ml`, and `test.y*ml` on push and pull request events, with the CI `ansible-lint` version derived from `.pre-commit-config.yaml`.
 - **Changed-file selection externalised**: Moved CI changed-file selection into `scripts/changed_ansible_files.py`, including filtering out deleted files before lint execution.
+- **Version extraction externalised**: Moved CI `ansible-lint` version extraction from `.pre-commit-config.yaml` into `scripts/get_ansible_lint_version.py` using YAML parsing instead of inline string matching.
 - **Coverage for changed-file selection logic**: Added focused unit tests for `scripts/changed_ansible_files.py` to cover zero-SHA fallback, pull request vs push diff ranges, and deleted-file filtering behavior.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
 
