@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **FreshClam logging now rotates by activity, not just elapsed time**: the role now manages the relevant `freshclam.conf` logging directives directly, keeping `/var/log/clamav/freshclam.log` enabled while turning on ClamAV's built-in `LogRotate` support with `LogFileMaxSize 128K`. On a quiet laptop this keeps the active log current for longer, while still bounding log growth if update logging becomes unexpectedly noisy.
 - **ClamAV health check now exhausts available FreshClam evidence before giving up**: the verification script checks the current FreshClam log first, then scans rotated `freshclam.log.N` and `freshclam.log.N.gz` files in generation order, and finally falls back to current-boot `clamav-freshclam` journal entries containing FreshClam update markers before reporting that no recent update lines were found.
 - **Regression coverage now protects the broader fallback behavior directly**: the helper-script unit tests now cover later rotated logs, compressed rotated logs, and the current-boot journal fallback, while the GitHub Actions smoke test still verifies the managed FreshClam logging directives and a deterministic first-rotation fixture end to end.
+- **Health-check `runuser -l` execution no longer depends on preserved environment variables**: the script now passes test payload and target file paths as positional arguments to the login-shell command so login-mode environment scrubbing cannot blank required values during create/cleanup operations.
+- **FreshClam config tasks are idempotent again and compressed-log regressions are covered**: the role now keeps a single managed FreshClam logging block (avoiding unconditional remove-then-add churn and needless service restarts), preserves existing log timestamps when ensuring file presence, and adds a regression test that warns on unreadable `.gz` rotations while continuing to later usable log sources.
 
 ### Changed
 
@@ -21,10 +23,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Security
 
-- **Threat Model Assessment**: This change **keeps workstation malware-protection risk unchanged while reducing diagnostic noise and configuration ambiguity**.
-    - **Rationale**: The change does not alter ClamAV package sources, scanning scope, service privileges, or quarantine behavior. It combines size-based built-in FreshClam log rotation with read-only fallback across later rotated logs, compressed rotated logs, and current-boot `clamav-freshclam` journal entries, reducing the chance of empty update output after quiet overnight runtime without introducing unbounded logging.
-    - **Benefit**: Recent update evidence now tracks actual logging activity more closely than wall-clock time, and the verification path can still recover useful update lines after multiple rotations or journal-only resume behavior. This supports UK Cyber Essentials expectations for reliable protective monitoring and controlled, reviewable configuration.
-    - **Net risk statement**: Net runtime protection risk is **unchanged**, while operational diagnostic risk is **reduced**.
+- **Threat Model Assessment**: This change **keeps workstation malware-protection risk unchanged while reducing operational and diagnostic risk**.
+    - **Rationale**: The change does not alter ClamAV package sources, scanning scope, service privileges, or quarantine behavior. It hardens login-shell execution by passing values as positional arguments (avoiding reliance on environment-variable preservation in `runuser -l`), keeps FreshClam configuration idempotent to avoid unnecessary service restarts, and preserves bounded log handling with resilient fallback across rotated logs and current-boot journal evidence.
+    - **Benefit**: Verification remains reliable after login-shell environment scrubbing, unchanged playbook runs stay quiet, and unreadable compressed logs now produce explicit warnings while still allowing fallback to later usable evidence. This supports UK Cyber Essentials expectations for reliable protective monitoring and controlled, reviewable configuration.
+    - **Net risk statement**: Net runtime protection risk is **unchanged**, while operational execution and diagnostic reliability risk are **reduced**.
     - **Bootstrap note**: The wiki/bootstrap restructuring is documentation and agent-guidance only, so workstation runtime risk is **unchanged** while future session context-loading overhead and stale-memory reliance should be reduced.
 
 ## [PR #77 - Ensure dependencies are up to date with a 3-day cooldown policy](https://github.com/brabster/xubuntu-workstation/pull/77)

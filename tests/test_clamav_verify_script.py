@@ -46,18 +46,26 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "#!/usr/bin/env bash\n"
             "set -euo pipefail\n"
             "cmd=''\n"
+            "cmd_args=()\n"
             "while [ \"$#\" -gt 0 ]; do\n"
             "  case \"$1\" in\n"
             "    -c)\n"
             "      cmd=\"$2\"\n"
             "      shift 2\n"
             "      ;;\n"
+            "    --)\n"
+            "      shift\n"
+            "      while [ \"$#\" -gt 0 ]; do\n"
+            "        cmd_args+=(\"$1\")\n"
+            "        shift\n"
+            "      done\n"
+            "      ;;\n"
             "    *)\n"
             "      shift\n"
             "      ;;\n"
             "  esac\n"
             "done\n"
-            "bash -lc \"$cmd\"\n"
+            "env -i PATH=\"$PATH\" HOME=\"${HOME:-/tmp}\" bash -lc \"$cmd\" \"${cmd_args[@]}\"\n"
             "if [ -n \"${TEST_QUARANTINE_DIR:-}\" ]; then\n"
             "  for file in \"${TEST_DOWNLOADS_DIR:-}\"/.health-check-*.txt; do\n"
             "    [ -e \"$file\" ] || continue\n"
@@ -303,6 +311,30 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("fallback line three", result.stdout)
         self.assertEqual("", result.stderr)
         self.assertNotIn("hidden line one", result.stdout)
+
+    def test_warns_on_unreadable_compressed_log_and_uses_later_rotated_log(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        unreadable_compressed = self.log_dir / "freshclam.log.2.gz"
+        unreadable_compressed.write_bytes(b"not-gzip-data")
+        (self.log_dir / "freshclam.log.3").write_text(
+            "skip me\n"
+            "fallback plain line one\n"
+            "fallback plain line two\n"
+            "fallback plain line three\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("fallback plain line one", result.stdout)
+        self.assertIn("fallback plain line two", result.stdout)
+        self.assertIn("fallback plain line three", result.stdout)
+        self.assertIn(
+            f"WARNING: Failed to read compressed antivirus update log {unreadable_compressed}.",
+            result.stderr,
+        )
 
     def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")

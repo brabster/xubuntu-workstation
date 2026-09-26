@@ -22,7 +22,7 @@ QUARANTINED_FILE_PATH="${QUARANTINE_DIR}/${TEST_FILE_NAME}"
 echo "Verifying AV scanning is operational with test file ${TEST_FILE_NAME}..."
 
 cleanup() {
-  TEST_FILE_PATH="${TEST_FILE_PATH}" runuser -l "${TARGET_USER}" -c 'rm -f -- "$TEST_FILE_PATH"' &>/dev/null || true
+  runuser -l "${TARGET_USER}" -c 'rm -f -- "$1"' -- _ "${TEST_FILE_PATH}" &>/dev/null || true
   rm -f "${QUARANTINED_FILE_PATH}" &>/dev/null || true
 }
 
@@ -157,7 +157,7 @@ echo_latest_updates
 
 trap cleanup EXIT
 
-EICAR_STRING="${EICAR_STRING}" TEST_FILE_PATH="${TEST_FILE_PATH}" runuser -l "${TARGET_USER}" -c 'printf "%s\n" "$EICAR_STRING" > "$TEST_FILE_PATH"'
+runuser -l "${TARGET_USER}" -c 'printf "%s\n" "$1" > "$2"' -- _ "${EICAR_STRING}" "${TEST_FILE_PATH}"
 
 POLL_TIMEOUT=15
 SECONDS=0
