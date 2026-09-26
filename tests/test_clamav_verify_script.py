@@ -232,9 +232,10 @@ class ClamavVerifyScriptTests(unittest.TestCase):
     def test_falls_back_to_journal_when_no_freshclam_log_has_content(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         self.env["TEST_JOURNAL_LINES"] = (
-            "line one\n"
-            "line two\n"
-            "line three"
+            "noise before\n"
+            "Mon May 11 19:07:36 2026 -> line one\n"
+            "Mon May 11 19:07:36 2026 -> line two\n"
+            "Mon May 11 19:07:36 2026 -> line three"
         )
 
         result = self._run_script()
@@ -244,6 +245,7 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("line one", result.stdout)
         self.assertIn("line two", result.stdout)
         self.assertIn("line three", result.stdout)
+        self.assertNotIn("noise before", result.stdout)
 
 
 if __name__ == "__main__":
