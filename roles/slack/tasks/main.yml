@@ -25,15 +25,6 @@
     - slack_snap_binary.stat.exists
     - slack_snap_list.rc == 0
 
-- name: Choose supported Slack apt suite
-  ansible.builtin.set_fact:
-    slack_apt_suite: >-
-      {{
-        ansible_distribution_release
-        if ansible_distribution_release in ["focal", "jammy", "noble"]
-        else "noble"
-      }}
-
 - name: Add Slack apt repository
   ansible.builtin.deb822_repository:
     name: slack
@@ -44,7 +35,12 @@
     install_python_debian: true
     signed_by: https://packagecloud.io/slacktechnologies/slack/gpgkey
     suites:
-      - "{{ slack_apt_suite }}"
+      - >-
+        {{
+          ansible_facts["distribution_release"]
+          if ansible_facts["distribution_release"] in ["focal", "jammy", "noble"]
+          else "noble"
+        }}
     types:
       - deb
     uris:
