@@ -46,6 +46,14 @@
     group: clamav
     mode: '0644'
 
+- name: Ensure FreshClam log file ownership and mode are normalized
+  ansible.builtin.file:
+    path: "{{ clamav_freshclam_log_file }}"
+    state: file
+    owner: clamav
+    group: clamav
+    mode: '0644'
+
 - name: Create a global quarantine directory
   ansible.builtin.file:
     path: "{{ clamav_quarantine_dir }}"
