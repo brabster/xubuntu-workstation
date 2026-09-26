@@ -145,8 +145,7 @@
   when: >-
     slack_apt_repository.changed or
     slack_apt_signing_key.changed or
-    (slack_apt_signing_key_dearmor is defined and slack_apt_signing_key_dearmor.changed) or
-    not slack_apt_keyring.stat.exists
+    (slack_apt_signing_key_dearmor is defined and slack_apt_signing_key_dearmor.changed)
 
 - name: Install Slack desktop package
   ansible.builtin.apt:
