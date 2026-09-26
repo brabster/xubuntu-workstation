@@ -9,8 +9,9 @@ if [ -z "$TARGET_USER" ]; then
     exit 1
 fi
 
-DOWNLOADS_DIR="/home/${TARGET_USER}/Downloads"
-QUARANTINE_DIR="{{ clamav_quarantine_dir }}"
+DOWNLOADS_DIR="${CLAMAV_DOWNLOADS_DIR:-/home/${TARGET_USER}/Downloads}"
+QUARANTINE_DIR="${CLAMAV_QUARANTINE_DIR:-{{ clamav_quarantine_dir }}}"
+CLAMAV_LOG_DIR="${CLAMAV_LOG_DIR:-/var/log/clamav}"
 
 EICAR_STRING='X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 TEST_FILE_NAME=".health-check-$(date +%s).txt"
@@ -27,7 +28,32 @@ cleanup() {
 
 echo_latest_updates() {
   echo " --- latest antivirus update log"
-  tail -3 /var/log/clamav/freshclam.log
+
+  latest_log="$(
+    find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f \
+      \( -name 'freshclam.log' -o -name 'freshclam.log.[0-9]' -o -name 'freshclam.log.[0-9].gz' \) \
+      -size +0c -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-
+  )"
+
+  if [ -n "${latest_log}" ]; then
+    case "${latest_log}" in
+      *.gz)
+        gzip -cd -- "${latest_log}" | tail -n 3
+        ;;
+      *)
+        tail -n 3 -- "${latest_log}"
+        ;;
+    esac
+    return
+  fi
+
+  journal_lines="$(journalctl -u clamav-freshclam.service -n 3 --no-pager 2>/dev/null || true)"
+  if [ -n "${journal_lines}" ]; then
+    printf '%s\n' "${journal_lines}"
+    return
+  fi
+
+  echo "No recent antivirus update log entries were found."
 }
 
 echo_latest_updates
@@ -54,13 +80,13 @@ echo "--- Running Processes:" >&2
 ps aux | grep -E '[c]lamd|[c]lamonacc' || true
 echo "" >&2
 echo "--- clamav.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/clamav.log || true
+tail -n 30 "${CLAMAV_LOG_DIR}/clamav.log" || true
 echo "" >&2
 echo "--- clamonacc.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/clamonacc.log || true
+tail -n 30 "${CLAMAV_LOG_DIR}/clamonacc.log" || true
 echo "-------------------" >&2
 echo "--- quarantine_events.log (last 30 lines):" >&2
-tail -n 30 /var/log/clamav/quarantine_events.log || true
+tail -n 30 "${CLAMAV_LOG_DIR}/quarantine_events.log" || true
 echo "-------------------" >&2
 
 exit 1

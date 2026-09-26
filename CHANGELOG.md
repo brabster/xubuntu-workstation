@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
+## [PR #84 - Fix missing ClamAV update log lines after overnight suspend](https://github.com/brabster/xubuntu-workstation/pull/84)
+
+### Fixed
+
+- **ClamAV health check now reads the latest available FreshClam update output**: the verification script no longer assumes the newest update messages are always in `/var/log/clamav/freshclam.log`. After an overnight suspend, log rotation can leave the active `clamav-freshclam` daemon writing to a rotated logfile while the newly created current logfile is still empty, so the health check could succeed but print no update lines. The script now reads the newest non-empty FreshClam log (including rotated logs) and falls back to the `clamav-freshclam` systemd journal when needed.
+- **Focused helper coverage added for the new log-selection behavior**: helper tests now cover both the rotated-log case and the journal fallback so this regression is caught without requiring a privileged system-level ClamAV setup in CI.
+
+### Security
+
+- **Threat Model Assessment**: This change **keeps workstation malware-protection risk unchanged while reducing diagnostic blind spots**.
+    - **Rationale**: The change does not alter ClamAV package sources, scanning scope, service privileges, or quarantine behavior. It only makes the health-check output report the latest available update evidence more reliably when log rotation and suspend/resume timing leave the current logfile empty.
+    - **Benefit**: Operators get dependable visibility into recent signature-update activity alongside the existing on-access scan check, making it easier to notice genuine antivirus-update problems without being misled by an empty log section. This supports UK Cyber Essentials expectations for reliable protective monitoring and secure, repeatable configuration verification.
+    - **Net risk statement**: Net runtime protection risk is **unchanged**, while operational diagnostic risk is **reduced**.
+
 ## [PR #77 - Ensure dependencies are up to date with a 3-day cooldown policy](https://github.com/brabster/xubuntu-workstation/pull/77)
 
 ### Changed
