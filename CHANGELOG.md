@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Slack install path moved from snap to native APT package**: The `slack` role now removes an existing `slack` snap if present, adds Slack's official packagecloud APT repository with a repository-specific signing key, and installs the `slack-desktop` package instead of using `snap install slack`.
 - **Slack repository trust is now managed declaratively**: The role uses Ansible's repository management rather than vendor shell bootstrap scripts, verifies the expected Slack packagecloud signing-key fingerprint shape before creating the local keyring, refreshes apt metadata through the package install path when the cache is older than one hour, and removes Slack's repository maintenance cron job if it is present so repository trust remains under playbook control.
-- **Slack repo compatibility fallback for newer Ubuntu releases**: The role uses the current Ubuntu codename when Slack's repository is known to support it (`focal`, `jammy`, `noble`) and otherwise falls back to `noble`, which keeps the role usable on newer rolling Ubuntu/Xubuntu releases while Slack catches up with explicit suite metadata.
+- **Slack repo suite selection is now explicit**: The role accepts Slack's currently verified Ubuntu suites (`focal`, `jammy`, `noble`) by default and fails with a clear message on newer codenames unless an explicit `slack_apt_suite_override` is provided after verifying packagecloud support for that release.
 
 ### Security
 

@@ -27,6 +27,19 @@
     - slack_snap_binary.stat.exists
     - slack_snap_list.rc == 0
 
+- name: Assert Slack apt suite is supported or explicitly overridden
+  ansible.builtin.assert:
+    that:
+      - slack_apt_suite_override is defined or ansible_facts["distribution_release"] in ["focal", "jammy", "noble"]
+    fail_msg: >-
+      Slack packagecloud support has not been verified for Ubuntu codename
+      {{ ansible_facts["distribution_release"] }}. Set slack_apt_suite_override
+      explicitly after confirming the correct Slack repo suite for this release.
+
+- name: Choose Slack apt suite
+  ansible.builtin.set_fact:
+    slack_apt_suite: "{{ slack_apt_suite_override | default(ansible_facts['distribution_release']) }}"
+
 - name: Ensure apt keyring directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
@@ -64,17 +77,17 @@
           | select("match", "^fpr:")
           | list
           | first
+          | default("fpr::::::::::")
         ).split(":")[9]
       }}
 
 - name: Assert Slack apt signing fingerprint format
   ansible.builtin.assert:
     that:
-      - slack_apt_primary_fingerprint is match("^[A-F0-9]{40}$")
-      - slack_apt_primary_fingerprint.endswith("C6ABDCF64DB9A0B2")
+      - slack_apt_primary_fingerprint == "D537997ABE0E1079C0E8EBD6C6ABDCF64DB9A0B2"
     fail_msg: >-
       Slack apt signing key fingerprint {{ slack_apt_primary_fingerprint | default("missing") }}
-      did not match the expected Slack packagecloud key ID suffix.
+      did not match the expected Slack packagecloud signing fingerprint.
 
 - name: Convert Slack apt signing key to keyring format
   ansible.builtin.command:
@@ -97,12 +110,7 @@
     name: slack
     signed_by: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.gpg
     suites:
-      - >-
-        {{
-          ansible_facts["distribution_release"]
-          if ansible_facts["distribution_release"] in ["focal", "jammy", "noble"]
-          else "noble"
-        }}
+      - "{{ slack_apt_suite }}"
     types:
       - deb
     uris:
