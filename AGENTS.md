@@ -26,18 +26,11 @@ Specific principles we prioritise:
   - `docs/wiki/okf/index.md`
   - `docs/wiki/okf/README.md`
   - `docs/wiki/okf/steering/index.md`
-  - `docs/wiki/okf/steering/simplicity-default.md`
-  - `docs/wiki/okf/steering/evidence-first-diagnostics.md`
-  - `docs/wiki/okf/steering/ci-as-enforcement-gate.md`
-  - `docs/wiki/okf/steering/cost-tiered-agent-selection.md`
   - `docs/wiki/okf/linting/index.md`
-  - `docs/wiki/okf/linting/lint-toolchain-source-of-truth.md`
-  - `docs/wiki/okf/linting/local-hook-behavior.md`
-  - `docs/wiki/okf/linting/ci-lint-behavior.md`
   - `docs/wiki/okf/decisions/index.md`
-  - `docs/wiki/okf/decisions/adr-0001-lint-tooling-summary.md`
   - `docs/wiki/okf/log.md`
   - `docs/wiki/okf/okc_spec.md`
+- Then read each concept page linked from those section `index.md` files before making changes.
 - Treat this wiki as operational steering and reusable repository context.
 - If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
 
