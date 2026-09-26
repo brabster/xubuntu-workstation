@@ -136,9 +136,13 @@
     update_cache: true
   when: (not slack_keyring_is_valid) or slack_apt_source.changed
 
+- name: Refresh apt package metadata for Slack when cache is stale
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: not ((not slack_keyring_is_valid) or slack_apt_source.changed)
+
 - name: Install Slack desktop package
   ansible.builtin.apt:
     name: slack-desktop
     state: present
-    update_cache: true
-    cache_valid_time: 3600
