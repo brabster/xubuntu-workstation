@@ -21,10 +21,23 @@
       - snap
       - remove
       - slack
-  changed_when: true
+  register: slack_snap_remove
+  changed_when: slack_snap_remove.rc == 0
   when:
     - slack_snap_binary.stat.exists
     - slack_snap_list.rc == 0
+
+- name: Ensure apt keyring directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Slack apt signing key
+  ansible.builtin.get_url:
+    url: https://packagecloud.io/slacktechnologies/slack/gpgkey
+    dest: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
+    mode: '0644'
 
 - name: Add Slack apt repository
   ansible.builtin.deb822_repository:
@@ -34,7 +47,7 @@
     components:
       - main
     install_python_debian: true
-    signed_by: https://packagecloud.io/slacktechnologies/slack/gpgkey
+    signed_by: /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
     suites:
       - >-
         {{
