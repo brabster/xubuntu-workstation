@@ -1,6 +1,8 @@
 # OKF Wiki Update Log
 
 ## 2026-09-26
+* **Update**: Added linting guidance for Copilot agent-session bootstrap, including hooks-path setup, dependency/collection prerequisites, restricted-network behavior for collection install failures, and review-scope checks when lint setup changes.
+* **Update**: Expanded session workflow guidance to require agent-session lint-bootstrap verification and explicit capture of durable steering/linting lessons back into the wiki before session close.
 * **Update**: Added explicit bootstrap and workflow guidance to keep merge request descriptions high-level while decisions are fluid, then re-align them whenever the agreed approach changes so review automation sees the same story as the code.
 * **Update**: Added `steering/agent-bootstrap-rules.md` and `steering/session-workflow.md` so sessions can start from a minimal always-read rules/workflow set and look up detailed guidance only when needed.
 * **Update**: Updated the OKF root index, overview, and `AGENTS.md` bootstrap guidance to distinguish mandatory bootstrap pages from lookup-on-demand reference pages, and clarified that Copilot memory should remain a sparse complement to the wiki rather than the primary repository rules engine.

@@ -17,6 +17,8 @@ tags: [steering, workflow, research]
 8. **Implement incrementally**: make the smallest secure change that satisfies the agreed direction.
 9. **Validate on evidence**: run the smallest relevant checks early, then broader validation before completion.
 10. **Iterate until accepted**: respond to review, new evidence, or external research by refining the implementation, re-aligning the MR description if needed, and repeating validation.
+11. **For agent sessions, verify lint bootstrap first**: confirm hook-based lint prerequisites are active (for example `.githooks` hooks path and lint dependencies) before relying on pre-commit behavior.
+12. **Capture reusable lessons before closing**: when a session discovers durable linting/bootstrap guidance, update the relevant OKF steering/linting pages and add a dated `log.md` entry.
 
 Related concepts:
 - [Agent bootstrap rules](./agent-bootstrap-rules.md)
