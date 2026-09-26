@@ -22,15 +22,15 @@ fi
 
 echo "Running ansible-lint on staged Ansible files..."
 
-tmp_root="$(mktemp -d)"
-trap 'rm -rf "${tmp_root}"' EXIT
-tmp_prefix="${tmp_root}/"
+unstaged_files=()
+while IFS= read -r -d '' file; do
+  unstaged_files+=("${file}")
+done < <(git diff --name-only -z -- "${changed_files[@]}")
 
-git checkout-index -a --prefix "${tmp_prefix}"
+if [ "${#unstaged_files[@]}" -gt 0 ]; then
+  echo "Unstaged changes detected in files being linted; stage or stash these first:" >&2
+  printf '  %s\n' "${unstaged_files[@]}" >&2
+  exit 1
+fi
 
-staged_files=()
-for file in "${changed_files[@]}"; do
-  staged_files+=("${tmp_prefix}${file}")
-done
-
-ansible-lint --offline "${staged_files[@]}"
+ansible-lint --offline "${changed_files[@]}"

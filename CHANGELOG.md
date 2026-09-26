@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Changed-file selection externalised**: Moved CI changed-file selection into `scripts/changed_ansible_files.py`, including filtering out deleted files before lint execution.
 - **Shared lint dependency pin**: Added `requirements-dev.txt` so local setup and CI install the same `ansible-lint` version from one place, with straightforward dependency updates.
 - **Coverage for CI helper logic**: Added focused unit tests for `scripts/changed_ansible_files.py` (zero-SHA fallback, pull request vs push diff ranges, deleted-file filtering, NUL-output mode).
+- **Native hook behavior safeguards**: The `.githooks/pre-commit` hook now lints only staged Ansible files and blocks commits when those files have unstaged edits. Added `tests/test_native_pre_commit_hook.py` and wired it into the early CI unit-test step.
 - **CI fail-fast test gate for helper scripts**: Added an early unit-test step in `.github/workflows/ansible_lint.yml` to run the helper-script tests before lint execution so failures stop the build immediately.
 - **ADR decision finalized**: Updated `docs/adr/0001-lint-tooling-approach.md` to accepted status and documented the selected lower-dependency approach, with explicit revisit criteria if issues emerge.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.

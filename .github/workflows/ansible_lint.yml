@@ -38,7 +38,7 @@ jobs:
           python -m pip install -r requirements-dev.txt
       - name: run CI helper script unit tests
         run: |
-          python3 -m unittest tests/test_changed_ansible_files.py
+          python3 -m unittest tests/test_changed_ansible_files.py tests/test_native_pre_commit_hook.py
       - name: run ansible-lint on changed ansible files
         shell: bash
         run: |
