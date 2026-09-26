@@ -26,6 +26,7 @@ class SlackRoleTests(unittest.TestCase):
         validity_task = self._task("Set Slack keyring validity fact")
         validity_expr = validity_task["ansible.builtin.set_fact"]["slack_keyring_is_valid"]
         self.assertIn("slack_keyring_stat.stat.exists", validity_expr)
+        self.assertIn("slack_installed_pubkey_count | default(0)", validity_expr)
         self.assertIn("DB085A08CA13B8ACB917E0F6D938EC0D038651BD", validity_expr)
 
         bootstrap_task = self._task("Install Slack Packagecloud signing key")
@@ -47,7 +48,8 @@ class SlackRoleTests(unittest.TestCase):
         )
 
         assertions = fingerprint_assert["ansible.builtin.assert"]["that"]
-        self.assertIn("slack_gpg_fingerprints | length == 1", assertions)
+        self.assertIn("slack_gpg_pubkey_count == 1", assertions)
+        self.assertIn("slack_gpg_fingerprints | length >= 1", assertions)
         self.assertIn(
             "slack_gpg_fingerprints[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'",
             assertions,

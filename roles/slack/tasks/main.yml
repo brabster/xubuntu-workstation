@@ -42,6 +42,7 @@
 
 - name: Extract installed Slack keyring fingerprints
   ansible.builtin.set_fact:
+    slack_installed_pubkey_count: "{{ slack_installed_keyring_details.stdout | default('') | regex_findall('(?m)^pub:') | length }}"
     slack_installed_fingerprints: >-
       {{
         (
@@ -54,7 +55,8 @@
     slack_keyring_is_valid: >-
       {{
         slack_keyring_stat.stat.exists
-        and ((slack_installed_fingerprints | default([])) | length == 1)
+        and (slack_installed_pubkey_count | default(0)) == 1
+        and ((slack_installed_fingerprints | default([])) | length >= 1)
         and (((slack_installed_fingerprints | default([])) | first | default('')) == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD')
       }}
 
@@ -85,12 +87,14 @@
 
     - name: Extract Slack Packagecloud GPG key fingerprints
       ansible.builtin.set_fact:
+        slack_gpg_pubkey_count: "{{ slack_gpg_key_details.stdout | regex_findall('(?m)^pub:') | length }}"
         slack_gpg_fingerprints: "{{ slack_gpg_key_details.stdout | regex_findall('(?m)^fpr:::::::::([0-9A-F]+):$') }}"
 
     - name: Assert Slack Packagecloud GPG key matches expected fingerprint
       ansible.builtin.assert:
         that:
-          - slack_gpg_fingerprints | length == 1
+          - slack_gpg_pubkey_count == 1
+          - slack_gpg_fingerprints | length >= 1
           - slack_gpg_fingerprints[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'
         fail_msg: Downloaded Slack Packagecloud signing key did not match the expected fingerprint DB085A08CA13B8ACB917E0F6D938EC0D038651BD.
 
