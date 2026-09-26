@@ -32,7 +32,7 @@ show_log_tail_if_nonblank() {
 }
 
 show_text_tail_if_nonblank() {
-  if printf '%s\n' "$1" | grep -q '[^[:space:]]'; then
+  if printf '%s\n' "$1" | grep '[^[:space:]]' >/dev/null; then
     printf '%s\n' "$1" | tail -n 3
     return 0
   fi
