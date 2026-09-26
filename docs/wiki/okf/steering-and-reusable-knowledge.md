@@ -9,6 +9,8 @@ tags: [okf, steering, compatibility]
 
 This legacy page is retained as a compatibility pointer.
 
+Do not add new canonical guidance here; update the decomposed section pages instead.
+
 Use these canonical entrypoints:
 - [Steering index](./steering/index.md)
 - [Linting index](./linting/index.md)
