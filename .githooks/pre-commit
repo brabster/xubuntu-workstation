@@ -13,7 +13,10 @@ if [ "${#changed_files[@]}" -eq 0 ]; then
 fi
 
 if ! command -v ansible-lint >/dev/null 2>&1; then
-  echo "ansible-lint is not installed. Install dependencies with: python3 -m pip install -r requirements-dev.txt" >&2
+  echo "ansible-lint is required for local Ansible lint checks." >&2
+  echo "Set up this repository with:" >&2
+  echo "  git config core.hooksPath .githooks" >&2
+  echo "  python3 -m pip install -r requirements-dev.txt" >&2
   exit 1
 fi
 
@@ -23,7 +26,7 @@ tmp_root="$(mktemp -d)"
 trap 'rm -rf "${tmp_root}"' EXIT
 tmp_prefix="${tmp_root}/"
 
-git checkout-index --prefix "${tmp_prefix}" -- "${changed_files[@]}"
+git checkout-index -a --prefix "${tmp_prefix}"
 
 staged_files=()
 for file in "${changed_files[@]}"; do
