@@ -66,7 +66,7 @@ echo_latest_updates() {
       cut -d' ' -f2-
   )
 
-  journal_lines="$(journalctl -u clamav-freshclam.service -n 3 --no-pager 2>/dev/null || true)"
+  journal_lines="$(journalctl -u clamav-freshclam.service --no-pager -n 50 2>/dev/null | tail -n 3 || true)"
   if [ -n "${journal_lines}" ]; then
     printf '%s\n' "${journal_lines}"
     return
