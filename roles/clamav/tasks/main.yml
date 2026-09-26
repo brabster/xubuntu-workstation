@@ -15,6 +15,14 @@
     mode: '0644'
   notify: Restart clamav-daemon
 
+- name: Ensure ClamAV log directory exists
+  ansible.builtin.file:
+    path: /var/log/clamav
+    state: directory
+    owner: clamav
+    group: clamav
+    mode: '0755'
+
 - name: Remove previous managed freshclam logging block before normalization
   ansible.builtin.blockinfile:
     path: /etc/clamav/freshclam.conf

@@ -276,6 +276,34 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertEqual("", result.stderr)
         self.assertNotIn("hidden line one", result.stdout)
 
+    def test_uses_later_rotated_log_when_first_rotated_log_reader_fails(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        rotated_log = self.log_dir / "freshclam.log.1"
+        rotated_log.write_text(
+            "skip me\n"
+            "hidden line one\n"
+            "hidden line two\n"
+            "hidden line three\n",
+            encoding="utf-8",
+        )
+        (self.log_dir / "freshclam.log.2").write_text(
+            "skip me\n"
+            "fallback line one\n"
+            "fallback line two\n"
+            "fallback line three\n",
+            encoding="utf-8",
+        )
+        self.env["TEST_GREP_FAIL_PATH"] = str(rotated_log)
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("fallback line one", result.stdout)
+        self.assertIn("fallback line two", result.stdout)
+        self.assertIn("fallback line three", result.stdout)
+        self.assertEqual("", result.stderr)
+        self.assertNotIn("hidden line one", result.stdout)
+
     def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
 
