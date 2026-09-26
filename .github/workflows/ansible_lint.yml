@@ -60,7 +60,7 @@ jobs:
 
           changed_files=()
           for file in "${files[@]}"; do
-            if [[ "${file}" =~ ^roles/.*\.ya?ml$|^workstation\.ya?ml$|^test\.ya?ml$ ]]; then
+    if [[ -f "${file}" && "${file}" =~ ^roles/.*\.ya?ml$|^workstation\.ya?ml$|^test\.ya?ml$ ]]; then
               changed_files+=("${file}")
             fi
           done
