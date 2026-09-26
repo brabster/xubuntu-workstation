@@ -222,6 +222,32 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("plain line three", result.stdout)
         self.assertNotIn("compressed line one", result.stdout)
 
+    def test_prefers_earlier_compressed_rotation_over_later_plain_rotation(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        (self.log_dir / "freshclam.log.10").write_text(
+            "skip me\n"
+            "plain ten one\n"
+            "plain ten two\n"
+            "plain ten three\n",
+            encoding="utf-8",
+        )
+        with gzip.open(self.log_dir / "freshclam.log.2.gz", "wt", encoding="utf-8") as handle:
+            handle.write(
+                "skip me\n"
+                "compressed two one\n"
+                "compressed two two\n"
+                "compressed two three\n"
+            )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("compressed two one", result.stdout)
+        self.assertIn("compressed two two", result.stdout)
+        self.assertIn("compressed two three", result.stdout)
+        self.assertNotIn("plain ten one", result.stdout)
+
     def test_reports_when_first_rotated_log_cannot_be_read(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         rotated_log = self.log_dir / "freshclam.log.1"
