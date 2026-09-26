@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-changed_files=()
-while IFS= read -r -d '' file; do
-  changed_files+=("${file}")
-done < <(python3 scripts/changed_ansible_files.py --mode staged --null-output)
-
-if [ "${#changed_files[@]}" -eq 0 ]; then
-  exit 0
-fi
-
 if ! command -v ansible-lint >/dev/null 2>&1; then
   echo "ansible-lint is required for local Ansible lint checks." >&2
   echo "Set up this repository with:" >&2
@@ -18,17 +9,22 @@ if ! command -v ansible-lint >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "Running ansible-lint on staged Ansible files..."
+if ! git diff --cached --name-only -- roles workstation.yml workstation.yaml test.yml test.yaml | grep -q .; then
+  exit 0
+fi
 
-unstaged_files=()
-while IFS= read -r -d '' file; do
-  unstaged_files+=("${file}")
-done < <(git diff --name-only -z -- "${changed_files[@]}")
+echo "Running ansible-lint on scoped Ansible files..."
 
-if [ "${#unstaged_files[@]}" -gt 0 ]; then
-  echo "Unstaged changes detected in files being linted; stage or stash these first:" >&2
-  printf '  %s\n' "${unstaged_files[@]}" >&2
+lint_targets=()
+for target in roles workstation.yml workstation.yaml test.yml test.yaml; do
+  if [ -e "${target}" ]; then
+    lint_targets+=("${target}")
+  fi
+done
+
+if [ "${#lint_targets[@]}" -eq 0 ]; then
+  echo "No scoped Ansible targets found to lint." >&2
   exit 1
 fi
 
-ansible-lint --offline "${changed_files[@]}"
+ansible-lint --offline "${lint_targets[@]}"

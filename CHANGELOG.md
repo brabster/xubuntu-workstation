@@ -9,12 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- **Ansible linting gate in local hooks and CI**: Added a native git hook at `.githooks/pre-commit` so scoped Ansible changes are linted before commit, and `.github/workflows/ansible_lint.yml` so GitHub Actions runs `ansible-lint` against changed Ansible files in `roles/`, `workstation.y*ml`, and `test.y*ml` on push and pull request events.
-- **Changed-file selection externalised**: Moved CI changed-file selection into `scripts/changed_ansible_files.py`, including filtering out deleted files before lint execution.
+- **Ansible linting gate in local hooks and CI**: Added a native git hook at `.githooks/pre-commit` and `.github/workflows/ansible_lint.yml` so local checks (when scoped Ansible files are staged) and CI both run `ansible-lint` against the full scoped targets (`roles/`, `workstation.y*ml`, `test.y*ml`).
 - **Shared lint dependency pin**: Added `requirements-dev.txt` so local setup and CI install the same `ansible-lint` version from one place, with straightforward dependency updates.
-- **Coverage for CI helper logic**: Added focused unit tests for `scripts/changed_ansible_files.py` (zero-SHA fallback, pull request vs push diff ranges, deleted-file filtering, NUL-output mode).
-- **Native hook behavior safeguards**: The `.githooks/pre-commit` hook now lints only staged Ansible files and blocks commits when those files have unstaged edits. Added `tests/test_native_pre_commit_hook.py` and wired it into the early CI unit-test step.
-- **CI fail-fast test gate for helper scripts**: Added an early unit-test step in `.github/workflows/ansible_lint.yml` to run the helper-script tests before lint execution so failures stop the build immediately.
+- **Complexity reduction for lint execution**: Removed changed-file selection logic and helper tests from lint execution path; linting now runs over the fixed scoped targets for simpler, more predictable behavior.
 - **ADR decision finalized**: Updated `docs/adr/0001-lint-tooling-approach.md` to accepted status and documented the selected lower-dependency approach, with explicit revisit criteria if issues emerge.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
 
@@ -22,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Threat Model Assessment**: This change **reduces risk** by preventing non-linting Ansible from being merged.
     - **Rationale**: Linting catches unsafe or error-prone Ansible patterns earlier in the development lifecycle, reducing configuration mistakes that could weaken workstation security controls.
-    - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while reducing local tooling supply-chain surface and keeping CI implementation simple.
+    - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while reducing local tooling supply-chain surface and simplifying lint execution paths.
 
 ## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
 

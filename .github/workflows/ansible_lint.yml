@@ -36,32 +36,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
-      - name: run CI helper script unit tests
+      - name: run ansible-lint on scoped ansible files
         run: |
-          python3 -m unittest tests/test_changed_ansible_files.py tests/test_native_pre_commit_hook.py
-      - name: run ansible-lint on changed ansible files
-        shell: bash
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            diff_base="${{ github.event.pull_request.base.sha }}"
-          else
-            diff_base="${{ github.event.before }}"
+          lint_targets=()
+          for target in roles workstation.yml workstation.yaml test.yml test.yaml; do
+            if [ -e "${target}" ]; then
+              lint_targets+=("${target}")
+            fi
+          done
+
+          if [ "${#lint_targets[@]}" -eq 0 ]; then
+            echo "No scoped Ansible targets found to lint." >&2
+            exit 1
           fi
 
-          changed_files=()
-          while IFS= read -r -d '' file; do
-            changed_files+=("${file}")
-          done < <(
-            python3 scripts/changed_ansible_files.py \
-              --event-name "${{ github.event_name }}" \
-              --diff-base "${diff_base}" \
-              --null-output
-          )
-
-          if [ "${#changed_files[@]}" -eq 0 ]; then
-            echo "No changed Ansible files to lint."
-            exit 0
-          fi
-
-          printf '%s\n' "${changed_files[@]}"
-          ansible-lint --offline "${changed_files[@]}"
+          ansible-lint --offline "${lint_targets[@]}"

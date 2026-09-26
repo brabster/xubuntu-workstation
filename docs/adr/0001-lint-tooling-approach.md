@@ -6,7 +6,7 @@
 
 ## Context
 
-This repository now lint-gates scoped Ansible files in CI and also provides local lint checks before commit.
+This repository now lint-gates the full scoped Ansible target set in CI and also provides local lint checks before commit when scoped Ansible files are staged.
 Recent discussion requested a comparison between:
 
 1. Previous approach:
@@ -26,7 +26,7 @@ Adopt the lower-dependency local setup model now, and revisit only if developer 
 - Keep CI as the central enforcement gate
 - Replace pre-commit package dependency with a standard git hook script and explicit setup instructions
 
-Implementation for this repository uses `requirements-dev.txt` plus `.githooks/pre-commit`.
+Implementation for this repository uses `requirements-dev.txt` plus `.githooks/pre-commit`, and runs lint over the full scoped targets (`roles/`, `workstation.y*ml`, `test.y*ml`) rather than changed-file selection.
 
 ## Options compared
 
@@ -59,6 +59,7 @@ Cons
 - Positive:
   - Reduced tooling complexity and supply-chain surface for local hook execution
   - Clearer version management path when updating ansible-lint
+  - Further reduced complexity by removing diff-based file selection logic from both local hook and CI
 - Negative:
   - More responsibility on repository docs/scripts to ensure local git hook installation is performed consistently
 - Neutral:
