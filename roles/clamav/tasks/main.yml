@@ -38,11 +38,10 @@
   notify: Restart clamav-freshclam
 
 - name: Ensure FreshClam log file exists with service write access
-  ansible.builtin.file:
+  ansible.builtin.copy:
     path: "{{ clamav_freshclam_log_file }}"
-    state: touch
-    access_time: preserve
-    modification_time: preserve
+    content: ""
+    force: false
     owner: clamav
     group: clamav
     mode: '0644'
