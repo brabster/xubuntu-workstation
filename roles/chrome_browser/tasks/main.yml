@@ -27,7 +27,7 @@
     state: directory
     mode: '0755'
 
-- name: Configure Recommended Policies
+- name: Configure Managed Policies
   ansible.builtin.copy:
     src: managed.json
     dest: /etc/opt/chrome/policies/managed/prefs.json
