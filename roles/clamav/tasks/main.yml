@@ -50,6 +50,8 @@
   ansible.builtin.file:
     path: "{{ clamav_freshclam_log_file }}"
     state: file
+    access_time: preserve
+    modification_time: preserve
     owner: clamav
     group: clamav
     mode: '0644'
