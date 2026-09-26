@@ -22,15 +22,33 @@
     state: absent
   notify: Restart clamav-freshclam
 
-- name: Configure freshclam update logging
-  ansible.builtin.blockinfile:
+- name: Normalize freshclam logging directives
+  ansible.builtin.replace:
     path: /etc/clamav/freshclam.conf
-    marker: "# {mark} ANSIBLE MANAGED FRESHCLAM LOGGING"
-    append_newline: true
-    block: |
-      UpdateLogFile {{ clamav_freshclam_log_file }}
-      LogRotate yes
-      LogFileMaxSize {{ clamav_freshclam_log_max_size }}
+    regexp: '{{ item.regexp }}'
+    replace: '{{ item.line }}'
+  loop:
+    - regexp: '^\s*#?\s*UpdateLogFile\s+\S+\s*$'
+      line: 'UpdateLogFile {{ clamav_freshclam_log_file }}'
+    - regexp: '^\s*#?\s*LogRotate\s+(yes|no)\s*$'
+      line: 'LogRotate yes'
+    - regexp: '^\s*#?\s*LogFileMaxSize\s+\S+\s*$'
+      line: 'LogFileMaxSize {{ clamav_freshclam_log_max_size }}'
+  notify: Restart clamav-freshclam
+
+- name: Ensure freshclam logging directives are present
+  ansible.builtin.lineinfile:
+    path: /etc/clamav/freshclam.conf
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+    insertafter: EOF
+  loop:
+    - regexp: '^UpdateLogFile {{ clamav_freshclam_log_file | regex_escape() }}$'
+      line: 'UpdateLogFile {{ clamav_freshclam_log_file }}'
+    - regexp: '^LogRotate yes$'
+      line: 'LogRotate yes'
+    - regexp: '^LogFileMaxSize {{ clamav_freshclam_log_max_size | regex_escape() }}$'
+      line: 'LogFileMaxSize {{ clamav_freshclam_log_max_size }}'
   notify: Restart clamav-freshclam
 
 - name: Create a global quarantine directory
