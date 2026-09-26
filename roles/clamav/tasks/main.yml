@@ -16,13 +16,15 @@
   notify: Restart clamav-daemon
 
 - name: Configure freshclam update logging
-  ansible.builtin.blockinfile:
+  ansible.builtin.lineinfile:
     path: /etc/clamav/freshclam.conf
-    marker: "# {mark} ANSIBLE MANAGED FRESHCLAM LOGGING"
-    block: |
-      UpdateLogFile {{ clamav_freshclam_log_file }}
-      LogRotate yes
-      LogFileMaxSize {{ clamav_freshclam_log_max_size }}
+    regexp: '^{{ item.key }}\b'
+    line: '{{ item.key }} {{ item.value }}'
+    insertafter: EOF
+  loop:
+    - { key: 'UpdateLogFile', value: '{{ clamav_freshclam_log_file }}' }
+    - { key: 'LogRotate', value: 'yes' }
+    - { key: 'LogFileMaxSize', value: '{{ clamav_freshclam_log_max_size }}' }
   notify: Restart clamav-freshclam
 
 - name: Create a global quarantine directory

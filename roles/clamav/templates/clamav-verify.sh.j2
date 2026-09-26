@@ -27,34 +27,9 @@ cleanup() {
 }
 
 show_log_tail_if_nonblank() {
-  tmp_tail="$1"
-  case "$1" in
-    *.gz)
-      tmp_tail="$(mktemp)"
-      set +o pipefail
-      gzip -cd -- "$1" 2>/dev/null | tail -n 3 > "${tmp_tail}"
-      pipe_status=("${PIPESTATUS[@]}")
-      set -o pipefail
-      gzip_status=${pipe_status[0]:-0}
-      if [ "${gzip_status}" -ne 0 ]; then
-        rm -f "${tmp_tail}"
-        return 2
-      fi
-      ;;
-  esac
-
-  if grep -q '[^[:space:]]' "${tmp_tail}"; then
-    if [ "${tmp_tail}" = "$1" ]; then
-      tail -n 3 -- "$1"
-    else
-      cat "${tmp_tail}"
-      rm -f "${tmp_tail}"
-    fi
+  if grep -q '[^[:space:]]' "$1"; then
+    tail -n 3 -- "$1"
     return 0
-  fi
-
-  if [ "${tmp_tail}" != "$1" ]; then
-    rm -f "${tmp_tail}"
   fi
   return 1
 }
@@ -64,8 +39,7 @@ echo_latest_updates() {
 
   for log_path in \
     "${CLAMAV_LOG_DIR}/freshclam.log" \
-    "${CLAMAV_LOG_DIR}/freshclam.log.1" \
-    "${CLAMAV_LOG_DIR}/freshclam.log.1.gz"; do
+    "${CLAMAV_LOG_DIR}/freshclam.log.1"; do
     [ -f "${log_path}" ] || continue
     set +e
     show_log_tail_if_nonblank "${log_path}"
@@ -73,9 +47,6 @@ echo_latest_updates() {
     set -e
     if [ "${log_check_status}" -eq 0 ]; then
       return
-    fi
-    if [ "${log_check_status}" -eq 2 ]; then
-      echo "WARNING: Could not read FreshClam log source ${log_path}" >&2
     fi
   done
 

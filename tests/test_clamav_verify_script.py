@@ -134,77 +134,14 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("current line three", result.stdout)
         self.assertNotIn("rotated line one", result.stdout)
 
-    def test_uses_first_compressed_rotated_freshclam_log(self):
-        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
-        self._write_executable(
-            "gzip",
-            "#!/usr/bin/env bash\n"
-            "if [ \"$1\" = \"-cd\" ] && [ \"$2\" = \"--\" ]; then\n"
-            "  cat \"$3\"\n"
-            "else\n"
-            "  /bin/gzip \"$@\"\n"
-            "fi\n",
-        )
-        (self.log_dir / "freshclam.log.1.gz").write_text(
-            "old line\n"
-            "line alpha\n"
-            "line beta\n"
-            "line gamma\n",
-            encoding="utf-8",
-        )
-
-        result = self._run_script()
-
-        self.assertEqual(result.returncode, 0, msg=result.stderr)
-        self.assertNotIn("old line", result.stdout)
-        self.assertIn("line alpha", result.stdout)
-        self.assertIn("line beta", result.stdout)
-        self.assertIn("line gamma", result.stdout)
-
-    def test_skips_blank_first_rotated_log_until_first_compressed_rotated_log(self):
+    def test_reports_when_first_rotated_log_is_blank(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
-        self._write_executable(
-            "gzip",
-            "#!/usr/bin/env bash\n"
-            "if [ \"$1\" = \"-cd\" ] && [ \"$2\" = \"--\" ]; then\n"
-            "  cat \"$3\"\n"
-            "else\n"
-            "  /bin/gzip \"$@\"\n"
-            "fi\n",
-        )
-        (self.log_dir / "freshclam.log.1.gz").write_text(
-            "skip me\n"
-            "real line one\n"
-            "real line two\n"
-            "real line three\n",
-            encoding="utf-8",
-        )
-
-        result = self._run_script()
-
-        self.assertEqual(result.returncode, 0, msg=result.stderr)
-        self.assertIn("real line one", result.stdout)
-        self.assertIn("real line two", result.stdout)
-        self.assertIn("real line three", result.stdout)
-
-    def test_warns_on_unreadable_first_compressed_rotated_log(self):
-        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
-        (self.log_dir / "freshclam.log.1.gz").write_text("not really gzip", encoding="utf-8")
-        self._write_executable(
-            "gzip",
-            "#!/usr/bin/env bash\n"
-            "if [ \"$1\" = \"-cd\" ] && [ \"$2\" = \"--\" ]; then\n"
-            "  exit 1\n"
-            "fi\n"
-            "/bin/gzip \"$@\"\n",
-        )
 
         result = self._run_script()
 
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn("No recent antivirus update log entries were found.", result.stdout)
-        self.assertIn("WARNING: Could not read FreshClam log source", result.stderr)
 
     def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
