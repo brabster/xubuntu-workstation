@@ -163,6 +163,33 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("line beta", result.stdout)
         self.assertIn("line gamma", result.stdout)
 
+    def test_prefers_lower_rotation_number_over_older_compressed_archive(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        newest_rotated_log = self.log_dir / "freshclam.log.1"
+        newest_rotated_log.write_text(
+            "skip me\n"
+            "newest rotated line one\n"
+            "newest rotated line two\n"
+            "newest rotated line three\n",
+            encoding="utf-8",
+        )
+        older_rotated_log = self.log_dir / "freshclam.log.12.gz"
+        with gzip.open(older_rotated_log, "wt", encoding="utf-8") as handle:
+            handle.write(
+                "skip me\n"
+                "older archive line one\n"
+                "older archive line two\n"
+                "older archive line three\n",
+            )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("newest rotated line one", result.stdout)
+        self.assertIn("newest rotated line two", result.stdout)
+        self.assertIn("newest rotated line three", result.stdout)
+        self.assertNotIn("older archive line one", result.stdout)
+
     def test_falls_back_to_journal_when_no_freshclam_log_has_content(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         self.env["TEST_JOURNAL_LINES"] = (
