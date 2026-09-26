@@ -143,6 +143,23 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn("No recent antivirus update log entries were found.", result.stdout)
 
+    def test_ignores_later_rotated_logs_after_first_rotation(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        (self.log_dir / "freshclam.log.2").write_text(
+            "skip me\n"
+            "later line one\n"
+            "later line two\n"
+            "later line three\n",
+            encoding="utf-8",
+        )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("No recent antivirus update log entries were found.", result.stdout)
+        self.assertNotIn("later line one", result.stdout)
+
     def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
 
