@@ -45,6 +45,10 @@ echo_latest_updates() {
     return
   fi
 
+  shopt -s nullglob
+  rotated_log_paths=("${CLAMAV_LOG_DIR}"/freshclam.log.[0-9]*)
+  shopt -u nullglob
+
   while IFS= read -r rotated_log_name; do
     [ -n "${rotated_log_name}" ] || continue
     rotated_log_path="${CLAMAV_LOG_DIR}/${rotated_log_name}"
@@ -53,8 +57,10 @@ echo_latest_updates() {
     return
   done < <(
     # logrotate numbers the newest rotated log as .1, then older generations as .2, .3, etc.
-    find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -regextype posix-extended \
-      -regex '.*/freshclam\.log\.[0-9]+(\.gz)?$' -printf '%f\n' 2>/dev/null |
+    for rotated_log_path in "${rotated_log_paths[@]}"; do
+      printf '%s\n' "${rotated_log_path##*/}"
+    done |
+      sed -nE '/^freshclam\.log\.[0-9]+(\.gz)?$/p' |
       sed -E 's/^freshclam\.log\.([0-9]+)(\.gz)?$/\1 &/' |
       sort -n |
       cut -d' ' -f2-
