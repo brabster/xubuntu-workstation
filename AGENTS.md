@@ -26,6 +26,10 @@ Specific principles we prioritise:
   - `docs/wiki/okf/index.md`
   - `docs/wiki/okf/README.md`
   - `docs/wiki/okf/steering/index.md`
+  - `docs/wiki/okf/steering/simplicity-default.md`
+  - `docs/wiki/okf/steering/evidence-first-diagnostics.md`
+  - `docs/wiki/okf/steering/ci-as-enforcement-gate.md`
+  - `docs/wiki/okf/steering/cost-tiered-agent-selection.md`
   - `docs/wiki/okf/linting/index.md`
   - `docs/wiki/okf/linting/lint-toolchain-source-of-truth.md`
   - `docs/wiki/okf/linting/local-hook-behavior.md`
