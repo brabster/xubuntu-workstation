@@ -1,9 +1,11 @@
 repos:
-  - repo: local
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v26.9.0
     hooks:
       - id: ansible-lint
-        name: ansible-lint
-        entry: ansible-lint --offline
-        language: system
+        language_version: python3
+        pass_filenames: true
+        always_run: false
+        args: [--offline]
         types: [yaml]
         files: ^(workstation\.yml|test\.yml|roles/.*\.(yml|yaml))$
