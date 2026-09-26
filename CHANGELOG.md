@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Changed-file selection externalised**: Moved CI changed-file selection into `scripts/changed_ansible_files.py`, including filtering out deleted files before lint execution.
 - **Version extraction externalised**: Moved CI `ansible-lint` version extraction from `.pre-commit-config.yaml` into `scripts/get_ansible_lint_version.py` using YAML parsing instead of inline string matching.
 - **Coverage for CI helper logic**: Added focused unit tests for `scripts/changed_ansible_files.py` (zero-SHA fallback, pull request vs push diff ranges, deleted-file filtering, NUL-output mode) and `scripts/get_ansible_lint_version.py` (success and failure cases).
+- **CI fail-fast test gate for helper scripts**: Added an early unit-test step in `.github/workflows/ansible_lint.yml` to run the helper-script tests before lint execution so failures stop the build immediately.
 - **Baseline lint compliance updates**: Removed minor YAML formatting issues and updated one role-local registered variable name prefix so the repository passes the new `ansible-lint` gate.
 
 ### Security
