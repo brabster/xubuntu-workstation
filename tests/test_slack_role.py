@@ -33,6 +33,13 @@ class SlackRoleTests(unittest.TestCase):
 
     def test_bootstrap_block_checks_single_expected_fingerprint(self):
         bootstrap_task = self._task("Install Slack Packagecloud signing key")
+        stage_task = next(
+            subtask
+            for subtask in bootstrap_task["block"]
+            if subtask.get("name") == "Stage vendored Slack Packagecloud GPG key candidate"
+        )
+        self.assertEqual(stage_task["ansible.builtin.copy"]["src"], "slack-packagecloud.asc")
+
         fingerprint_assert = next(
             subtask
             for subtask in bootstrap_task["block"]

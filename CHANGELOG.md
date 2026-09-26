@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **Slack install path moved from snap to native APT package**: The `slack` role now adds Slack's official packagecloud APT repository using Slack's published Debian `jessie` distribution path and installs `slack-desktop` instead of using `snap install slack`.
-- **Slack repository setup is intentionally minimal**: The role now verifies Slack's packagecloud signing key against the expected full fingerprint before installing a dearmored keyring into `/etc/apt/keyrings/slack.gpg`, manages `/etc/apt/sources.list.d/slack.list` directly as a plain APT source file with an explicit `amd64` architecture constraint, hardcodes Slack's published `debian jessie` suite, and installs `slack-desktop` through normal apt operations.
+- **Slack repository setup is intentionally minimal**: The role now verifies a vendored copy of Slack's packagecloud signing key against the expected full fingerprint before installing a dearmored keyring into `/etc/apt/keyrings/slack.gpg`, manages `/etc/apt/sources.list.d/slack.list` directly as a plain APT source file with an explicit `amd64` architecture constraint, hardcodes Slack's published `debian jessie` suite, and installs `slack-desktop` through normal apt operations.
 - **Slack now runs in CI coverage again**: Because Slack is no longer installed through snap, the `slack` role is no longer skipped in GitHub Actions and is exercised as part of the normal workstation playbook path.
 - **OKF wiki compatibility cleanup**: Removed the temporary `docs/wiki/okf/steering-and-reusable-knowledge.md` compatibility pointer so the new wiki uses the decomposed `steering/`, `linting/`, and `decisions/` structure directly.
 

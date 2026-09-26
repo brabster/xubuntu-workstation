@@ -67,9 +67,9 @@
         suffix: .asc
       register: slack_gpg_key_tempfile
 
-    - name: Download Slack Packagecloud GPG key candidate
-      ansible.builtin.get_url:
-        url: https://packagecloud.io/slacktechnologies/slack/gpgkey
+    - name: Stage vendored Slack Packagecloud GPG key candidate
+      ansible.builtin.copy:
+        src: slack-packagecloud.asc
         dest: "{{ slack_gpg_key_tempfile.path }}"
         mode: '0600'
 
