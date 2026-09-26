@@ -43,11 +43,11 @@ jobs:
           fi
 
           if [ -z "${diff_base}" ] || [ "${diff_base}" = "0000000000000000000000000000000000000000" ]; then
-            changed_files=$(git ls-files 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
+            changed_files=$(git ls-files roles workstation.yml workstation.yaml test.yml test.yaml | grep -E '^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$' || true)
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            changed_files=$(git diff --name-only "${diff_base}...HEAD" -- 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
+            changed_files=$(git diff --name-only "${diff_base}...HEAD" -- roles workstation.yml workstation.yaml test.yml test.yaml | grep -E '^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$' || true)
           else
-            changed_files=$(git diff --name-only "${diff_base}..HEAD" -- 'roles/**/*.yml' 'roles/**/*.yaml' 'workstation.yml' 'test.yml')
+            changed_files=$(git diff --name-only "${diff_base}..HEAD" -- roles workstation.yml workstation.yaml test.yml test.yaml | grep -E '^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$' || true)
           fi
 
           changed_files=$(echo "${changed_files}" | sed '/^$/d' | tr '\n' ' ' | sed 's/[[:space:]]*$//' || true)

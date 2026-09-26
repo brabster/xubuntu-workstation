@@ -8,4 +8,4 @@ repos:
         always_run: false
         args: [--offline]
         types: [yaml]
-        files: ^(workstation\.yml|test\.yml|roles/.*\.(yml|yaml))$
+        files: ^(workstation\.ya?ml|test\.ya?ml|roles/.*\.(yml|yaml))$
