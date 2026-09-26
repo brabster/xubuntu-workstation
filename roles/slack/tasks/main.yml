@@ -40,10 +40,15 @@
       register: slack_gpg_key_details
       changed_when: false
 
+    - name: Extract Slack Packagecloud GPG key fingerprints
+      ansible.builtin.set_fact:
+        slack_gpg_fingerprints: "{{ slack_gpg_key_details.stdout | regex_findall('(?m)^fpr:::::::::([0-9A-F]+):$') }}"
+
     - name: Assert Slack Packagecloud GPG key matches expected fingerprint
       ansible.builtin.assert:
         that:
-          - slack_gpg_key_details.stdout is regex('(?m)^fpr:::::::::DB085A08CA13B8ACB917E0F6D938EC0D038651BD:$')
+          - slack_gpg_fingerprints | length == 1
+          - slack_gpg_fingerprints[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'
         fail_msg: Downloaded Slack Packagecloud signing key did not match the expected fingerprint DB085A08CA13B8ACB917E0F6D938EC0D038651BD.
 
     - name: Create temporary file for Slack GPG keyring
@@ -69,7 +74,6 @@
         dest: /etc/apt/keyrings/slack.gpg
         remote_src: true
         mode: '0644'
-      register: slack_gpg_keyring_install
 
     - name: Add Slack APT repository
       ansible.builtin.copy:
@@ -77,17 +81,13 @@
         content: |
           deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
         mode: '0644'
-      register: slack_apt_source
-
-    - name: Refresh apt package metadata for Slack
-      ansible.builtin.apt:
-        update_cache: true
-      when: slack_gpg_keyring_install.changed or slack_apt_source.changed
 
     - name: Install Slack desktop package
       ansible.builtin.apt:
         name: slack-desktop
         state: present
+        update_cache: true
+        cache_valid_time: 3600
   always:
     - name: Remove temporary Slack GPG key download file
       ansible.builtin.file:
