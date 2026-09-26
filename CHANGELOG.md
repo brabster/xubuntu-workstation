@@ -12,12 +12,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **GitHub Actions dependencies updated to current major releases**: Updated workflow actions from `actions/checkout@v5` to `actions/checkout@v7` and from `actions/setup-python@v6` to `actions/setup-python@v7` so CI dependencies are current.
 - **Automated dependency policy added with supply-chain cooldown**: Added `.github/dependabot.yml` with a 3-day cooldown (`default-days: 3`) for `github-actions` and `pip` version updates, while still allowing Dependabot security updates to open immediately.
 - **Dependency governance clarified for future automation**: Added OKF steering guidance documenting a repository preference for automated point-of-use updates gated by CI evidence, with resolved-version/SBOM evidence capture and explicit interim risk acceptance while no centralized multi-repo control plane exists.
+- **PR CI coverage restored for workstation changes**: Reverted `test_install` pull-request triggering to run on all PRs so dependency/workflow updates are included without dropping validation coverage for other repository changes.
 
 ### Security
 
 - **Threat Model Assessment**: This change **reduces supply-chain risk** while keeping workstation runtime risk unchanged.
     - **Rationale**: Moving CI actions to current maintained major versions reduces exposure to stale dependency code in the CI control plane. Applying a 3-day delay for routine version-update PRs lowers the chance of immediately ingesting newly published malicious packages or compromised releases, while security updates remain immediate. For Ubuntu packages managed through apt, this repository already relies on Canonical's signed archive and release process, so an additional repository-level cooldown is not applied there.
     - **Governance rationale**: Repository guidance now explicitly favors automated update flow with CI/test gates and recorded resolved-version evidence over per-update semver-based manual review, while acknowledging an interim risk until centralized allow/block override controls are in place.
+    - **CI assurance rationale**: Keeping broad PR CI coverage reduces the chance that unrelated but security-relevant playbook regressions bypass the `test_install` gate.
     - **Benefit**: Dependency updates stay timely and controlled with an explicit anti-poisoning delay for ecosystems where cooldown is supported, aligning with UK Cyber Essentials goals for secure configuration management and controlled change.
     - **Net risk statement**: Net risk is **reduced** for CI/dependency supply chain and **unchanged** for managed workstation runtime controls.
 

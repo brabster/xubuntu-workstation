@@ -5,11 +5,7 @@ on:
       - '**/*.md'
       - 'prompts/**'
       - '.vars_example.yml'
-  pull_request:
-    paths:
-      - '.github/workflows/ansible_lint.yml'
-      - '.github/workflows/test_install.yml'
-      - '.github/dependabot.yml'
+  pull_request: {}
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"
