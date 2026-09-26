@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Agent bootstrap trimmed to a minimal always-read set**: `AGENTS.md` now points sessions at the OKF root index, overview, a new bootstrap rules page, and a new session workflow page, instead of requiring agents to preload the full wiki tree and specification on every run.
 - **Wiki now distinguishes mandatory rules from lookup-on-demand detail**: the OKF root and overview pages now explicitly separate the small bootstrap set from deeper steering/linting/decision references, and clarify that Copilot memory should remain a sparse complement rather than the main repository rules engine.
+- **Workflow now requires MR-description realignment when implementation direction changes**: the bootstrap rules and session workflow now tell agents to keep early merge request descriptions high-level while decisions are still fluid, then update the description after any material approach change so review bots and human reviewers are not left comparing the code against stale intent.
 
 ### Security
 

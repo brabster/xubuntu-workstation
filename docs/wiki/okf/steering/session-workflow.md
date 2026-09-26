@@ -13,9 +13,10 @@ tags: [steering, workflow, research]
 4. **Offer diagnosis**: explain the most evidence-backed understanding of the problem before proposing changes.
 5. **Offer options when warranted**: do this for ambiguous, risky, or architectural choices; skip broad option trees for narrow fixes.
 6. **Produce a plan for review**: describe the intended path before implementation when the task is non-trivial.
-7. **Implement incrementally**: make the smallest secure change that satisfies the agreed direction.
-8. **Validate on evidence**: run the smallest relevant checks early, then broader validation before completion.
-9. **Iterate until accepted**: respond to review, new evidence, or external research by refining the implementation and repeating validation.
+7. **Keep the merge request description decision-aligned**: keep early MR descriptions high-level while decisions are still fluid, then update them whenever the agreed approach changes materially so reviews and automation stay in sync with the implementation.
+8. **Implement incrementally**: make the smallest secure change that satisfies the agreed direction.
+9. **Validate on evidence**: run the smallest relevant checks early, then broader validation before completion.
+10. **Iterate until accepted**: respond to review, new evidence, or external research by refining the implementation, re-aligning the MR description if needed, and repeating validation.
 
 Related concepts:
 - [Agent bootstrap rules](./agent-bootstrap-rules.md)

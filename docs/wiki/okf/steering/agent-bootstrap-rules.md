@@ -15,6 +15,7 @@ tags: [steering, bootstrap, rules]
 - For ambiguous, risky, or architectural tasks: diagnose first, offer options, then provide a plan before implementation.
 - For straightforward, narrow tasks: diagnose briefly, provide a concise plan, and move to implementation without unnecessary option expansion.
 - During implementation, iterate on evidence until the merge request is accepted.
+- Keep the merge request description aligned with the current agreed approach: avoid premature low-level specifics, and update the description after any material change in direction so review automation and reviewers see the same story as the code.
 - If wiki guidance conflicts with newer ADRs or explicit user direction, follow the user direction first and then update the wiki.
 - Keep changelog and security rationale up to date for repository changes, including UK Cyber Essentials impacts when relevant.
 - Treat Copilot memory as sparse hints only: durable user preferences and a few expensive-to-rediscover facts. Do not rely on memory as the main repository rules engine when the wiki already captures the guidance.
