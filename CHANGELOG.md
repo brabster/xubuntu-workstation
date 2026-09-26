@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - **Rationale**: Linting catches unsafe or error-prone Ansible patterns earlier in the development lifecycle, reducing configuration mistakes that could weaken workstation security controls.
     - **Benefit**: Improves change quality and consistency for automation that underpins security posture, supporting UK Cyber Essentials expectations for controlled, repeatable configuration management, while reducing local tooling supply-chain surface and simplifying lint execution paths.
     - **Net risk statement**: For runtime package behavior, risk is **unchanged to slightly reduced** because the Chrome ALSA preinstall compatibility task now checks package availability before install, reducing failure risk from hard-coded release assumptions.
+    - **Supply-chain note**: Chrome installation still relies on downloading the vendor `.deb` directly over TLS as in prior versions; this PR does not change that trust model, so supply-chain risk in that path remains **unchanged**.
 
 ## [Fix remote_tmp warning](https://github.com/brabster/xubuntu-workstation/pull/69)
 

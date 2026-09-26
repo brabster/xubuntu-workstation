@@ -36,12 +36,6 @@
     - ansible_facts['distribution'] == 'Ubuntu'
     - chrome_browser_libasound2t64_pkg.rc != 0
 
-- name: Fail if chrome role is used on unsupported distribution
-  ansible.builtin.fail:
-    msg: chrome_browser role currently supports Ubuntu targets only.
-  when:
-    - ansible_facts['distribution'] != 'Ubuntu'
-
 - name: Install Chrome
   ansible.builtin.apt:
     deb: /tmp/google-chrome.deb
