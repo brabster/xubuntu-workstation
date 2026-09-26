@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Agent bootstrap trimmed to a minimal always-read set**: `AGENTS.md` now points sessions at the OKF root index, overview, a new bootstrap rules page, and a new session workflow page, instead of requiring agents to preload the full wiki tree and specification on every run.
 - **Wiki now distinguishes mandatory rules from lookup-on-demand detail**: the OKF root and overview pages now explicitly separate the small bootstrap set from deeper steering/linting/decision references, and clarify that Copilot memory should remain a sparse complement rather than the main repository rules engine.
 - **Workflow now requires MR-description realignment when implementation direction changes**: the bootstrap rules and session workflow now tell agents to keep early merge request descriptions high-level while decisions are still fluid, then update the description after any material approach change so review bots and human reviewers are not left comparing the code against stale intent.
+- **Copilot agent sessions now bootstrap hook-based lint prerequisites**: added `.github/workflows/copilot-setup-steps.yml` so agent sessions set `core.hooksPath` to `.githooks`, install `requirements-dev.txt`, and install `roles/requirements.yml` collections before coding, making `.githooks/pre-commit` ansible-lint checks consistently available in agent environments.
 
 ### Security
 
@@ -28,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - **Benefit**: Verification remains reliable after login-shell environment scrubbing, unchanged playbook runs stay quiet, and unreadable compressed logs now produce explicit warnings while still allowing fallback to later usable evidence. This supports UK Cyber Essentials expectations for reliable protective monitoring and controlled, reviewable configuration.
     - **Net risk statement**: Net runtime protection risk is **unchanged**, while operational execution and diagnostic reliability risk are **reduced**.
     - **Bootstrap note**: The wiki/bootstrap restructuring is documentation and agent-guidance only, so workstation runtime risk is **unchanged** while future session context-loading overhead and stale-memory reliance should be reduced.
+    - **Agent setup note**: Copilot setup-step changes affect ephemeral CI/agent preparation only and do not alter workstation runtime controls; net runtime risk is **unchanged** while lint-gate reliability risk is **reduced**.
 
 ## [PR #77 - Ensure dependencies are up to date with a 3-day cooldown policy](https://github.com/brabster/xubuntu-workstation/pull/77)
 
