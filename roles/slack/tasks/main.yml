@@ -22,6 +22,7 @@
   register: slack_keyring_stat
 
 - name: Install Slack Packagecloud signing key
+  when: not slack_keyring_stat.stat.exists
   block:
     - name: Create temporary file for Slack GPG key download
       ansible.builtin.tempfile:
@@ -93,8 +94,6 @@
         state: absent
       when: slack_gpg_keyring_tempfile is defined
       changed_when: false
-  when: not slack_keyring_stat.stat.exists
-
 - name: Add Slack APT repository
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/slack.list
