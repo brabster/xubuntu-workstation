@@ -24,6 +24,10 @@ def selected_files(event_name, diff_base):
     return git_paths(["git", "diff", "--name-only", "-z", f"{diff_base}..HEAD", "--", *SCOPE_PATHS])
 
 
+def selected_staged_files():
+    return git_paths(["git", "diff", "--cached", "--name-only", "-z", "--diff-filter=ACMT", "--", *SCOPE_PATHS])
+
+
 def is_scoped_ansible_file(file_path):
     if file_path in TOP_LEVEL_PLAYBOOKS:
         return True
@@ -41,12 +45,20 @@ def filter_ansible_files(paths):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--event-name", required=True)
+    parser.add_argument("--mode", choices=["ci", "staged"], default="ci")
+    parser.add_argument("--event-name")
     parser.add_argument("--diff-base", default="")
     parser.add_argument("--null-output", action="store_true")
     args = parser.parse_args()
 
-    for file_path in filter_ansible_files(selected_files(args.event_name, args.diff_base)):
+    if args.mode == "staged":
+        files = selected_staged_files()
+    else:
+        if not args.event_name:
+            parser.error("--event-name is required when --mode=ci")
+        files = selected_files(args.event_name, args.diff_base)
+
+    for file_path in filter_ansible_files(files):
         if args.null_output:
             sys.stdout.write(f"{file_path}\0")
         else:

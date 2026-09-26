@@ -31,6 +31,13 @@ class ChangedAnsibleFilesTests(unittest.TestCase):
             ["git", "diff", "--name-only", "-z", "abc123..HEAD", "--", *caf.SCOPE_PATHS]
         )
 
+    @patch("changed_ansible_files.git_paths")
+    def test_selected_staged_files_uses_cached_diff(self, git_paths):
+        caf.selected_staged_files()
+        git_paths.assert_called_once_with(
+            ["git", "diff", "--cached", "--name-only", "-z", "--diff-filter=ACMT", "--", *caf.SCOPE_PATHS]
+        )
+
     def test_filter_ansible_files_excludes_deleted_and_non_scoped_files(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             original_cwd = os.getcwd()
