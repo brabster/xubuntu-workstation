@@ -45,8 +45,9 @@
   ansible.builtin.set_fact:
     slack_keyring_is_valid: >-
       {{
-        (slack_installed_fingerprints | default([])) | length == 1
-        and (slack_installed_fingerprints | default([]))[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'
+        slack_keyring_stat.stat.exists
+        and ((slack_installed_fingerprints | default([])) | length == 1)
+        and (((slack_installed_fingerprints | default([])) | first | default('')) == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD')
       }}
 
 - name: Install Slack Packagecloud signing key
