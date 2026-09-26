@@ -83,7 +83,7 @@ list_rotated_freshclam_logs() {
       compressed=1
     fi
 
-    printf '%09d\t%d\t%s\n' "${generation}" "${compressed}" "${log_path}"
+    printf '%s\t%d\t%s\n' "${generation}" "${compressed}" "${log_path}"
   done < <(find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -print 2>/dev/null) \
     | sort -t "$(printf '\t')" -k1,1n -k2,2n \
     | cut -f3- || true
