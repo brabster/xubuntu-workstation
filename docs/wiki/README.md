@@ -47,7 +47,7 @@ This directory is the repository's working OKF-style wiki for agent and contribu
 ## Authoring rules (OKF v0.2 aligned)
 
 - non-reserved `.md` files are concept documents and include YAML frontmatter with at least a non-empty `type`
-- repository-authored or locally maintained non-reserved concept documents (that is, concept pages other than reserved filenames such as `index.md` or `log.md`) should record `generated.by`, `generated.at`, and `stale_after` so authorship and review freshness stay queryable in frontmatter
+- repository-authored or locally maintained non-reserved concept documents (that is, concept pages other than reserved filenames such as `index.md` or `log.md`), including imported reference snapshots that this repository keeps as first-class local copies, should record `generated.by`, `generated.at`, and `stale_after` so authorship and review freshness stay queryable in frontmatter
 - reserved filenames `index.md` and `log.md` follow OKF section structures when present
 - root `index.md` may include only `okf_version` frontmatter
 - prefer links to canonical concepts over duplicate prose
