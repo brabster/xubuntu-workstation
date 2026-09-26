@@ -39,7 +39,7 @@
 
 - name: Ensure FreshClam log file exists with service write access
   ansible.builtin.copy:
-    path: "{{ clamav_freshclam_log_file }}"
+    dest: "{{ clamav_freshclam_log_file }}"
     content: ""
     force: false
     owner: clamav
