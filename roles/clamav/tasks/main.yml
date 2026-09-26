@@ -40,11 +40,11 @@
     line: '{{ item.line }}'
     insertafter: EOF
   loop:
-    - regexp: '^UpdateLogFile {{ clamav_freshclam_log_file | regex_escape() }}$'
+    - regexp: '^\s*UpdateLogFile\b.*$'
       line: 'UpdateLogFile {{ clamav_freshclam_log_file }}'
-    - regexp: '^LogRotate yes$'
+    - regexp: '^\s*LogRotate\b.*$'
       line: 'LogRotate yes'
-    - regexp: '^LogFileMaxSize {{ clamav_freshclam_log_max_size | regex_escape() }}$'
+    - regexp: '^\s*LogFileMaxSize\b.*$'
       line: 'LogFileMaxSize {{ clamav_freshclam_log_max_size }}'
   notify: Restart clamav-freshclam
 
