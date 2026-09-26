@@ -1,21 +1,49 @@
 ---
+- name: Ensure GnuPG is installed for Slack key verification
+  ansible.builtin.apt:
+    name: gnupg
+    state: present
+
 - name: Ensure APT keyrings directory exists
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
 
-- name: Download Slack Packagecloud GPG key
+- name: Download Slack Packagecloud GPG key candidate
   ansible.builtin.get_url:
     url: https://packagecloud.io/slacktechnologies/slack/gpgkey
+    dest: /tmp/slack.asc
+    mode: '0644'
+
+- name: Inspect Slack Packagecloud GPG key fingerprint
+  ansible.builtin.command:
+    argv:
+      - gpg
+      - --show-keys
+      - --with-colons
+      - /tmp/slack.asc
+  register: slack_gpg_key_details
+  changed_when: false
+
+- name: Assert Slack Packagecloud GPG key matches published key ID
+  ansible.builtin.assert:
+    that:
+      - slack_gpg_key_details.stdout is regex('(?m)^fpr:::::::::[0-9A-F]*C6ABDCF64DB9A0B2:$')
+    fail_msg: Downloaded Slack Packagecloud signing key did not match the published key ID C6ABDCF64DB9A0B2.
+
+- name: Install verified Slack Packagecloud GPG key
+  ansible.builtin.copy:
+    src: /tmp/slack.asc
     dest: /etc/apt/keyrings/slack.asc
+    remote_src: true
     mode: '0644'
 
 - name: Add Slack APT repository
   ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/slack.list
     content: |
-      deb [signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian jessie main
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.asc] https://packagecloud.io/slacktechnologies/slack/debian jessie main
     mode: '0644'
 
 - name: Refresh apt package metadata for Slack
