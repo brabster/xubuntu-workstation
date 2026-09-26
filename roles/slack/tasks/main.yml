@@ -54,7 +54,27 @@
       - /etc/apt/keyrings/slacktechnologies_slack-archive-keyring.asc
   register: slack_apt_key_info
   changed_when: false
-  failed_when: '"C6ABDCF64DB9A0B2" not in slack_apt_key_info.stdout'
+
+- name: Capture Slack apt primary signing fingerprint
+  ansible.builtin.set_fact:
+    slack_apt_primary_fingerprint: >-
+      {{
+        (
+          slack_apt_key_info.stdout_lines
+          | select("match", "^fpr:")
+          | list
+          | first
+        ).split(":")[9]
+      }}
+
+- name: Assert Slack apt signing fingerprint format
+  ansible.builtin.assert:
+    that:
+      - slack_apt_primary_fingerprint is match("^[A-F0-9]{40}$")
+      - slack_apt_primary_fingerprint.endswith("C6ABDCF64DB9A0B2")
+    fail_msg: >-
+      Slack apt signing key fingerprint {{ slack_apt_primary_fingerprint | default("missing") }}
+      did not match the expected Slack packagecloud key ID suffix.
 
 - name: Convert Slack apt signing key to keyring format
   ansible.builtin.command:
@@ -93,7 +113,6 @@
     cache_valid_time: 3600
     name: slack-desktop
     state: present
-    update_cache: true
 
 - name: Remove Slack repository maintenance cron job
   ansible.builtin.file:
