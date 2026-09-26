@@ -169,6 +169,25 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn(" --- latest antivirus update log", result.stdout)
         self.assertIn("No recent antivirus update log entries were found.", result.stdout)
 
+    def test_metacharacters_in_downloads_dir_do_not_trigger_shell_injection(self):
+        marker = self.root / "injected"
+        downloads_dir = self.root / "downloads' ; touch injected ; echo '"
+        downloads_dir.mkdir()
+        self.env["CLAMAV_DOWNLOADS_DIR"] = str(downloads_dir)
+        self.env["TEST_DOWNLOADS_DIR"] = str(downloads_dir)
+
+        result = subprocess.run(
+            [str(self.script_path), "tester"],
+            env=self.env,
+            cwd=self.root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertFalse(marker.exists(), msg=result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
