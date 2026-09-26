@@ -5,6 +5,11 @@ on:
       - '**/*.md'
       - 'prompts/**'
       - '.vars_example.yml'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '.github/dependabot.yml'
+      - 'requirements-dev.txt'
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"
@@ -37,7 +42,7 @@ jobs:
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: setup
         run: |
           cd $GITHUB_WORKSPACE

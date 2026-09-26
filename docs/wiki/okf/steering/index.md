@@ -8,3 +8,4 @@
 * [CI role guard review](./ci-role-guard-review.md) - Keep CI guards only for genuinely incompatible roles and remove them when coverage can be regained.
 * [CI feedback playbook ordering](./ci-feedback-playbook-ordering.md) - Move active or failing roles earlier in the playbook when faster CI evidence is worth the reordering.
 * [Cost-tiered agent selection](./cost-tiered-agent-selection.md) - Use lower-cost agents for broad discovery and reserve expensive context for integration.
+* [Dependency update governance](./dependency-update-governance.md) - Prefer automated point-of-use updates with test gates, cooldown, and resolved-version evidence capture.

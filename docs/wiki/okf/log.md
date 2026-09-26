@@ -1,6 +1,7 @@
 # OKF Wiki Update Log
 
 ## 2026-09-26
+* **Update**: Added `steering/dependency-update-governance.md` to capture repository preference for automated point-of-use dependency updates gated by CI evidence, with cooldown retained and explicit acknowledgment of interim risk until a centralized control plane exists.
 * **Update**: Added `steering/ci-feedback-playbook-ordering.md` to capture the rule that active or failing roles can be moved earlier in `workstation.yml` to fail faster in CI while they are being stabilised.
 * **Update**: Expanded steering on cost-tiered research escalation so agents proactively offer Gemini prompt generation when web-enabled discovery is likely to be cheaper or more effective than local sandbox research.
 * **Update**: Refined vendor-repo diagnostics and Slack package-management knowledge to record that live key fetches can fail in CI even when the package repository is reachable, and that vendoring the public key is acceptable when its full fingerprint is pinned and validated.
