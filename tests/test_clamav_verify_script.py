@@ -1,4 +1,3 @@
-import gzip
 import os
 import stat
 import subprocess
@@ -65,11 +64,6 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "  done\n"
             "fi\n",
         )
-        self._write_executable(
-            "journalctl",
-            "#!/usr/bin/env bash\n"
-            "printf '%s\\n' \"${TEST_JOURNAL_LINES:-}\"\n",
-        )
 
         self.env = os.environ.copy()
         self.env["PATH"] = f"{self.fake_bin}:{self.env.get('PATH', '')}"
@@ -97,7 +91,7 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             check=False,
         )
 
-    def test_uses_latest_non_empty_rotated_freshclam_log(self):
+    def test_uses_first_rotated_freshclam_log_when_current_log_is_empty(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         rotated_log = self.log_dir / "freshclam.log.1"
         rotated_log.write_text(
@@ -107,7 +101,6 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "Mon May 11 19:07:36 2026 -> WARNING: Clamd was NOT notified: Can't connect to clamd through /run/clamav/clamd.ctl: No such file or directory\n",
             encoding="utf-8",
         )
-        os.utime(rotated_log, None)
 
         result = self._run_script()
 
@@ -117,7 +110,7 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("WARNING: Clamd was NOT notified", result.stdout)
         self.assertIn("ClamAV on-access scanning is working correctly.", result.stdout)
 
-    def test_prefers_current_freshclam_log_over_rotated_logs(self):
+    def test_prefers_current_freshclam_log_over_first_rotated_log(self):
         (self.log_dir / "freshclam.log").write_text(
             "skip me\n"
             "current line one\n"
@@ -125,15 +118,13 @@ class ClamavVerifyScriptTests(unittest.TestCase):
             "current line three\n",
             encoding="utf-8",
         )
-        rotated_log = self.log_dir / "freshclam.log.1"
-        rotated_log.write_text(
+        (self.log_dir / "freshclam.log.1").write_text(
             "skip me\n"
             "rotated line one\n"
             "rotated line two\n"
             "rotated line three\n",
             encoding="utf-8",
         )
-        os.utime(rotated_log, None)
 
         result = self._run_script()
 
@@ -143,17 +134,24 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("current line three", result.stdout)
         self.assertNotIn("rotated line one", result.stdout)
 
-    def test_uses_latest_non_empty_compressed_rotated_freshclam_log(self):
+    def test_uses_first_compressed_rotated_freshclam_log(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
-        rotated_log = self.log_dir / "freshclam.log.12.gz"
-        with gzip.open(rotated_log, "wt", encoding="utf-8") as handle:
-            handle.write(
-                "old line\n"
-                "line alpha\n"
-                "line beta\n"
-                "line gamma\n",
-            )
-        os.utime(rotated_log, None)
+        self._write_executable(
+            "gzip",
+            "#!/usr/bin/env bash\n"
+            "if [ \"$1\" = \"-cd\" ] && [ \"$2\" = \"--\" ]; then\n"
+            "  cat \"$3\"\n"
+            "else\n"
+            "  /bin/gzip \"$@\"\n"
+            "fi\n",
+        )
+        (self.log_dir / "freshclam.log.1.gz").write_text(
+            "old line\n"
+            "line alpha\n"
+            "line beta\n"
+            "line gamma\n",
+            encoding="utf-8",
+        )
 
         result = self._run_script()
 
@@ -163,44 +161,25 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("line beta", result.stdout)
         self.assertIn("line gamma", result.stdout)
 
-    def test_prefers_lower_rotation_number_over_older_compressed_archive(self):
-        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
-        newest_rotated_log = self.log_dir / "freshclam.log.1"
-        newest_rotated_log.write_text(
-            "skip me\n"
-            "newest rotated line one\n"
-            "newest rotated line two\n"
-            "newest rotated line three\n",
-            encoding="utf-8",
-        )
-        older_rotated_log = self.log_dir / "freshclam.log.12.gz"
-        with gzip.open(older_rotated_log, "wt", encoding="utf-8") as handle:
-            handle.write(
-                "skip me\n"
-                "older archive line one\n"
-                "older archive line two\n"
-                "older archive line three\n",
-            )
-
-        result = self._run_script()
-
-        self.assertEqual(result.returncode, 0, msg=result.stderr)
-        self.assertIn("newest rotated line one", result.stdout)
-        self.assertIn("newest rotated line two", result.stdout)
-        self.assertIn("newest rotated line three", result.stdout)
-        self.assertNotIn("older archive line one", result.stdout)
-
-    def test_skips_blank_rotated_logs_until_real_output_is_found(self):
+    def test_skips_blank_first_rotated_log_until_first_compressed_rotated_log(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
-        older_rotated_log = self.log_dir / "freshclam.log.2.gz"
-        with gzip.open(older_rotated_log, "wt", encoding="utf-8") as handle:
-            handle.write(
-                "skip me\n"
-                "real line one\n"
-                "real line two\n"
-                "real line three\n",
-            )
+        self._write_executable(
+            "gzip",
+            "#!/usr/bin/env bash\n"
+            "if [ \"$1\" = \"-cd\" ] && [ \"$2\" = \"--\" ]; then\n"
+            "  cat \"$3\"\n"
+            "else\n"
+            "  /bin/gzip \"$@\"\n"
+            "fi\n",
+        )
+        (self.log_dir / "freshclam.log.1.gz").write_text(
+            "skip me\n"
+            "real line one\n"
+            "real line two\n"
+            "real line three\n",
+            encoding="utf-8",
+        )
 
         result = self._run_script()
 
@@ -209,43 +188,32 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("real line two", result.stdout)
         self.assertIn("real line three", result.stdout)
 
-    def test_warns_on_unreadable_compressed_rotated_log_and_uses_older_output(self):
+    def test_warns_on_unreadable_first_compressed_rotated_log(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         (self.log_dir / "freshclam.log.1.gz").write_text("not really gzip", encoding="utf-8")
-        older_rotated_log = self.log_dir / "freshclam.log.2.gz"
-        with gzip.open(older_rotated_log, "wt", encoding="utf-8") as handle:
-            handle.write(
-                "skip me\n"
-                "usable line one\n"
-                "usable line two\n"
-                "usable line three\n",
-            )
-
-        result = self._run_script()
-
-        self.assertEqual(result.returncode, 0, msg=result.stderr)
-        self.assertIn("usable line one", result.stdout)
-        self.assertIn("usable line two", result.stdout)
-        self.assertIn("usable line three", result.stdout)
-        self.assertIn("WARNING: Could not read FreshClam log source", result.stderr)
-
-    def test_falls_back_to_journal_when_no_freshclam_log_has_content(self):
-        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
-        self.env["TEST_JOURNAL_LINES"] = (
-            "noise before\n"
-            "Mon May 11 19:07:36 2026 -> line one\n"
-            "Mon May 11 19:07:36 2026 -> line two\n"
-            "Mon May 11 19:07:36 2026 -> line three"
+        self._write_executable(
+            "gzip",
+            "#!/usr/bin/env bash\n"
+            "if [ \"$1\" = \"-cd\" ] && [ \"$2\" = \"--\" ]; then\n"
+            "  exit 1\n"
+            "fi\n"
+            "/bin/gzip \"$@\"\n",
         )
 
         result = self._run_script()
 
         self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("No recent antivirus update log entries were found.", result.stdout)
+        self.assertIn("WARNING: Could not read FreshClam log source", result.stderr)
+
+    def test_reports_when_no_recent_freshclam_log_lines_are_found(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
         self.assertIn(" --- latest antivirus update log", result.stdout)
-        self.assertIn("line one", result.stdout)
-        self.assertIn("line two", result.stdout)
-        self.assertIn("line three", result.stdout)
-        self.assertNotIn("noise before", result.stdout)
+        self.assertIn("No recent antivirus update log entries were found.", result.stdout)
 
 
 if __name__ == "__main__":

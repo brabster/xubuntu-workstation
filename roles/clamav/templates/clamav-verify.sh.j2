@@ -26,86 +26,58 @@ cleanup() {
   rm -f "${QUARANTINED_FILE_PATH}" &>/dev/null || true
 }
 
-print_log_tail() {
+show_log_tail_if_nonblank() {
+  tmp_tail="$1"
   case "$1" in
     *.gz)
-      gzip -cd -- "$1" | tail -n 3
-      ;;
-    *)
-      tail -n 3 -- "$1"
-      ;;
-  esac
-}
-
-log_has_nonblank_lines() {
-  case "$1" in
-    *.gz)
+      tmp_tail="$(mktemp)"
       set +o pipefail
-      gzip -cd -- "$1" 2>/dev/null | grep -q '[^[:space:]]'
+      gzip -cd -- "$1" 2>/dev/null | tail -n 3 > "${tmp_tail}"
       pipe_status=("${PIPESTATUS[@]}")
       set -o pipefail
       gzip_status=${pipe_status[0]:-0}
-      grep_status=${pipe_status[1]:-1}
-      if [ "${gzip_status}" -ne 0 ] && [ "${gzip_status}" -ne 141 ]; then
+      if [ "${gzip_status}" -ne 0 ]; then
+        rm -f "${tmp_tail}"
         return 2
       fi
-      return "${grep_status}"
-      ;;
-    *)
-      grep -q '[^[:space:]]' "$1"
       ;;
   esac
+
+  if grep -q '[^[:space:]]' "${tmp_tail}"; then
+    if [ "${tmp_tail}" = "$1" ]; then
+      tail -n 3 -- "$1"
+    else
+      cat "${tmp_tail}"
+      rm -f "${tmp_tail}"
+    fi
+    return 0
+  fi
+
+  if [ "${tmp_tail}" != "$1" ]; then
+    rm -f "${tmp_tail}"
+  fi
+  return 1
 }
 
 echo_latest_updates() {
   echo " --- latest antivirus update log"
 
-  if [ -f "${CLAMAV_LOG_DIR}/freshclam.log" ]; then
-    if log_has_nonblank_lines "${CLAMAV_LOG_DIR}/freshclam.log"; then
-      print_log_tail "${CLAMAV_LOG_DIR}/freshclam.log"
-      return
-    fi
-  fi
-
-  shopt -s nullglob
-  rotated_log_paths=("${CLAMAV_LOG_DIR}"/freshclam.log.[0-9]*)
-  shopt -u nullglob
-
-  while IFS= read -r rotated_log_name; do
-    [ -n "${rotated_log_name}" ] || continue
-    rotated_log_path="${CLAMAV_LOG_DIR}/${rotated_log_name}"
-    [ -f "${rotated_log_path}" ] || continue
+  for log_path in \
+    "${CLAMAV_LOG_DIR}/freshclam.log" \
+    "${CLAMAV_LOG_DIR}/freshclam.log.1" \
+    "${CLAMAV_LOG_DIR}/freshclam.log.1.gz"; do
+    [ -f "${log_path}" ] || continue
     set +e
-    log_has_nonblank_lines "${rotated_log_path}"
+    show_log_tail_if_nonblank "${log_path}"
     log_check_status=$?
     set -e
     if [ "${log_check_status}" -eq 0 ]; then
-      print_log_tail "${rotated_log_path}"
       return
     fi
     if [ "${log_check_status}" -eq 2 ]; then
-      echo "WARNING: Could not read FreshClam log source ${rotated_log_path}" >&2
+      echo "WARNING: Could not read FreshClam log source ${log_path}" >&2
     fi
-  done < <(
-    # logrotate numbers the newest rotated log as .1, then older generations as .2, .3, etc.
-    for rotated_log_path in "${rotated_log_paths[@]}"; do
-      printf '%s\n' "${rotated_log_path##*/}"
-    done |
-      sed -nE '/^freshclam\.log\.[0-9]+(\.gz)?$/p' |
-      sed -E 's/^freshclam\.log\.([0-9]+)(\.gz)?$/\1 &/' |
-      sort -n |
-      cut -d' ' -f2-
-  )
-
-  journal_lines="$(
-    journalctl -b 0 -u clamav-freshclam.service --no-pager -n 50 2>/dev/null |
-      grep -- '->' |
-      tail -n 3 || true
-  )"
-  if printf '%s' "${journal_lines}" | grep -q '[^[:space:]]'; then
-    printf '%s\n' "${journal_lines}"
-    return
-  fi
+  done
 
   echo "No recent antivirus update log entries were found."
 }

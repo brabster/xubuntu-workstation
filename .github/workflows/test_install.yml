@@ -47,7 +47,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
-          ansible-playbook -i inventory workstation.yml 
+          ansible-playbook -i inventory workstation.yml
       - name: check
         shell: bash -l {0}
         run: |
@@ -64,4 +64,21 @@ jobs:
           # su - tester -c "sudo systemctl stop cups"
           # su - tester -c "! sudo systemctl enable cups" ## should not work as only able to start and stop
       - name: Verify ClamAV On-Access Scanning
-        run: clamav-verify.sh tester
+        shell: bash -l {0}
+        run: |
+          grep -q '^UpdateLogFile /var/log/clamav/freshclam.log$' /etc/clamav/freshclam.conf
+          grep -q '^LogRotate yes$' /etc/clamav/freshclam.conf
+          grep -q '^LogFileMaxSize 128K$' /etc/clamav/freshclam.conf
+          clamav-verify.sh tester
+          cat >/var/log/clamav/freshclam.log.1 <<'EOF'
+          fixture preface
+          fixture line one
+          fixture line two
+          fixture line three
+          EOF
+          : >/var/log/clamav/freshclam.log
+          output="$(clamav-verify.sh tester)"
+          printf '%s\n' "$output"
+          grep -q 'fixture line one' <<<"$output"
+          grep -q 'fixture line two' <<<"$output"
+          grep -q 'fixture line three' <<<"$output"

@@ -1,2 +1,4 @@
 ---
 clamav_quarantine_dir: /var/lib/clamav/quarantine
+clamav_freshclam_log_file: /var/log/clamav/freshclam.log
+clamav_freshclam_log_max_size: 128K

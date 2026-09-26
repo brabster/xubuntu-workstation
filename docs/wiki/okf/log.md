@@ -1,6 +1,7 @@
 # OKF Wiki Update Log
 
 ## 2026-09-26
+* **Update**: Added `steering/activity-driven-thresholds.md` to capture the preference for activity-based triggers such as size-based log rotation when elapsed-time behavior creates avoidable noise on quiet systems and deterministic CI validation is valuable.
 * **Update**: Added `steering/dependency-update-governance.md` to capture repository preference for automated point-of-use dependency updates gated by CI evidence, with cooldown retained and explicit acknowledgment of interim risk until a centralized control plane exists.
 * **Update**: Added `steering/ci-feedback-playbook-ordering.md` to capture the rule that active or failing roles can be moved earlier in `workstation.yml` to fail faster in CI while they are being stabilised.
 * **Update**: Expanded steering on cost-tiered research escalation so agents proactively offer Gemini prompt generation when web-enabled discovery is likely to be cheaper or more effective than local sandbox research.
