@@ -36,8 +36,8 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
-            diff_base="origin/${{ github.base_ref }}"
+            diff_base="${{ github.event.pull_request.base.sha }}"
+            git fetch --no-tags --depth=1 origin "${diff_base}"
           else
             diff_base="${{ github.event.before }}"
           fi
@@ -50,10 +50,13 @@ jobs:
             changed_files=$(git diff --name-only "${diff_base}..HEAD" -- roles workstation.yml workstation.yaml test.yml test.yaml | grep -E '^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$' || true)
           fi
 
-          changed_files=$(echo "${changed_files}" | sed '/^$/d' | tr '\n' ' ' | sed 's/[[:space:]]*$//' || true)
-          echo "files=${changed_files}" >> "${GITHUB_OUTPUT}"
+          changed_files=$(echo "${changed_files}" | sed '/^$/d' || true)
+          echo "files<<EOF" >> "${GITHUB_OUTPUT}"
+          echo "${changed_files}" >> "${GITHUB_OUTPUT}"
+          echo "EOF" >> "${GITHUB_OUTPUT}"
       - name: run ansible-lint on changed ansible files
         if: steps.changed.outputs.files != ''
         run: |
-          echo "${{ steps.changed.outputs.files }}"
-          ANSIBLE_LINT_NODEPS=1 ansible-lint ${{ steps.changed.outputs.files }}
+          mapfile -t files <<< "${{ steps.changed.outputs.files }}"
+          printf '%s\n' "${files[@]}"
+          ANSIBLE_LINT_NODEPS=1 ansible-lint "${files[@]}"
