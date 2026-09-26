@@ -55,7 +55,9 @@ echo_latest_updates() {
     # logrotate numbers the newest rotated log as .1, then older generations as .2, .3, etc.
     find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -regextype posix-extended \
       -regex '.*/freshclam\.log\.[0-9]+(\.gz)?$' -printf '%f\n' 2>/dev/null |
-      sort -t. -k3,3n
+      sed -E 's/^freshclam\.log\.([0-9]+)(\.gz)?$/\1 &/' |
+      sort -n |
+      cut -d' ' -f2-
   )
 
   journal_lines="$(journalctl -u clamav-freshclam.service -n 3 --no-pager 2>/dev/null || true)"
