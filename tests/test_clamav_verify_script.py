@@ -150,9 +150,10 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("current line three", result.stdout)
         self.assertNotIn("rotated line one", result.stdout)
 
-    def test_reports_when_first_rotated_log_is_blank(self):
+    def test_reports_when_no_further_rotated_or_journal_entries_exist(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        self.journal_output_file.write_text("", encoding="utf-8")
 
         result = self._run_script()
 
