@@ -190,6 +190,25 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("newest rotated line three", result.stdout)
         self.assertNotIn("older archive line one", result.stdout)
 
+    def test_skips_blank_rotated_logs_until_real_output_is_found(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        (self.log_dir / "freshclam.log.1").write_text("\n", encoding="utf-8")
+        older_rotated_log = self.log_dir / "freshclam.log.2.gz"
+        with gzip.open(older_rotated_log, "wt", encoding="utf-8") as handle:
+            handle.write(
+                "skip me\n"
+                "real line one\n"
+                "real line two\n"
+                "real line three\n",
+            )
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertIn("real line one", result.stdout)
+        self.assertIn("real line two", result.stdout)
+        self.assertIn("real line three", result.stdout)
+
     def test_falls_back_to_journal_when_no_freshclam_log_has_content(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
         self.env["TEST_JOURNAL_LINES"] = (

@@ -37,10 +37,21 @@ print_log_tail() {
   esac
 }
 
+log_has_nonblank_lines() {
+  case "$1" in
+    *.gz)
+      gzip -cd -- "$1" 2>/dev/null | grep -q '[^[:space:]]'
+      ;;
+    *)
+      grep -q '[^[:space:]]' "$1"
+      ;;
+  esac
+}
+
 echo_latest_updates() {
   echo " --- latest antivirus update log"
 
-  if [ -s "${CLAMAV_LOG_DIR}/freshclam.log" ]; then
+  if [ -f "${CLAMAV_LOG_DIR}/freshclam.log" ] && log_has_nonblank_lines "${CLAMAV_LOG_DIR}/freshclam.log"; then
     print_log_tail "${CLAMAV_LOG_DIR}/freshclam.log"
     return
   fi
@@ -52,7 +63,8 @@ echo_latest_updates() {
   while IFS= read -r rotated_log_name; do
     [ -n "${rotated_log_name}" ] || continue
     rotated_log_path="${CLAMAV_LOG_DIR}/${rotated_log_name}"
-    [ -s "${rotated_log_path}" ] || continue
+    [ -f "${rotated_log_path}" ] || continue
+    log_has_nonblank_lines "${rotated_log_path}" || continue
     print_log_tail "${rotated_log_path}"
     return
   done < <(
