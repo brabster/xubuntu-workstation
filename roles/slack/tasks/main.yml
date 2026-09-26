@@ -45,8 +45,8 @@
   ansible.builtin.set_fact:
     slack_keyring_is_valid: >-
       {{
-        slack_installed_fingerprints | length == 1
-        and slack_installed_fingerprints[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'
+        (slack_installed_fingerprints | default([])) | length == 1
+        and (slack_installed_fingerprints | default([]))[0] == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD'
       }}
 
 - name: Install Slack Packagecloud signing key
@@ -123,11 +123,10 @@
       when: slack_gpg_keyring_tempfile is defined
       changed_when: false
 - name: Add Slack APT repository
-  ansible.builtin.lineinfile:
+  ansible.builtin.copy:
     dest: /etc/apt/sources.list.d/slack.list
-    line: deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
-    regexp: '^deb \\[arch=amd64 signed-by=/etc/apt/keyrings/slack\\.gpg\\] https://packagecloud\\.io/slacktechnologies/slack/debian jessie main$'
-    create: true
+    content: |
+      deb [arch=amd64 signed-by=/etc/apt/keyrings/slack.gpg] https://packagecloud.io/slacktechnologies/slack/debian jessie main
     mode: '0644'
 
 - name: Install Slack desktop package
