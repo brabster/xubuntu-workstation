@@ -6,14 +6,9 @@
     dest: /tmp/google-chrome.deb
     mode: '0644'
 
-# libasound2t64 is the current name for the ALSA shared library on Ubuntu 24.04+.
-# Pre-installing it satisfies Chrome's runtime library requirement before apt
-# attempts to resolve the package metadata dependency on libasound2.
-- name: Check for libasound2t64 package availability
-  ansible.builtin.command: apt-cache show libasound2t64
-  register: chrome_browser_libasound2t64_pkg
-  changed_when: false
-  failed_when: false
+- name: Refresh apt package metadata for Chrome dependency resolution
+  ansible.builtin.apt:
+    update_cache: true
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
 
@@ -21,19 +16,18 @@
   ansible.builtin.apt:
     name: libasound2t64
     state: present
-    update_cache: true
+  register: chrome_browser_libasound2t64_install
+  failed_when: false
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
-    - chrome_browser_libasound2t64_pkg.rc == 0
 
 - name: Pre-install ALSA library for Chrome (libasound2 fallback)
   ansible.builtin.apt:
     name: libasound2
     state: present
-    update_cache: true
   when:
     - ansible_facts['distribution'] == 'Ubuntu'
-    - chrome_browser_libasound2t64_pkg.rc != 0
+    - chrome_browser_libasound2t64_install is failed
 
 - name: Install Chrome
   ansible.builtin.apt:
