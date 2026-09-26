@@ -1,3 +1,4 @@
+import gzip
 import os
 import stat
 import subprocess
@@ -115,6 +116,26 @@ class ClamavVerifyScriptTests(unittest.TestCase):
         self.assertIn("bytecode.cvd updated", result.stdout)
         self.assertIn("WARNING: Clamd was NOT notified", result.stdout)
         self.assertIn("ClamAV on-access scanning is working correctly.", result.stdout)
+
+    def test_uses_latest_non_empty_compressed_rotated_freshclam_log(self):
+        (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")
+        rotated_log = self.log_dir / "freshclam.log.12.gz"
+        with gzip.open(rotated_log, "wt", encoding="utf-8") as handle:
+            handle.write(
+                "old line\n"
+                "line alpha\n"
+                "line beta\n"
+                "line gamma\n",
+            )
+        os.utime(rotated_log, None)
+
+        result = self._run_script()
+
+        self.assertEqual(result.returncode, 0, msg=result.stderr)
+        self.assertNotIn("old line", result.stdout)
+        self.assertIn("line alpha", result.stdout)
+        self.assertIn("line beta", result.stdout)
+        self.assertIn("line gamma", result.stdout)
 
     def test_falls_back_to_journal_when_no_freshclam_log_has_content(self):
         (self.log_dir / "freshclam.log").write_text("", encoding="utf-8")

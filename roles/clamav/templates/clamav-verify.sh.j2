@@ -30,8 +30,8 @@ echo_latest_updates() {
   echo " --- latest antivirus update log"
 
   latest_log="$(
-    find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f \
-      \( -name 'freshclam.log' -o -name 'freshclam.log.[0-9]' -o -name 'freshclam.log.[0-9].gz' \) \
+    find "${CLAMAV_LOG_DIR}" -maxdepth 1 -type f -regextype posix-extended \
+      -regex '.*/freshclam\.log(\.[0-9]+(\.gz)?)?$' \
       -size +0c -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-
   )"
 
