@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-import re
 import subprocess
 import sys
 from pathlib import Path
 
 
 SCOPE_PATHS = ["roles", "workstation.yml", "workstation.yaml", "test.yml", "test.yaml"]
-ANSIBLE_PATH_PATTERN = re.compile(r"^(roles/.*\.ya?ml|workstation\.ya?ml|test\.ya?ml)$")
+TOP_LEVEL_PLAYBOOKS = {"workstation.yml", "workstation.yaml", "test.yml", "test.yaml"}
+ANSIBLE_ROLE_SUFFIXES = {".yml", ".yaml"}
 ZERO_SHA = "0000000000000000000000000000000000000000"
 
 
@@ -24,9 +24,15 @@ def selected_files(event_name, diff_base):
     return git_paths(["git", "diff", "--name-only", "-z", f"{diff_base}..HEAD", "--", *SCOPE_PATHS])
 
 
+def is_scoped_ansible_file(file_path):
+    if file_path in TOP_LEVEL_PLAYBOOKS:
+        return True
+    return file_path.startswith("roles/") and Path(file_path).suffix in ANSIBLE_ROLE_SUFFIXES
+
+
 def filter_ansible_files(paths):
     for file_path in paths:
-        if not ANSIBLE_PATH_PATTERN.match(file_path):
+        if not is_scoped_ansible_file(file_path):
             continue
         if not Path(file_path).is_file():
             continue
