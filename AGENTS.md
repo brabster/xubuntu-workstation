@@ -27,6 +27,9 @@ Specific principles we prioritise:
   - `docs/wiki/okf/README.md`
   - `docs/wiki/okf/steering/index.md`
   - `docs/wiki/okf/linting/index.md`
+  - `docs/wiki/okf/linting/lint-toolchain-source-of-truth.md`
+  - `docs/wiki/okf/linting/local-hook-behavior.md`
+  - `docs/wiki/okf/linting/ci-lint-behavior.md`
   - `docs/wiki/okf/decisions/index.md`
   - `docs/wiki/okf/log.md`
   - `docs/wiki/okf/okc_spec.md`
