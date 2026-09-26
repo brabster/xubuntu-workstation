@@ -28,6 +28,7 @@ Specific principles we prioritise:
   - `docs/wiki/okf/steering/index.md`
   - `docs/wiki/okf/linting/index.md`
   - `docs/wiki/okf/decisions/index.md`
+  - `docs/wiki/okf/log.md`
   - `docs/wiki/okf/okc_spec.md`
 - Treat this wiki as operational steering and reusable repository context.
 - If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
