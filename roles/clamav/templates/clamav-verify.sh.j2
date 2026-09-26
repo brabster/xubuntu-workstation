@@ -40,8 +40,16 @@ print_log_tail() {
 log_has_nonblank_lines() {
   case "$1" in
     *.gz)
-      gzip_output="$(gzip -cd -- "$1" 2>/dev/null)" || return 2
-      printf '%s' "${gzip_output}" | grep -q '[^[:space:]]'
+      set +o pipefail
+      gzip -cd -- "$1" 2>/dev/null | grep -q '[^[:space:]]'
+      pipe_status=("${PIPESTATUS[@]}")
+      set -o pipefail
+      gzip_status=${pipe_status[0]:-0}
+      grep_status=${pipe_status[1]:-1}
+      if [ "${gzip_status}" -ne 0 ] && [ "${gzip_status}" -ne 141 ]; then
+        return 2
+      fi
+      return "${grep_status}"
       ;;
     *)
       grep -q '[^[:space:]]' "$1"
