@@ -4,11 +4,19 @@
     name: gnupg
     state: present
 
+- name: Check Debian package architecture
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --print-architecture
+  register: slack_dpkg_architecture
+  changed_when: false
+
 - name: Assert Slack architecture is supported
   ansible.builtin.assert:
     that:
-      - ansible_facts['architecture'] == 'x86_64'
-    fail_msg: Slack desktop packages are only configured for amd64/x86_64 workstations.
+      - slack_dpkg_architecture.stdout == 'amd64'
+    fail_msg: Slack desktop packages are only configured for amd64 workstations.
 
 - name: Ensure APT keyrings directory exists
   ansible.builtin.file:
