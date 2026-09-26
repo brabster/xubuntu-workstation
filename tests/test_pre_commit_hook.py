@@ -95,6 +95,16 @@ class PreCommitHookTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Unstaged changes detected in scoped Ansible files", result.stderr)
 
+    def test_metadata_only_change_does_not_trigger_unstaged_content_guard(self):
+        staged_file = self.repo / "roles" / "example" / "tasks" / "main.yml"
+        staged_file.write_text("- debug: msg='two'\n", encoding="utf-8")
+        self._git("add", "roles/example/tasks/main.yml")
+        staged_file.chmod(staged_file.stat().st_mode | stat.S_IXUSR)
+
+        result = self._run_hook()
+
+        self.assertEqual(result.returncode, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
