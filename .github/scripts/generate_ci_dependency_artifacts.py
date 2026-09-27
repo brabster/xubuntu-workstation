@@ -17,6 +17,11 @@ from urllib.parse import quote
 def run_command(*command: str) -> str | None:
     try:
         completed = subprocess.run(command, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as error:
+        stderr = (error.stderr or "").strip()
+        if stderr:
+            print(f"Command failed ({' '.join(command)}): {stderr}", file=sys.stderr)
+        return None
     except FileNotFoundError:
         return None
     return completed.stdout.strip()

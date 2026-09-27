@@ -61,7 +61,7 @@ jobs:
         env:
           MATRIX_IMAGE: ${{ matrix.image }}
         run: |
-          artifact_id="test-install-$(printf '%s' "$MATRIX_IMAGE" | sed 's#[:/]#-#g')"
+          artifact_id="test-install-$(printf '%s' "$MATRIX_IMAGE" | sed 's/[^[:alnum:]_-]/-/g')"
           echo "CI_ARTIFACT_ID=${artifact_id}" >> "$GITHUB_ENV"
           echo "CI_ARTIFACT_DIR=${GITHUB_WORKSPACE}/ci-artifacts/${artifact_id}" >> "$GITHUB_ENV"
       - name: checkout

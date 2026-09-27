@@ -15,6 +15,15 @@ SPEC.loader.exec_module(MODULE)
 
 
 class GenerateCiDependencyArtifactsTests(unittest.TestCase):
+    def test_run_command_returns_none_when_command_fails(self):
+        self.assertIsNone(
+            MODULE.run_command(
+                "python3",
+                "-c",
+                "import sys; sys.stderr.write('boom\\n'); raise SystemExit(2)",
+            )
+        )
+
     def test_collect_packages_deduplicates_stable_package_identity(self):
         original_parse_pip_freeze = MODULE.parse_pip_freeze
         original_parse_dpkg_query = MODULE.parse_dpkg_query
