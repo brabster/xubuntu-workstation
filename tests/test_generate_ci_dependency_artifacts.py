@@ -274,6 +274,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "generated_at": "2026-09-27T21:30:00Z",
                     "github": {},
                     "job_name": job_name,
+                    "package_count": len(manifest_packages),
                     "packages": manifest_packages,
                 }
 
@@ -284,8 +285,12 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
 
             self.assertTrue(manifest_path.exists())
             self.assertTrue(sbom_path.exists())
-            self.assertEqual(json.loads(manifest_path.read_text(encoding="utf-8"))["job_name"], "local-check")
-            self.assertEqual(json.loads(sbom_path.read_text(encoding="utf-8"))["spdxVersion"], "SPDX-2.3")
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            sbom = json.loads(sbom_path.read_text(encoding="utf-8"))
+            self.assertEqual(manifest["job_name"], "local-check")
+            self.assertEqual(manifest["package_count"], len(manifest["packages"]))
+            self.assertEqual(sbom["spdxVersion"], "SPDX-2.3")
+            self.assertEqual(len(sbom["documentDescribes"]), len(sbom["packages"]))
 
 
 if __name__ == "__main__":
