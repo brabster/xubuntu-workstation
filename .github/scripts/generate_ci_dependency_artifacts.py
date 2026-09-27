@@ -265,7 +265,9 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
         "SPDXID": "SPDXRef-DOCUMENT",
         "name": f"xubuntu-workstation CI SBOM ({job_name})",
         "documentNamespace": (
-            f"https://github.com/{repository}/actions/runs/{run_id}/attempts/{run_attempt}/sbom/{quote(job_name, safe='')}"
+            "https://github.com/"
+            f"{repository}/actions/runs/{run_id}/attempts/{run_attempt}/sbom/"
+            f"{quote(job_name, safe='')}/{quote(generated_at, safe='')}"
         ),
         "creationInfo": {
             "created": generated_at,

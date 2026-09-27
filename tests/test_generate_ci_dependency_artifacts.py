@@ -153,7 +153,8 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
         self.assertEqual(document["packages"][1]["summary"], "Architecture: amd64")
         self.assertEqual(
             document["documentNamespace"],
-            "https://github.com/brabster/xubuntu-workstation/actions/runs/12345/attempts/2/sbom/ansible-lint",
+            "https://github.com/brabster/xubuntu-workstation/actions/runs/12345/attempts/2/sbom/"
+            "ansible-lint/2026-09-27T21%3A30%3A00Z",
         )
 
     def test_build_spdx_document_requires_list_packages(self):
