@@ -4,6 +4,7 @@ on:
     branches:
       - main
     paths:
+      - 'tests/*.py'
       - '.github/workflows/**'
       - '.github/scripts/**'
       - 'tests/**/*.py'
@@ -20,6 +21,7 @@ on:
     paths:
       - '.ansible-lint'
       - '.yamllint'
+      - 'tests/*.py'
       - '.github/workflows/**'
       - '.github/scripts/**'
       - 'tests/**/*.py'

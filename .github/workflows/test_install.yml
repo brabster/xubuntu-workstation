@@ -20,6 +20,7 @@ on:
       - 'requirements*.txt'
       - 'requirements-dev.txt'
       - 'scripts/**'
+      - 'tests/*.py'
       - 'tests/**/*.py'
       - 'roles/**'
       - 'roles/requirements.yml'
