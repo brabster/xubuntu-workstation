@@ -204,6 +204,17 @@ def optional_string(value: object, field_name: str, default: str) -> str:
     return value
 
 
+def required_string(mapping: dict[str, object], field_name: str) -> str:
+    value = mapping.get(field_name)
+    if value is None:
+        raise TypeError(f"{field_name} is required")
+    if not isinstance(value, str):
+        raise TypeError(f"{field_name} must be a string")
+    if not value:
+        raise ValueError(f"{field_name} must not be empty")
+    return value
+
+
 def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str, object]:
     if "packages" not in manifest:
         raise TypeError("manifest packages field is required")
@@ -230,11 +241,14 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
     for index, package in enumerate(packages, start=1):
         if not isinstance(package, dict):
             raise TypeError("manifest package entries must be mappings")
+        package_name = required_string(package, "name")
+        package_version = required_string(package, "version")
+        package_purl = required_string(package, "purl")
         package_id = f"SPDXRef-Package-{index}"
         entry = {
-            "name": package["name"],
+            "name": package_name,
             "SPDXID": package_id,
-            "versionInfo": package["version"],
+            "versionInfo": package_version,
             "downloadLocation": "NOASSERTION",
             "filesAnalyzed": False,
             "licenseConcluded": "NOASSERTION",
@@ -243,7 +257,7 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
                 {
                     "referenceCategory": "PACKAGE-MANAGER",
                     "referenceType": "purl",
-                    "referenceLocator": package["purl"],
+                    "referenceLocator": package_purl,
                 }
             ],
         }
@@ -266,7 +280,8 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
         "name": f"xubuntu-workstation CI SBOM ({job_name})",
         "documentNamespace": (
             "https://github.com/"
-            f"{repository}/actions/runs/{run_id}/attempts/{run_attempt}/sbom/"
+            f"{quote(repository, safe='')}/actions/runs/{quote(run_id, safe='')}/"
+            f"attempts/{quote(run_attempt, safe='')}/sbom/"
             f"{quote(job_name, safe='')}/{quote(generated_at, safe='')}"
         ),
         "creationInfo": {

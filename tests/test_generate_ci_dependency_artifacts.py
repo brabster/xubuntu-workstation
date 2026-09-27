@@ -153,7 +153,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
         self.assertEqual(document["packages"][1]["summary"], "Architecture: amd64")
         self.assertEqual(
             document["documentNamespace"],
-            "https://github.com/brabster/xubuntu-workstation/actions/runs/12345/attempts/2/sbom/"
+            "https://github.com/brabster%2Fxubuntu-workstation/actions/runs/12345/attempts/2/sbom/"
             "ansible-lint/2026-09-27T21%3A30%3A00Z",
         )
 
@@ -175,6 +175,22 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                 {
                     "generated_at": "2026-09-27T21:30:00Z",
                     "github": {},
+                },
+            )
+
+    def test_build_spdx_document_requires_package_name_version_and_purl(self):
+        with self.assertRaisesRegex(TypeError, "purl is required"):
+            MODULE.build_spdx_document(
+                "ansible-lint",
+                {
+                    "generated_at": "2026-09-27T21:30:00Z",
+                    "github": {},
+                    "packages": [
+                        {
+                            "name": "ansible-lint",
+                            "version": "26.9.0",
+                        }
+                    ],
                 },
             )
 
