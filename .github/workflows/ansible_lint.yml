@@ -8,6 +8,8 @@ on:
       - '.github/scripts/**'
       - 'tests/**/*.py'
       - 'requirements-dev.txt'
+      - 'inventory'
+      - 'inventory/**'
       - 'roles/**/*.yml'
       - 'roles/**/*.yaml'
       - 'workstation.yml'
