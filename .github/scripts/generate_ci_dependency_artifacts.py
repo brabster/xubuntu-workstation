@@ -19,10 +19,11 @@ def run_command(*command: str) -> str | None:
         completed = subprocess.run(command, check=True, capture_output=True, text=True)
     except subprocess.CalledProcessError as error:
         stderr = (error.stderr or "").strip()
-        if stderr:
-            print(f"Command failed ({' '.join(command)}): {stderr}", file=sys.stderr)
+        message = stderr or f"exit code {error.returncode}"
+        print(f"Command failed ({' '.join(command)}): {message}", file=sys.stderr)
         return None
     except FileNotFoundError:
+        print(f"Command not found ({' '.join(command)})", file=sys.stderr)
         return None
     return completed.stdout.strip()
 
