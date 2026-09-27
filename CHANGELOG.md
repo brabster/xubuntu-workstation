@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **CI jobs now publish resolved dependency evidence artifacts**: the `ansible_lint` and `test_install` workflows now generate a repository-owned `resolved-versions.json` manifest for each job run, capturing the exact Python packages, Debian packages, Ansible collections, runner metadata, and tool versions actually present in the CI environment that produced the result.
 - **CI jobs now publish SPDX SBOM artifacts alongside the manifest**: the same workflow step now emits an `sbom.spdx.json` artifact per job using the live resolved package set, so supply-chain provenance and post-run dependency inspection do not rely only on source-level pins or transitive package resolver behavior at a later date.
 - **Artifact generation logic is unit tested in-repo**: added focused Python unit tests for the dependency-artifact generator so the existing `ansible_lint` helper-test gate protects the manifest/SBOM structure and parsing behavior before workflow execution.
+- **Wiki steering now records the CI trigger policy and evidence-validation checks**: added explicit guidance that PR branches use `pull_request` path filters while `push` validation is reserved for `main`, and documented the basic structural checks to use when verifying generated `resolved-versions.json` and `sbom.spdx.json` output.
 
 ### Changed
 

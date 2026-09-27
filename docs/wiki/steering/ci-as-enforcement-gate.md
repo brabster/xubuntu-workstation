@@ -12,6 +12,8 @@ stale_after: 2027-03-26T00:00:00Z
 - Treat CI status checks as the source of merge enforcement.
 - Use local hooks to shorten feedback loops, not as the sole control.
 - Keep CI controls explicit, deterministic, and aligned with repository policy.
+- When a workflow is required both before merge and after merge, prefer `pull_request` as the PR review gate and reserve `push` validation for `main` unless branch-push-only coverage is genuinely needed.
+- Use explicit `pull_request.paths` filters to keep PR validation scoped to the files that can change that workflow's outcome, and review those filters whenever new workflow inputs are added.
 - Guard roles out of CI only when the environment is genuinely incompatible, and restore them to CI once a compatible implementation exists.
 - When actively iterating on a failing role, consider moving it earlier in the playbook so CI reaches the failure sooner and shortens the evidence loop.
 
