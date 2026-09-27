@@ -138,7 +138,7 @@ def build_ansible_collection_purl(collection_name: str, version: str) -> str:
     namespace, _, name = collection_name.partition(".")
     if not namespace or not name:
         raise ValueError("Ansible collection names must use namespace.name format")
-    return f"pkg:generic/{quote(namespace.lower(), safe='')}/{quote(name.lower(), safe='/')}@{quote(version, safe='')}"
+    return f"pkg:generic/{quote(namespace.lower(), safe='')}/{quote(name.lower(), safe='')}@{quote(version, safe='')}"
 
 
 def collect_packages() -> list[dict[str, str]]:
