@@ -129,13 +129,13 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "ecosystem": "ansible-galaxy",
                     "name": "community.general",
                     "version": "10.0.1",
-                    "purl": "pkg:ansible/community/general@10.0.1",
+                    "purl": "pkg:generic/community/general@10.0.1",
                 },
                 {
                     "ecosystem": "ansible-galaxy",
                     "name": "ansible.posix",
                     "version": "2.1.0",
-                    "purl": "pkg:ansible/ansible/posix@2.1.0",
+                    "purl": "pkg:generic/ansible/posix@2.1.0",
                 },
             ],
         )
