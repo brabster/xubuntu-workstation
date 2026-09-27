@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **`test_install` artifact naming is now shell-portable in GitHub Actions**: the workflow now sanitizes matrix image names with a POSIX-compatible pipeline instead of Bash-only parameter substitution, so the default `sh` runner in the container job can always prepare artifact paths successfully.
-- **PR branches no longer run duplicate push and pull-request CI for the same change**: `ansible_lint` and `test_install` now keep push-based validation on `main`, while pull-request validation remains the review-time gate for proposed changes. `test_install` pull-request coverage now matches its push exclusions (`paths-ignore`) so workstation changes still run on PRs without needing a second branch-push execution of the same workflow.
+- **PR branches no longer run duplicate push and pull-request CI for the same change**: `ansible_lint` and `test_install` now keep push-based validation on `main`, while pull-request validation remains the review-time gate for proposed changes. `test_install` pull-request coverage is now expressed as an explicit allowlist of workflow, helper-test, dependency, and workstation automation paths, so relevant PR changes still run without needing a second branch-push execution of the same workflow.
 
 ### Security
 

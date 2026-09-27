@@ -56,7 +56,11 @@ def parse_pip_freeze(output: str | None) -> list[dict[str, str]]:
     return packages
 
 
-def parse_dpkg_query(output: str | None) -> list[dict[str, str]]:
+def parse_dpkg_query(
+    output: str | None,
+    distro_namespace: str | None = None,
+    distro_qualifier: str | None = None,
+) -> list[dict[str, str]]:
     packages: list[dict[str, str]] = []
     if not output:
         return packages
@@ -75,10 +79,7 @@ def parse_dpkg_query(output: str | None) -> list[dict[str, str]]:
                 "name": name,
                 "version": version,
                 "architecture": architecture,
-                "purl": (
-                    f"pkg:deb/{quote(name, safe='')}@{quote(version, safe='')}"
-                    f"?arch={quote(architecture, safe='')}"
-                ),
+                "purl": build_deb_purl(name, version, architecture, distro_namespace, distro_qualifier),
             }
         )
     return packages
@@ -108,17 +109,41 @@ def parse_ansible_collections(output: str | None) -> list[dict[str, str]]:
                     "ecosystem": "ansible-galaxy",
                     "name": collection_name,
                     "version": version,
-                    "purl": (
-                        "pkg:generic/"
-                        f"{quote(collection_name.replace('.', '/'), safe='/')}"
-                        f"@{quote(version, safe='')}"
-                    ),
+                    "purl": build_ansible_collection_purl(collection_name, version),
                 }
             )
     return packages
 
 
+def build_deb_purl(
+    name: str,
+    version: str,
+    architecture: str,
+    distro_namespace: str | None,
+    distro_qualifier: str | None,
+) -> str:
+    namespace = quote((distro_namespace or "debian").lower(), safe="")
+    qualifiers = [f"arch={quote(architecture, safe='')}"]
+    if distro_qualifier:
+        qualifiers.append(f"distro={quote(distro_qualifier, safe='')}")
+    return f"pkg:deb/{namespace}/{quote(name.lower(), safe='')}@{quote(version, safe='')}?{'&'.join(qualifiers)}"
+
+
+def build_ansible_collection_purl(collection_name: str, version: str) -> str:
+    namespace, _, name = collection_name.partition(".")
+    if not namespace or not name:
+        raise ValueError("Ansible collection names must use namespace.name format")
+    return f"pkg:ansible/{quote(namespace.lower(), safe='')}/{quote(name.lower(), safe='')}@{quote(version, safe='')}"
+
+
 def collect_packages() -> list[dict[str, str]]:
+    os_release = parse_os_release()
+    distro_namespace = os_release.get("ID")
+    distro_qualifier = distro_namespace
+    version_id = os_release.get("VERSION_ID")
+    if distro_qualifier and version_id:
+        distro_qualifier = f"{distro_qualifier}-{version_id}"
+
     packages = []
     packages.extend(parse_pip_freeze(run_command(sys.executable, "-m", "pip", "freeze", "--all")))
     packages.extend(
@@ -127,7 +152,9 @@ def collect_packages() -> list[dict[str, str]]:
                 "dpkg-query",
                 "-W",
                 "-f=${binary:Package}\t${Version}\t${Architecture}\n",
-            )
+            ),
+            distro_namespace=distro_namespace,
+            distro_qualifier=distro_qualifier,
         )
     )
     packages.extend(
@@ -158,6 +185,7 @@ def collect_packages() -> list[dict[str, str]]:
 
 
 def collect_manifest(job_name: str, packages: list[dict[str, str]]) -> dict[str, object]:
+    os_release = parse_os_release()
     github = {
         key.lower(): value
         for key, value in {
@@ -189,7 +217,7 @@ def collect_manifest(job_name: str, packages: list[dict[str, str]]) -> dict[str,
         },
         "system": {
             "platform": platform.platform(),
-            "os_release": parse_os_release(),
+            "os_release": os_release,
         },
         "github": github,
         "package_count": len(packages),

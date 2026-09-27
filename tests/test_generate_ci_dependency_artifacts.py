@@ -36,7 +36,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "purl": "pkg:pypi/ansible-lint@26.9.0",
                 },
             ]
-            MODULE.parse_dpkg_query = lambda output: []
+            MODULE.parse_dpkg_query = lambda output, distro_namespace=None, distro_qualifier=None: []
             MODULE.parse_ansible_collections = lambda output: []
             MODULE.run_command = lambda *command: ""
 
@@ -90,6 +90,26 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
             ],
         )
 
+    def test_parse_dpkg_query_includes_distro_namespace_and_qualifier(self):
+        packages = MODULE.parse_dpkg_query(
+            "git\t1:2.34.1\tamd64",
+            distro_namespace="ubuntu",
+            distro_qualifier="ubuntu-26.04",
+        )
+
+        self.assertEqual(
+            packages,
+            [
+                {
+                    "ecosystem": "deb",
+                    "name": "git",
+                    "version": "1:2.34.1",
+                    "architecture": "amd64",
+                    "purl": "pkg:deb/ubuntu/git@1%3A2.34.1?arch=amd64&distro=ubuntu-26.04",
+                }
+            ],
+        )
+
     def test_parse_ansible_collections_flattens_collection_versions(self):
         packages = MODULE.parse_ansible_collections(
             json.dumps(
@@ -109,13 +129,13 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "ecosystem": "ansible-galaxy",
                     "name": "community.general",
                     "version": "10.0.1",
-                    "purl": "pkg:generic/community/general@10.0.1",
+                    "purl": "pkg:ansible/community/general@10.0.1",
                 },
                 {
                     "ecosystem": "ansible-galaxy",
                     "name": "ansible.posix",
                     "version": "2.1.0",
-                    "purl": "pkg:generic/ansible/posix@2.1.0",
+                    "purl": "pkg:ansible/ansible/posix@2.1.0",
                 },
             ],
         )
@@ -140,7 +160,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "name": "git",
                     "version": "1:2.34.1",
                     "architecture": "amd64",
-                    "purl": "pkg:deb/git@1%3A2.34.1?arch=amd64",
+                    "purl": "pkg:deb/ubuntu/git@1%3A2.34.1?arch=amd64&distro=ubuntu-26.04",
                 },
             ],
         }
@@ -154,7 +174,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
         self.assertEqual(
             document["documentNamespace"],
             "https://github.com/brabster%2Fxubuntu-workstation/actions/runs/12345/attempts/2/sbom/"
-            "ansible-lint/c87250feaca82eb2",
+            "ansible-lint/49c5651f75dd22ae",
         )
 
     def test_build_spdx_document_requires_list_packages(self):

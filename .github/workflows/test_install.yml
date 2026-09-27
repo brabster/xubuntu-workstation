@@ -8,10 +8,20 @@ on:
       - 'prompts/**'
       - '.vars_example.yml'
   pull_request:
-    paths-ignore:
-      - '**/*.md'
-      - 'prompts/**'
-      - '.vars_example.yml'
+    paths:
+      - '.github/workflows/**'
+      - '.github/scripts/**'
+      - '.github/test_vars.yml'
+      - '.github/dependabot.yml'
+      - 'requirements-dev.txt'
+      - 'tests/**/*.py'
+      - 'roles/**'
+      - 'roles/requirements.yml'
+      - 'workstation.yml'
+      - 'workstation.yaml'
+      - 'test.yml'
+      - 'test.yaml'
+      - 'inventory'
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"
