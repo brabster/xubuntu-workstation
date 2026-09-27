@@ -8,8 +8,10 @@ on:
   pull_request:
     paths:
       - '.github/workflows/**'
+      - '.github/scripts/**'
       - '.github/dependabot.yml'
       - 'requirements-dev.txt'
+      - 'tests/**/*.py'
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"
@@ -41,6 +43,13 @@ jobs:
           adduser --disabled-password --quiet --gecos '' tester
           su - tester -c id
           su - tester -c "mkdir -p /home/tester/Downloads"
+      - name: prepare CI dependency artifact paths
+        env:
+          MATRIX_IMAGE: ${{ matrix.image }}
+        run: |
+          artifact_id="test-install-${MATRIX_IMAGE//[:\/]/-}"
+          echo "CI_ARTIFACT_ID=${artifact_id}" >> "$GITHUB_ENV"
+          echo "CI_ARTIFACT_DIR=${GITHUB_WORKSPACE}/ci-artifacts/${artifact_id}" >> "$GITHUB_ENV"
       - name: checkout
         uses: actions/checkout@v7
       - name: setup
@@ -48,6 +57,11 @@ jobs:
           cd $GITHUB_WORKSPACE
           cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
           ansible-playbook -i inventory workstation.yml
+      - name: generate resolved-version manifest and SBOM
+        run: |
+          python3 .github/scripts/generate_ci_dependency_artifacts.py \
+            --output-dir "$CI_ARTIFACT_DIR" \
+            --job-name "$CI_ARTIFACT_ID"
       - name: check
         shell: bash -l {0}
         run: |
@@ -82,3 +96,10 @@ jobs:
           grep -q 'fixture line one' <<<"$output"
           grep -q 'fixture line two' <<<"$output"
           grep -q 'fixture line three' <<<"$output"
+      - name: upload resolved-version manifest and SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-dependency-evidence-${{ env.CI_ARTIFACT_ID }}
+          path: ${{ env.CI_ARTIFACT_DIR }}
+          if-no-files-found: error

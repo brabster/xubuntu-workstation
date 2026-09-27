@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #87 - Publish resolved-version manifest and SBOM from CI](https://github.com/brabster/xubuntu-workstation/pull/87)
+
+### Added
+
+- **CI jobs now publish resolved dependency evidence artifacts**: the `ansible_lint` and `test_install` workflows now generate a repository-owned `resolved-versions.json` manifest for each job run, capturing the exact Python packages, Debian packages, Ansible collections, runner metadata, and tool versions actually present in the CI environment that produced the result.
+- **CI jobs now publish SPDX SBOM artifacts alongside the manifest**: the same workflow step now emits an `sbom.spdx.json` artifact per job using the live resolved package set, so supply-chain provenance and post-run dependency inspection do not rely only on source-level pins or transitive package resolver behavior at a later date.
+- **Artifact generation logic is unit tested in-repo**: added focused Python unit tests for the dependency-artifact generator so the existing `ansible_lint` helper-test gate protects the manifest/SBOM structure and parsing behavior before workflow execution.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces CI supply-chain traceability risk** while keeping workstation runtime risk unchanged.
+    - **Rationale**: The new generator only reads package/version metadata already present in the CI environment and writes it to workflow artifacts; it does not add new privileged execution paths, package sources, or unattended download/install bootstrap logic. Publishing both a resolved-version manifest and an SPDX SBOM improves evidence retention for dependency investigations, incident response, and reproducibility when upstream repositories change after a run has completed.
+    - **Benefit**: Reviewers and maintainers can inspect the exact dependency set used by each validation run without re-resolving packages later, which strengthens controlled change evidence and supports UK Cyber Essentials expectations for secure configuration management and auditable change records.
+    - **Net risk statement**: Net risk is **reduced** for CI supply-chain diagnostics and provenance evidence, and **unchanged** for managed workstation runtime controls.
+
 ## [PR #86 - Tidy OKF structure and documentation alignment](https://github.com/brabster/xubuntu-workstation/pull/86)
 
 ### Changed
