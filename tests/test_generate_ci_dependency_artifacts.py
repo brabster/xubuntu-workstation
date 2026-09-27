@@ -167,6 +167,21 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                 },
             )
 
+    def test_build_spdx_document_requires_string_github_namespace_parts(self):
+        with self.assertRaisesRegex(TypeError, "manifest github_run_id must be a string when present"):
+            MODULE.build_spdx_document(
+                "ansible-lint",
+                {
+                    "generated_at": "2026-09-27T21:30:00Z",
+                    "github": {
+                        "github_repository": "brabster/xubuntu-workstation",
+                        "github_run_id": 12345,
+                        "github_run_attempt": "2",
+                    },
+                    "packages": [],
+                },
+            )
+
     def test_write_reports_outputs_manifest_and_sbom_json(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             original_collect_packages = MODULE.collect_packages

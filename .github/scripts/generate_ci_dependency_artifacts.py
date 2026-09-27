@@ -196,6 +196,14 @@ def collect_manifest(job_name: str, packages: list[dict[str, str]]) -> dict[str,
     }
 
 
+def optional_string(value: object, field_name: str, default: str) -> str:
+    if value is None:
+        return default
+    if not isinstance(value, str):
+        raise TypeError(f"{field_name} must be a string when present")
+    return value
+
+
 def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str, object]:
     packages = manifest["packages"]
     if not isinstance(packages, list):
@@ -204,9 +212,9 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
     github = manifest.get("github", {})
     if not isinstance(github, dict):
         raise TypeError("manifest github metadata must be a mapping")
-    repository = github.get("github_repository", "local/local")
-    run_id = github.get("github_run_id", "local")
-    run_attempt = github.get("github_run_attempt", "1")
+    repository = optional_string(github.get("github_repository"), "manifest github_repository", "local/local")
+    run_id = optional_string(github.get("github_run_id"), "manifest github_run_id", "local")
+    run_attempt = optional_string(github.get("github_run_attempt"), "manifest github_run_attempt", "1")
     generated_at = manifest["generated_at"]
     if not isinstance(generated_at, str):
         raise TypeError("manifest generated_at must be a string")
