@@ -126,6 +126,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "/usr/share/ansible/collections": {
                         "community.general": {"version": "10.0.1"},
                         "ansible.posix": {"version": "2.1.0"},
+                        "namespace.foo.bar": {"version": "3.2.1"},
                     }
                 }
             )
@@ -145,6 +146,12 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "name": "ansible.posix",
                     "version": "2.1.0",
                     "purl": "pkg:generic/ansible/posix@2.1.0",
+                },
+                {
+                    "ecosystem": "ansible-galaxy",
+                    "name": "namespace.foo.bar",
+                    "version": "3.2.1",
+                    "purl": "pkg:generic/namespace/foo/bar@3.2.1",
                 },
             ],
         )
