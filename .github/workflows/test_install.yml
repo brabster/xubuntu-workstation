@@ -13,7 +13,10 @@ on:
       - '.github/scripts/**'
       - '.github/test_vars.yml'
       - '.github/dependabot.yml'
+      - 'requirements.txt'
+      - 'requirements*.txt'
       - 'requirements-dev.txt'
+      - 'scripts/**'
       - 'tests/**/*.py'
       - 'roles/**'
       - 'roles/requirements.yml'
@@ -22,6 +25,7 @@ on:
       - 'test.yml'
       - 'test.yaml'
       - 'inventory'
+      - 'inventory/**'
   workflow_dispatch: {}
   schedule:
     - cron: "0 0 * * 0"

@@ -16,6 +16,8 @@ on:
       - 'test.yaml'
   pull_request:
     paths:
+      - '.ansible-lint'
+      - '.yamllint'
       - '.github/workflows/**'
       - '.github/scripts/**'
       - 'tests/**/*.py'
