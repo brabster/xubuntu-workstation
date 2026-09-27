@@ -167,6 +167,16 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                 },
             )
 
+    def test_build_spdx_document_requires_packages_field(self):
+        with self.assertRaisesRegex(TypeError, "manifest packages field is required"):
+            MODULE.build_spdx_document(
+                "ansible-lint",
+                {
+                    "generated_at": "2026-09-27T21:30:00Z",
+                    "github": {},
+                },
+            )
+
     def test_build_spdx_document_requires_string_github_namespace_parts(self):
         with self.assertRaisesRegex(TypeError, "manifest github_run_id must be a string when present"):
             MODULE.build_spdx_document(
@@ -178,6 +188,16 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                         "github_run_id": 12345,
                         "github_run_attempt": "2",
                     },
+                    "packages": [],
+                },
+            )
+
+    def test_build_spdx_document_requires_generated_at_field(self):
+        with self.assertRaisesRegex(TypeError, "manifest generated_at field is required"):
+            MODULE.build_spdx_document(
+                "ansible-lint",
+                {
+                    "github": {},
                     "packages": [],
                 },
             )

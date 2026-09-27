@@ -205,6 +205,8 @@ def optional_string(value: object, field_name: str, default: str) -> str:
 
 
 def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str, object]:
+    if "packages" not in manifest:
+        raise TypeError("manifest packages field is required")
     packages = manifest["packages"]
     if not isinstance(packages, list):
         raise TypeError("manifest packages must be a list")
@@ -215,6 +217,8 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
     repository = optional_string(github.get("github_repository"), "manifest github_repository", "local/local")
     run_id = optional_string(github.get("github_run_id"), "manifest github_run_id", "local")
     run_attempt = optional_string(github.get("github_run_attempt"), "manifest github_run_attempt", "1")
+    if "generated_at" not in manifest:
+        raise TypeError("manifest generated_at field is required")
     generated_at = manifest["generated_at"]
     if not isinstance(generated_at, str):
         raise TypeError("manifest generated_at must be a string")
