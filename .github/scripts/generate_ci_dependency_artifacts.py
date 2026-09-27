@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import platform
@@ -237,6 +238,7 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
     spdx_packages = []
     relationships = []
     document_describes = []
+    package_fingerprint_parts = []
 
     for index, package in enumerate(packages, start=1):
         if not isinstance(package, dict):
@@ -244,6 +246,9 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
         package_name = required_string(package, "name")
         package_version = required_string(package, "version")
         package_purl = required_string(package, "purl")
+        package_architecture = package.get("architecture")
+        if package_architecture is not None and not isinstance(package_architecture, str):
+            raise TypeError("architecture must be a string when present")
         package_id = f"SPDXRef-Package-{index}"
         entry = {
             "name": package_name,
@@ -261,8 +266,8 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
                 }
             ],
         }
-        if package.get("architecture"):
-            entry["summary"] = f"Architecture: {package['architecture']}"
+        if package_architecture:
+            entry["summary"] = f"Architecture: {package_architecture}"
         spdx_packages.append(entry)
         relationships.append(
             {
@@ -272,6 +277,18 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
             }
         )
         document_describes.append(package_id)
+        package_fingerprint_parts.append(
+            {
+                "architecture": package_architecture or "",
+                "name": package_name,
+                "purl": package_purl,
+                "version": package_version,
+            }
+        )
+
+    package_fingerprint = hashlib.sha256(
+        json.dumps(package_fingerprint_parts, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:16]
 
     return {
         "spdxVersion": "SPDX-2.3",
@@ -282,7 +299,7 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
             "https://github.com/"
             f"{quote(repository, safe='')}/actions/runs/{quote(run_id, safe='')}/"
             f"attempts/{quote(run_attempt, safe='')}/sbom/"
-            f"{quote(job_name, safe='')}/{quote(generated_at, safe='')}"
+            f"{quote(job_name, safe='')}/{package_fingerprint}"
         ),
         "creationInfo": {
             "created": generated_at,

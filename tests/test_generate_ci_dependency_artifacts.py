@@ -154,7 +154,7 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
         self.assertEqual(
             document["documentNamespace"],
             "https://github.com/brabster%2Fxubuntu-workstation/actions/runs/12345/attempts/2/sbom/"
-            "ansible-lint/2026-09-27T21%3A30%3A00Z",
+            "ansible-lint/c87250feaca82eb2",
         )
 
     def test_build_spdx_document_requires_list_packages(self):
