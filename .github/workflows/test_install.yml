@@ -13,6 +13,8 @@ on:
       - '.github/scripts/**'
       - '.github/test_vars.yml'
       - '.github/dependabot.yml'
+      - '.devcontainer/Dockerfile'
+      - '**/Dockerfile*'
       - 'requirements.txt'
       - 'requirements*.txt'
       - 'requirements-dev.txt'
