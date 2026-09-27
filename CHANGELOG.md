@@ -12,12 +12,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **CI jobs now publish SPDX SBOM artifacts alongside the manifest**: the same workflow step now emits an `sbom.spdx.json` artifact per job using the live resolved package set, so supply-chain provenance and post-run dependency inspection do not rely only on source-level pins or transitive package resolver behavior at a later date.
 - **Artifact generation logic is unit tested in-repo**: added focused Python unit tests for the dependency-artifact generator so the existing `ansible_lint` helper-test gate protects the manifest/SBOM structure and parsing behavior before workflow execution.
 
+### Changed
+
+- **`test_install` artifact naming is now shell-portable in GitHub Actions**: the workflow now sanitizes matrix image names with a POSIX-compatible pipeline instead of Bash-only parameter substitution, so the default `sh` runner in the container job can always prepare artifact paths successfully.
+- **PR branches no longer run duplicate push and pull-request CI for the same change**: `ansible_lint` and `test_install` now keep push-based validation on `main`, while pull-request validation remains the review-time gate for proposed changes. `test_install` pull-request coverage now matches its push exclusions (`paths-ignore`) so workstation changes still run on PRs without needing a second branch-push execution of the same workflow.
+
 ### Security
 
 - **Threat Model Assessment**: This change **reduces CI supply-chain traceability risk** while keeping workstation runtime risk unchanged.
-    - **Rationale**: The new generator only reads package/version metadata already present in the CI environment and writes it to workflow artifacts; it does not add new privileged execution paths, package sources, or unattended download/install bootstrap logic. Publishing both a resolved-version manifest and an SPDX SBOM improves evidence retention for dependency investigations, incident response, and reproducibility when upstream repositories change after a run has completed.
-    - **Benefit**: Reviewers and maintainers can inspect the exact dependency set used by each validation run without re-resolving packages later, which strengthens controlled change evidence and supports UK Cyber Essentials expectations for secure configuration management and auditable change records.
-    - **Net risk statement**: Net risk is **reduced** for CI supply-chain diagnostics and provenance evidence, and **unchanged** for managed workstation runtime controls.
+    - **Rationale**: The generator only reads package/version metadata already present in the CI environment and writes it to workflow artifacts; it does not add new privileged execution paths, package sources, or unattended download/install bootstrap logic. Publishing both a resolved-version manifest and an SPDX SBOM improves evidence retention for dependency investigations, incident response, and reproducibility when upstream repositories change after a run has completed. The follow-up workflow fixes keep artifact-path setup compatible with the job's actual shell and remove redundant branch-push CI on open PR branches without reducing review-time or main-branch validation coverage.
+    - **Benefit**: Reviewers and maintainers can inspect the exact dependency set used by each validation run without re-resolving packages later, and CI now fails less often for shell-compatibility reasons while avoiding duplicate executions for the same reviewed change. This strengthens controlled change evidence and supports UK Cyber Essentials expectations for secure configuration management and auditable change records.
+    - **Net risk statement**: Net risk is **reduced** for CI supply-chain diagnostics and validation reliability, and **unchanged** for managed workstation runtime controls.
 
 ## [PR #86 - Tidy OKF structure and documentation alignment](https://github.com/brabster/xubuntu-workstation/pull/86)
 
