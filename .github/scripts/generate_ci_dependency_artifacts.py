@@ -134,7 +134,26 @@ def collect_packages() -> list[dict[str, str]]:
             run_command("ansible-galaxy", "collection", "list", "--format", "json")
         )
     )
-    return sorted(packages, key=lambda package: (package["ecosystem"], package["name"], package["version"]))
+
+    deduplicated: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for package in packages:
+        key = (
+            package["ecosystem"],
+            package["name"],
+            package["version"],
+            package.get("architecture", ""),
+        )
+        deduplicated[key] = package
+
+    return sorted(
+        deduplicated.values(),
+        key=lambda package: (
+            package["ecosystem"],
+            package["name"],
+            package["version"],
+            package.get("architecture", ""),
+        ),
+    )
 
 
 def collect_manifest(job_name: str, packages: list[dict[str, str]]) -> dict[str, object]:
@@ -179,22 +198,26 @@ def collect_manifest(job_name: str, packages: list[dict[str, str]]) -> dict[str,
 
 def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str, object]:
     packages = manifest["packages"]
-    assert isinstance(packages, list)
+    if not isinstance(packages, list):
+        raise TypeError("manifest packages must be a list")
 
     github = manifest.get("github", {})
-    assert isinstance(github, dict)
+    if not isinstance(github, dict):
+        raise TypeError("manifest github metadata must be a mapping")
     repository = github.get("github_repository", "local/local")
     run_id = github.get("github_run_id", "local")
     run_attempt = github.get("github_run_attempt", "1")
     generated_at = manifest["generated_at"]
-    assert isinstance(generated_at, str)
+    if not isinstance(generated_at, str):
+        raise TypeError("manifest generated_at must be a string")
 
     spdx_packages = []
     relationships = []
     document_describes = []
 
     for index, package in enumerate(packages, start=1):
-        assert isinstance(package, dict)
+        if not isinstance(package, dict):
+            raise TypeError("manifest package entries must be mappings")
         package_id = f"SPDXRef-Package-{index}"
         entry = {
             "name": package["name"],

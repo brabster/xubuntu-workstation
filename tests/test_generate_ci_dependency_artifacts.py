@@ -15,6 +15,50 @@ SPEC.loader.exec_module(MODULE)
 
 
 class GenerateCiDependencyArtifactsTests(unittest.TestCase):
+    def test_collect_packages_deduplicates_stable_package_identity(self):
+        original_parse_pip_freeze = MODULE.parse_pip_freeze
+        original_parse_dpkg_query = MODULE.parse_dpkg_query
+        original_parse_ansible_collections = MODULE.parse_ansible_collections
+        original_run_command = MODULE.run_command
+
+        try:
+            MODULE.parse_pip_freeze = lambda output: [
+                {
+                    "ecosystem": "pypi",
+                    "name": "ansible-lint",
+                    "version": "26.9.0",
+                    "purl": "pkg:pypi/ansible-lint@26.9.0",
+                },
+                {
+                    "ecosystem": "pypi",
+                    "name": "ansible-lint",
+                    "version": "26.9.0",
+                    "purl": "pkg:pypi/ansible-lint@26.9.0",
+                },
+            ]
+            MODULE.parse_dpkg_query = lambda output: []
+            MODULE.parse_ansible_collections = lambda output: []
+            MODULE.run_command = lambda *command: ""
+
+            packages = MODULE.collect_packages()
+        finally:
+            MODULE.parse_pip_freeze = original_parse_pip_freeze
+            MODULE.parse_dpkg_query = original_parse_dpkg_query
+            MODULE.parse_ansible_collections = original_parse_ansible_collections
+            MODULE.run_command = original_run_command
+
+        self.assertEqual(
+            packages,
+            [
+                {
+                    "ecosystem": "pypi",
+                    "name": "ansible-lint",
+                    "version": "26.9.0",
+                    "purl": "pkg:pypi/ansible-lint@26.9.0",
+                }
+            ],
+        )
+
     def test_parse_pip_freeze_keeps_versioned_packages_only(self):
         packages = MODULE.parse_pip_freeze(
             "\n".join(
@@ -111,6 +155,17 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
             document["documentNamespace"],
             "https://github.com/brabster/xubuntu-workstation/actions/runs/12345/attempts/2/sbom/ansible-lint",
         )
+
+    def test_build_spdx_document_requires_list_packages(self):
+        with self.assertRaisesRegex(TypeError, "manifest packages must be a list"):
+            MODULE.build_spdx_document(
+                "ansible-lint",
+                {
+                    "generated_at": "2026-09-27T21:30:00Z",
+                    "github": {},
+                    "packages": "not-a-list",
+                },
+            )
 
     def test_write_reports_outputs_manifest_and_sbom_json(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
