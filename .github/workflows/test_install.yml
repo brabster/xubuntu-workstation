@@ -57,7 +57,7 @@ jobs:
         # but snaps have never caused any problems so not concerned about lack of smoke testing
         run: |
           apt-get update
-          apt-get -y install git ansible sudo bzip2
+          apt-get -y install git ansible-core sudo bzip2
       - name: setup user
         run: |
           adduser --disabled-password --quiet --gecos '' tester
@@ -78,6 +78,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE
           cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
+          ansible-galaxy collection install -r roles/requirements.yml
           ansible-playbook -i inventory workstation.yml
       - name: generate resolved-version manifest and SBOM
         run: |
