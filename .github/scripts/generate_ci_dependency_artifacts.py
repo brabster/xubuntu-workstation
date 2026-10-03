@@ -65,35 +65,6 @@ def parse_pip_freeze(output: str | None) -> list[dict[str, str]]:
     return packages
 
 
-def parse_dpkg_query(
-    output: str | None,
-    distro_namespace: str | None = None,
-    distro_qualifier: str | None = None,
-) -> list[dict[str, str]]:
-    packages: list[dict[str, str]] = []
-    if not output:
-        return packages
-
-    for line in output.splitlines():
-        stripped = line.strip()
-        if not stripped:
-            continue
-        parts = stripped.split("\t")
-        if len(parts) != 3:
-            continue
-        name, version, architecture = parts
-        packages.append(
-            {
-                "ecosystem": "deb",
-                "name": name,
-                "version": version,
-                "architecture": architecture,
-                "purl": build_deb_purl(name, version, architecture, distro_namespace, distro_qualifier),
-            }
-        )
-    return packages
-
-
 def parse_ansible_collections(output: str | None) -> list[dict[str, str]]:
     if not output:
         return []
@@ -169,20 +140,6 @@ def filter_ansible_collections(
     return [package for package in packages if package["name"].lower() in declared_collection_names]
 
 
-def build_deb_purl(
-    name: str,
-    version: str,
-    architecture: str,
-    distro_namespace: str | None,
-    distro_qualifier: str | None,
-) -> str:
-    namespace = quote((distro_namespace or "debian").lower(), safe="")
-    qualifiers = [f"arch={quote(architecture, safe='')}"]
-    if distro_qualifier:
-        qualifiers.append(f"distro={quote(distro_qualifier, safe='')}")
-    return f"pkg:deb/{namespace}/{quote(name.lower(), safe='')}@{quote(version, safe='')}?{'&'.join(qualifiers)}"
-
-
 def build_ansible_collection_purl(collection_name: str, version: str) -> str:
     namespace, _, name = collection_name.partition(".")
     if not namespace or not name:
@@ -194,27 +151,9 @@ def build_ansible_collection_purl(collection_name: str, version: str) -> str:
 
 
 def collect_packages() -> list[dict[str, str]]:
-    os_release = parse_os_release()
-    distro_namespace = os_release.get("ID")
-    distro_qualifier = distro_namespace
-    version_id = os_release.get("VERSION_ID")
-    if distro_qualifier and version_id:
-        distro_qualifier = f"{distro_qualifier}-{version_id}"
-
     declared_ansible_collections = parse_declared_ansible_collections()
     packages = []
     packages.extend(parse_pip_freeze(run_command(sys.executable, "-m", "pip", "freeze", "--all")))
-    packages.extend(
-        parse_dpkg_query(
-            run_command(
-                "dpkg-query",
-                "-W",
-                "-f=${binary:Package}\t${Version}\t${Architecture}\n",
-            ),
-            distro_namespace=distro_namespace,
-            distro_qualifier=distro_qualifier,
-        )
-    )
     packages.extend(
         filter_ansible_collections(
             parse_ansible_collections(

@@ -26,7 +26,6 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
 
     def test_collect_packages_deduplicates_stable_package_identity(self):
         original_parse_pip_freeze = MODULE.parse_pip_freeze
-        original_parse_dpkg_query = MODULE.parse_dpkg_query
         original_parse_ansible_collections = MODULE.parse_ansible_collections
         original_run_command = MODULE.run_command
 
@@ -45,14 +44,12 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "purl": "pkg:pypi/ansible-lint@26.9.0",
                 },
             ]
-            MODULE.parse_dpkg_query = lambda output, distro_namespace=None, distro_qualifier=None: []
             MODULE.parse_ansible_collections = lambda output: []
             MODULE.run_command = lambda *command: ""
 
             packages = MODULE.collect_packages()
         finally:
             MODULE.parse_pip_freeze = original_parse_pip_freeze
-            MODULE.parse_dpkg_query = original_parse_dpkg_query
             MODULE.parse_ansible_collections = original_parse_ansible_collections
             MODULE.run_command = original_run_command
 
@@ -96,26 +93,6 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "version": "6.0.2",
                     "purl": "pkg:pypi/pyyaml@6.0.2",
                 },
-            ],
-        )
-
-    def test_parse_dpkg_query_includes_distro_namespace_and_qualifier(self):
-        packages = MODULE.parse_dpkg_query(
-            "git\t1:2.34.1\tamd64",
-            distro_namespace="ubuntu",
-            distro_qualifier="ubuntu-26.04",
-        )
-
-        self.assertEqual(
-            packages,
-            [
-                {
-                    "ecosystem": "deb",
-                    "name": "git",
-                    "version": "1:2.34.1",
-                    "architecture": "amd64",
-                    "purl": "pkg:deb/ubuntu/git@1%3A2.34.1?arch=amd64&distro=ubuntu-26.04",
-                }
             ],
         )
 
@@ -178,14 +155,12 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
 
     def test_collect_packages_filters_ansible_collections_to_declared_set(self):
         original_parse_pip_freeze = MODULE.parse_pip_freeze
-        original_parse_dpkg_query = MODULE.parse_dpkg_query
         original_parse_ansible_collections = MODULE.parse_ansible_collections
         original_parse_declared_ansible_collections = MODULE.parse_declared_ansible_collections
         original_run_command = MODULE.run_command
 
         try:
             MODULE.parse_pip_freeze = lambda output: []
-            MODULE.parse_dpkg_query = lambda output, distro_namespace=None, distro_qualifier=None: []
             MODULE.parse_ansible_collections = lambda output: [
                 {
                     "ecosystem": "ansible-galaxy",
@@ -208,7 +183,6 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
             packages = MODULE.collect_packages()
         finally:
             MODULE.parse_pip_freeze = original_parse_pip_freeze
-            MODULE.parse_dpkg_query = original_parse_dpkg_query
             MODULE.parse_ansible_collections = original_parse_ansible_collections
             MODULE.parse_declared_ansible_collections = original_parse_declared_ansible_collections
             MODULE.run_command = original_run_command
@@ -240,26 +214,18 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
                     "version": "26.9.0",
                     "purl": "pkg:pypi/ansible-lint@26.9.0",
                 },
-                {
-                    "ecosystem": "deb",
-                    "name": "git",
-                    "version": "1:2.34.1",
-                    "architecture": "amd64",
-                    "purl": "pkg:deb/ubuntu/git@1%3A2.34.1?arch=amd64&distro=ubuntu-26.04",
-                },
             ],
         }
 
         document = MODULE.build_spdx_document("ansible-lint", manifest)
 
         self.assertEqual(document["spdxVersion"], "SPDX-2.3")
-        self.assertEqual(document["documentDescribes"], ["SPDXRef-Package-1", "SPDXRef-Package-2"])
-        self.assertEqual(len(document["relationships"]), 2)
-        self.assertEqual(document["packages"][1]["summary"], "Architecture: amd64")
+        self.assertEqual(document["documentDescribes"], ["SPDXRef-Package-1"])
+        self.assertEqual(len(document["relationships"]), 1)
         self.assertEqual(
             document["documentNamespace"],
             "https://github.com/brabster%2Fxubuntu-workstation/actions/runs/12345/attempts/2/sbom/"
-            "ansible-lint/49c5651f75dd22ae",
+            "ansible-lint/be2cf05ee3f139af",
         )
 
     def test_build_spdx_document_requires_list_packages(self):

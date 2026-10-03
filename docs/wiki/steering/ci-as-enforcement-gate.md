@@ -14,6 +14,7 @@ stale_after: 2027-03-26T00:00:00Z
 - Keep CI controls explicit, deterministic, and aligned with repository policy.
 - When a workflow is required both before merge and after merge, prefer `pull_request` as the PR review gate and reserve `push` validation for `main` unless branch-push-only coverage is genuinely needed.
 - Use explicit `pull_request.paths` filters to keep PR validation scoped to the files that can change that workflow's outcome, and review those filters whenever new workflow inputs are added.
+- When the repository has a real bootstrap entrypoint such as `bootstrap.sh`, prefer `test_install` and similar smoke tests to invoke that entrypoint after any CI-only preparation so validation exercises the same dependency-setup path users run.
 - Guard roles out of CI only when the environment is genuinely incompatible, and restore them to CI once a compatible implementation exists.
 - When actively iterating on a failing role, consider moving it earlier in the playbook so CI reaches the failure sooner and shortens the evidence loop.
 
