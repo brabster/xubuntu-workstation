@@ -163,13 +163,12 @@ def collect_packages() -> list[dict[str, str]]:
         )
     )
 
-    deduplicated: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    deduplicated: dict[tuple[str, str, str], dict[str, str]] = {}
     for package in packages:
         key = (
             package["ecosystem"],
             package["name"],
             package["version"],
-            package.get("architecture", ""),
         )
         deduplicated[key] = package
 
@@ -179,7 +178,6 @@ def collect_packages() -> list[dict[str, str]]:
             package["ecosystem"],
             package["name"],
             package["version"],
-            package.get("architecture", ""),
         ),
     )
 
@@ -274,9 +272,6 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
         package_name = required_string(package, "name")
         package_version = required_string(package, "version")
         package_purl = required_string(package, "purl")
-        package_architecture = package.get("architecture")
-        if package_architecture is not None and not isinstance(package_architecture, str):
-            raise TypeError("architecture must be a string when present")
         package_id = f"SPDXRef-Package-{index}"
         entry = {
             "name": package_name,
@@ -294,8 +289,6 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
                 }
             ],
         }
-        if package_architecture:
-            entry["summary"] = f"Architecture: {package_architecture}"
         spdx_packages.append(entry)
         relationships.append(
             {
@@ -307,7 +300,6 @@ def build_spdx_document(job_name: str, manifest: dict[str, object]) -> dict[str,
         document_describes.append(package_id)
         package_fingerprint_parts.append(
             {
-                "architecture": package_architecture or "",
                 "name": package_name,
                 "purl": package_purl,
                 "version": package_version,
