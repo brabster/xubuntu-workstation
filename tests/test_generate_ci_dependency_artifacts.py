@@ -156,6 +156,75 @@ class GenerateCiDependencyArtifactsTests(unittest.TestCase):
             ],
         )
 
+    def test_parse_declared_ansible_collections_reads_requirements_file(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            requirements_path = Path(tmp_dir) / "requirements.yml"
+            requirements_path.write_text(
+                "\n".join(
+                    [
+                        "---",
+                        "collections:",
+                        "  - name: ansible.posix",
+                        "  - name: namespace.foo.bar",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+
+            declared = MODULE.parse_declared_ansible_collections(requirements_path)
+
+        self.assertEqual(declared, {"ansible.posix", "namespace.foo.bar"})
+
+    def test_collect_packages_filters_ansible_collections_to_declared_set(self):
+        original_parse_pip_freeze = MODULE.parse_pip_freeze
+        original_parse_dpkg_query = MODULE.parse_dpkg_query
+        original_parse_ansible_collections = MODULE.parse_ansible_collections
+        original_parse_declared_ansible_collections = MODULE.parse_declared_ansible_collections
+        original_run_command = MODULE.run_command
+
+        try:
+            MODULE.parse_pip_freeze = lambda output: []
+            MODULE.parse_dpkg_query = lambda output, distro_namespace=None, distro_qualifier=None: []
+            MODULE.parse_ansible_collections = lambda output: [
+                {
+                    "ecosystem": "ansible-galaxy",
+                    "name": "ansible.posix",
+                    "version": "2.1.0",
+                    "purl": "pkg:generic/ansible/posix@2.1.0",
+                },
+                {
+                    "ecosystem": "ansible-galaxy",
+                    "name": "community.general",
+                    "version": "10.0.1",
+                    "purl": "pkg:generic/community/general@10.0.1",
+                },
+            ]
+            MODULE.parse_declared_ansible_collections = lambda path=MODULE.DEFAULT_ANSIBLE_REQUIREMENTS_PATH: {
+                "ansible.posix"
+            }
+            MODULE.run_command = lambda *command: ""
+
+            packages = MODULE.collect_packages()
+        finally:
+            MODULE.parse_pip_freeze = original_parse_pip_freeze
+            MODULE.parse_dpkg_query = original_parse_dpkg_query
+            MODULE.parse_ansible_collections = original_parse_ansible_collections
+            MODULE.parse_declared_ansible_collections = original_parse_declared_ansible_collections
+            MODULE.run_command = original_run_command
+
+        self.assertEqual(
+            packages,
+            [
+                {
+                    "ecosystem": "ansible-galaxy",
+                    "name": "ansible.posix",
+                    "version": "2.1.0",
+                    "purl": "pkg:generic/ansible/posix@2.1.0",
+                }
+            ],
+        )
+
     def test_build_spdx_document_describes_all_packages(self):
         manifest = {
             "generated_at": "2026-09-27T21:30:00Z",

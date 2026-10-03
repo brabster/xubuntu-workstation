@@ -13,6 +13,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import quote
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_ANSIBLE_REQUIREMENTS_PATH = REPO_ROOT / "roles" / "requirements.yml"
+
 
 def run_command(*command: str) -> str | None:
     try:
@@ -121,6 +124,51 @@ def parse_ansible_collections(output: str | None) -> list[dict[str, str]]:
     return packages
 
 
+def parse_declared_ansible_collections(
+    path: Path = DEFAULT_ANSIBLE_REQUIREMENTS_PATH,
+) -> set[str] | None:
+    try:
+        import yaml
+    except ModuleNotFoundError:
+        print(f"PyYAML not available while reading declared Ansible collections from {path}", file=sys.stderr)
+        return None
+
+    if not path.exists():
+        print(f"Declared Ansible collection file not found: {path}", file=sys.stderr)
+        return None
+
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as error:
+        print(f"Failed to parse declared Ansible collections from {path}: {error}", file=sys.stderr)
+        return None
+
+    collections = data.get("collections", [])
+    if not isinstance(collections, list):
+        print(f"Declared Ansible collections in {path} are not a list", file=sys.stderr)
+        return None
+
+    declared: set[str] = set()
+    for item in collections:
+        if isinstance(item, str) and item:
+            declared.add(item.lower())
+            continue
+        if isinstance(item, dict):
+            name = item.get("name")
+            if isinstance(name, str) and name:
+                declared.add(name.lower())
+    return declared
+
+
+def filter_ansible_collections(
+    packages: list[dict[str, str]],
+    declared_collection_names: set[str] | None,
+) -> list[dict[str, str]]:
+    if declared_collection_names is None:
+        return packages
+    return [package for package in packages if package["name"].lower() in declared_collection_names]
+
+
 def build_deb_purl(
     name: str,
     version: str,
@@ -153,6 +201,7 @@ def collect_packages() -> list[dict[str, str]]:
     if distro_qualifier and version_id:
         distro_qualifier = f"{distro_qualifier}-{version_id}"
 
+    declared_ansible_collections = parse_declared_ansible_collections()
     packages = []
     packages.extend(parse_pip_freeze(run_command(sys.executable, "-m", "pip", "freeze", "--all")))
     packages.extend(
@@ -167,8 +216,11 @@ def collect_packages() -> list[dict[str, str]]:
         )
     )
     packages.extend(
-        parse_ansible_collections(
-            run_command("ansible-galaxy", "collection", "list", "--format", "json")
+        filter_ansible_collections(
+            parse_ansible_collections(
+                run_command("ansible-galaxy", "collection", "list", "--format", "json")
+            ),
+            declared_ansible_collections,
         )
     )
 
