@@ -3,6 +3,7 @@
 * [Agent bootstrap rules](./agent-bootstrap-rules.md) - Minimal always-read rules for agent behavior in this repository.
 * [Session workflow](./session-workflow.md) - Default end-to-end workflow for review, research, planning, implementation, and evidence-driven iteration.
 * [Simplicity by default](./simplicity-default.md) - Prefer the simplest viable path first and add complexity only when evidence requires it.
+* [Helper script quality bar](./helper-script-quality-bar.md) - Default to stdlib-first, well-tested, independently reviewed helper scripts with normal security validation.
 * [Recent-Ubuntu simple paths](./recent-ubuntu-simple-paths.md) - Optimise for recent vanilla Ubuntu/Xubuntu installs and avoid extra branches unless evidence requires them.
 * [Evidence-first diagnostics](./evidence-first-diagnostics.md) - Gather diagnostics before remediation when behavior is unclear.
 * [Activity-driven thresholds](./activity-driven-thresholds.md) - Prefer activity-based triggers over elapsed-time triggers when that better matches operator intent and CI validation needs.
