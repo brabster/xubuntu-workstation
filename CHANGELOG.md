@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #89 - Simplify Google Chrome installation dependency resolution](https://github.com/brabster/xubuntu-workstation/pull/89)
+
+### Changed
+
+- **Chrome now installs directly from Google's current stable package through APT**: Removed the manual ALSA package/cache checks and install steps. APT resolves the local `.deb` dependencies, while the download remains the unpinned `stable_current` package from Google's official HTTPS domain.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces installation complexity and dependency-management risk while leaving workstation runtime risk unchanged**.
+    - **Rationale**: The role no longer separately chooses or installs an ALSA package; APT resolves dependencies declared by Chrome's local package. The download source remains `https://dl.google.com`, with no third-party repository added. Browser policy configuration and update behavior are unchanged.
+    - **Benefit**: Fewer package-management steps reduce the chance of dependency drift or unnecessary package changes, supporting UK Cyber Essentials expectations for secure, controlled configuration. Existing managed Chrome policies remain in force.
+    - **Net risk statement**: Installation and dependency-management risk is **reduced**; workstation runtime and browser policy risk are **unchanged**.
+
 ## [PR #86 - Tidy OKF structure and documentation alignment](https://github.com/brabster/xubuntu-workstation/pull/86)
 
 ### Changed
