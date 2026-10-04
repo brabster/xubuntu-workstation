@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #94 - Update artifact uploads for Node.js 24](https://github.com/brabster/xubuntu-workstation/pull/94)
+
+### Changed
+
+- **CI artifact uploads now use `actions/upload-artifact@v6`**: both workflows use the release that defaults to Node.js 24; artifact names, paths, and no-files-found behavior are unchanged.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces CI runtime compatibility risk** while leaving workstation runtime risk unchanged.
+    - **Rationale**: The previous action release targeted deprecated Node.js 20. Using the Node.js 24 release reduces the chance of CI disruption; no workstation configuration or artifact contents change.
+    - **Benefit**: Keeping CI actions on a supported runtime supports UK Cyber Essentials expectations for maintained systems and controlled change.
+    - **Net risk statement**: CI runtime compatibility risk is **reduced**; workstation runtime and security-control risk is **unchanged**.
+
 ## [PR #93 - Add knowledge base evaluations](https://github.com/brabster/xubuntu-workstation/pull/93)
 
 ### Added
