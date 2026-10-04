@@ -10,8 +10,9 @@ stale_after: 2027-03-26T00:00:00Z
 # Agent bootstrap rules
 
 - Treat the wiki as the primary repository knowledge system; use lookup-on-demand pages instead of preloading all detailed guidance.
-- Work from evidence first: gather diagnostics before remediation when behavior is unclear or silent.
+- Work from evidence first: gather diagnostics before remediation when behavior is unclear or silent; base fixes on verified evidence and prefer small, reversible remediation.
 - Prefer the simplest secure implementation that is easy to review and validate; only add complexity when evidence requires it.
+- When upgrading a dependency or action, compare the latest stable release with the current version and choose the latest compatible option; verify compatibility and behavior changes from authoritative sources, and explain any decision not to use the latest.
 - For repository-owned Python helper scripts, default to lean stdlib-only implementations unless repository evidence shows an added dependency is necessary.
 - Use CI as the merge-time enforcement gate and local checks as fast feedback.
 - Escalate to Gemini or another web-enabled external agent only when public-domain or vendor research is needed and local repository evidence is insufficient.
