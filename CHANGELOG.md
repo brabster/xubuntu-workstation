@@ -4,11 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [PR #94 - Update artifact uploads for Node.js 24](https://github.com/brabster/xubuntu-workstation/pull/94)
+## [PR #94 - Run artifact uploads on Node.js 24](https://github.com/brabster/xubuntu-workstation/pull/94)
 
 ### Changed
 
-- **CI artifact uploads now use `actions/upload-artifact@v6`**: both workflows use the release that defaults to Node.js 24; artifact names, paths, and no-files-found behavior are unchanged.
+- **CI artifact uploads now use `actions/upload-artifact@v7`**: both workflows use the latest release, which defaults to Node.js 24; its direct-upload feature is opt-in, so artifact names, paths, and archived upload behavior are unchanged.
 
 ### Security
 
