@@ -10,11 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **An offline knowledge-base evaluation set now protects representative answers**: added question/evidence cases for agent bootstrap, failure diagnosis, CI lint triage, CI role guards, and the Slack package-source decision. The existing helper-test gate checks that expected evidence remains in its cited wiki pages, and CI runs it when the knowledge base or evaluation set changes.
 - **Evaluation scope is explicit**: documented how to run the checks and how to use the cases to assess agent answers; the offline checks validate corpus evidence, not model response quality.
+- **Knowledge-base evaluations now run on every pull request and merge-queue group**: added a dedicated workflow without path filters, so its `kb_evals / evals` status is available to require before merging. Repository rulesets must select that status check; this branch-protection setting cannot be enforced from workflow files alone.
+- **Agent sessions now assess eval coverage when the agent system changes**: session guidance asks contributors to consider focused evaluation additions when changing the knowledge base, agent instructions, prompts, or capabilities.
 
 ### Security
 
 - **Threat Model Assessment**: This change **reduces knowledge-regression and change-review risk while keeping workstation runtime risk unchanged**.
-    - **Rationale**: The evaluation data and tests read repository Markdown only; they add no model/API dependency, secrets, downloads, or execution privilege. CI fails if an evaluation source or its required evidence is removed, making key operational guidance easier to detect during review.
+    - **Rationale**: The evaluation data and tests read repository Markdown only; they add no model/API dependency, secrets, downloads, or execution privilege. An unconditional PR/merge-queue check makes the evaluation result available on every change for branch rules to require, while session guidance prompts contributors to consider changes to the regression set.
     - **Benefit**: A repeatable, offline check protects selected setup, diagnostic, and security-decision knowledge, supporting UK Cyber Essentials expectations for controlled, reviewable configuration and change management.
     - **Net risk statement**: Knowledge-regression and review risk is **reduced**; workstation runtime risk is **unchanged**.
 
