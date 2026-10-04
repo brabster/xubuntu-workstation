@@ -12,6 +12,8 @@ stale_after: 2027-03-26T00:00:00Z
 - Workflow path: `.github/workflows/ansible_lint.yml`.
 - Installs lint dependencies from `requirements-dev.txt`.
 - Runs hook behavior tests before linting.
+- Treat those helper-script unit tests as part of the merge gate for repository-owned Python helpers, not as optional extras.
+- Keep helper-script tests aligned with the script behavior they protect so CI failures reflect real regressions in repository automation.
 - Runs ansible-lint in offline mode on `roles/`, `workstation.y*ml`, and `test.y*ml`.
 
 ## Failure-diagnosis order

@@ -17,6 +17,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - **Benefit**: Fewer package-management steps reduce the chance of dependency drift or unnecessary package changes, supporting UK Cyber Essentials expectations for secure, controlled configuration. Existing managed Chrome policies remain in force.
     - **Net risk statement**: Installation and dependency-management risk is **reduced**; workstation runtime and browser policy risk are **unchanged**.
 
+## [PR #87 - Publish resolved-version manifest and SBOM from CI](https://github.com/brabster/xubuntu-workstation/pull/87)
+
+### Added
+
+- **CI jobs now publish resolved dependency evidence artifacts**: the `ansible_lint` and `test_install` workflows now generate a repository-owned `resolved-versions.json` manifest for each job run, capturing the exact Python packages, declared Ansible collections, runner metadata, and tool versions that the repository automation adds or manages in the CI environment that produced the result.
+- **CI jobs now publish SPDX SBOM artifacts alongside the manifest**: the same workflow step now emits an `sbom.spdx.json` artifact per job using that repo-managed resolved dependency set, so supply-chain provenance and post-run dependency inspection do not rely only on source-level pins or transitive package resolver behavior at a later date.
+- **Artifact generation logic is unit tested in-repo**: added focused Python unit tests for the dependency-artifact generator so the existing `ansible_lint` helper-test gate protects the manifest/SBOM structure and parsing behavior before workflow execution.
+- **Wiki steering now records the CI trigger policy, helper-script quality bar, and evidence-validation checks**: added explicit guidance that PR branches use `pull_request` path filters while `push` validation is reserved for `main`, documented a stdlib-first and independently reviewed quality bar for repository-owned helper scripts, and kept the artifact validation checks easy to reapply when verifying generated `resolved-versions.json` and `sbom.spdx.json` output.
+
+### Changed
+
+- **`test_install` artifact naming is now shell-portable in GitHub Actions**: the workflow now sanitizes matrix image names with a POSIX-compatible pipeline instead of Bash-only parameter substitution, so the default `sh` runner in the container job can always prepare artifact paths successfully.
+- **PR branches no longer run duplicate push and pull-request CI for the same change**: `ansible_lint` and `test_install` now keep push-based validation on `main`, while pull-request validation remains the review-time gate for proposed changes. `test_install` pull-request coverage is now expressed as an explicit allowlist of workflow, helper-test, dependency, and workstation automation paths, so relevant PR changes still run without needing a second branch-push execution of the same workflow.
+- **Ansible collection evidence now reflects repository-declared dependencies rather than every installed collection**: the CI generator still inspects the live CI environment for versions, but it now filters Ansible collection entries down to the collections declared in `roles/requirements.yml` when that declaration is available, which keeps the SBOM/manifest aligned with the repository's actual external collection dependency set instead of unrelated collections bundled into the runner image.
+- **CI dependency evidence no longer inventories the base distro package set**: the manifest and SBOM now exclude Debian package enumeration, keeping the artifact focused on the dependency surface this repository adds or manages rather than the user's pre-existing OS install choice.
+- **`bootstrap.sh` and `test_install` now share the same Ansible dependency bootstrap path**: `bootstrap.sh` now installs `ansible-core` plus the collections declared in `roles/requirements.yml`, and `test_install` now prepares CI-specific vars before invoking `bootstrap.sh` so workflow validation exercises the same dependency setup path used for real bootstrap installs as closely as the container environment allows.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces CI supply-chain traceability risk** while keeping workstation runtime risk unchanged.
+    - **Rationale**: The generator only reads package/version metadata already present in the CI environment and writes it to workflow artifacts; it does not add new privileged execution paths, package sources, or unattended download/install bootstrap logic. Publishing both a resolved-version manifest and an SPDX SBOM improves evidence retention for dependency investigations, incident response, and reproducibility when upstream repositories change after a run has completed. The follow-up workflow fixes keep artifact-path setup compatible with the job's actual shell and remove redundant branch-push CI on open PR branches without reducing review-time or main-branch validation coverage.
+    - **Benefit**: Reviewers and maintainers can inspect the exact dependency set used by each validation run without re-resolving packages later, and CI now fails less often for shell-compatibility reasons while avoiding duplicate executions for the same reviewed change. This strengthens controlled change evidence and supports UK Cyber Essentials expectations for secure configuration management and auditable change records.
+    - **Net risk statement**: Net risk is **reduced** for CI supply-chain diagnostics and validation reliability, and **unchanged** for managed workstation runtime controls.
+
 ## [PR #86 - Tidy OKF structure and documentation alignment](https://github.com/brabster/xubuntu-workstation/pull/86)
 
 ### Changed

@@ -18,12 +18,16 @@ stale_after: 2027-03-26T00:00:00Z
 7. **Keep the merge request description decision-aligned**: keep early MR descriptions high-level while decisions are still fluid, then update them whenever the agreed approach changes materially so reviews and automation stay in sync with the implementation.
 8. **Implement incrementally**: make the smallest secure change that satisfies the agreed direction.
 9. **Validate on evidence**: run the smallest relevant checks early, then broader validation before completion.
-10. **Iterate until accepted**: respond to review, new evidence, or external research by refining the implementation, re-aligning the MR description if needed, and repeating validation.
-11. **For agent sessions, verify lint bootstrap first**: confirm hook-based lint prerequisites are active (for example `.githooks` hooks path and lint dependencies) before relying on pre-commit behavior.
-12. **Capture reusable lessons before closing**: when a session discovers durable steering, workflow, linting, or decision guidance, update the relevant OKF wiki pages and keep any contributor-facing summary aligned in `CHANGELOG.md`.
+10. **Review non-trivial helper script changes independently**: for repository-owned helper scripts, ask a separate agent to review substantive changes before finalizing.
+11. **Keep helper-script tests focused and current**: add or update focused unit tests for repository-owned Python scripts by default, run them locally before finishing, and keep the tests aligned with the script's observable behavior.
+12. **Run normal security validation before closing**: do not stop at functional checks for helper scripts or other code changes; complete the usual review and security-validation path as well.
+13. **Iterate until accepted**: respond to review, new evidence, or external research by refining the implementation, re-aligning the MR description if needed, and repeating validation.
+14. **For agent sessions, verify lint bootstrap first**: confirm hook-based lint prerequisites are active (for example `.githooks` hooks path and lint dependencies) before relying on pre-commit behavior.
+15. **Capture reusable lessons before closing**: when a session discovers durable steering, workflow, linting, or decision guidance, update the relevant OKF wiki pages and keep any contributor-facing summary aligned in `CHANGELOG.md`.
 
 Related concepts:
 - [Agent bootstrap rules](./agent-bootstrap-rules.md)
 - [Evidence-first diagnostics](./evidence-first-diagnostics.md)
 - [Cost-tiered agent selection](./cost-tiered-agent-selection.md)
+- [Helper script quality bar](./helper-script-quality-bar.md)
 - [Simplicity by default](./simplicity-default.md)
