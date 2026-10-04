@@ -91,7 +91,15 @@
         },
         {
           "source": "docs/wiki/decisions/slack-package-source.md",
+          "text": "suite `jessie`"
+        },
+        {
+          "source": "docs/wiki/decisions/slack-package-source.md",
           "text": "full fingerprint is pinned and validated"
+        },
+        {
+          "source": "docs/wiki/decisions/slack-package-source.md",
+          "text": "clear provenance"
         }
       ]
     }
