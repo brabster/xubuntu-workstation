@@ -10,6 +10,14 @@
         },
         {
           "source": "docs/wiki/README.md",
+          "text": "root navigation (`index.md`)"
+        },
+        {
+          "source": "docs/wiki/README.md",
+          "text": "this overview (`README.md`)"
+        },
+        {
+          "source": "docs/wiki/README.md",
           "text": "./steering/agent-bootstrap-rules.md"
         },
         {
