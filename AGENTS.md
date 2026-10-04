@@ -31,7 +31,7 @@ Specific principles we prioritise:
 - Consult `docs/wiki/steering/index.md`, `docs/wiki/linting/index.md`, `docs/wiki/decisions/index.md`, and `docs/wiki/okf_spec_v0.2.md` only when the task needs them.
 - Treat this wiki as operational steering and reusable repository context.
 - If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
-- When changing `docs/wiki/`, `AGENTS.md`, `prompts/`, `evals/`, agent instruction files, developer-container configuration, hooks, or agent setup dependencies, run every applicable `evals/kb.json` question against the current agent system as a separate prompt and verify the answer against its evidence. Add or propose cases for meaningful changes, then record the exact current PR head SHA and all-cases pass in the PR's `agent-eval-attestation` JSON block (see [eval guidance](docs/wiki/steering/session-workflow.md)). Do not fabricate a pass if behavioral execution was unavailable.
+- When changing `docs/wiki/`, `AGENTS.md`, `prompts/`, `evals/`, agent instruction files, developer-container configuration, hooks, or agent setup dependencies, run every applicable `evals/kb.json` question against the current agent system as a separate prompt and compare the response with `expected_answer` and `expected_evidence`. Add or propose cases for meaningful changes, then record the exact current PR head SHA and all-cases pass in the PR's `agent-eval-attestation` JSON block (see [eval guidance](docs/wiki/steering/session-workflow.md)). Do not fabricate a pass if behavioral execution was unavailable.
 
 
 

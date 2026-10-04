@@ -3,6 +3,7 @@
     {
       "id": "agent-bootstrap",
       "question": "Which knowledge-base pages should an agent read at session start?",
+      "expected_answer": "Read docs/wiki/index.md, docs/wiki/README.md, docs/wiki/steering/agent-bootstrap-rules.md, and docs/wiki/steering/session-workflow.md at session start; consult other pages only when needed.",
       "expected_evidence": [
         {
           "source": "docs/wiki/README.md",
@@ -29,6 +30,7 @@
     {
       "id": "ambiguous-failure",
       "question": "What should an agent do before fixing an unclear or silent failure?",
+      "expected_answer": "Gather logs, test output, and direct observations before proposing a fix; then prefer a small, reversible fix based on verified evidence.",
       "expected_evidence": [
         {
           "source": "docs/wiki/steering/evidence-first-diagnostics.md",
@@ -43,6 +45,7 @@
     {
       "id": "lint-ci-failure",
       "question": "What should be investigated first when the ansible_lint workflow fails?",
+      "expected_answer": "Inspect the unittest step output first because helper tests run before ansible-lint; investigate lint findings only after those tests pass.",
       "expected_evidence": [
         {
           "source": "docs/wiki/linting/ci-lint-behavior.md",
@@ -57,7 +60,16 @@
     {
       "id": "ci-role-guards",
       "question": "When should a role be excluded from GitHub Actions?",
+      "expected_answer": "Flag the conflicting guidance: AGENTS.md says roles requiring elevated privileges or system-service interaction must be guarded, while the wiki says guard only genuine CI incompatibilities and attempt CI first. Do not present either as the sole settled rule; resolve the conflict or ask for clarification.",
       "expected_evidence": [
+        {
+          "source": "AGENTS.md",
+          "text": "Roles that require elevated privileges, interact with system-level services"
+        },
+        {
+          "source": "AGENTS.md",
+          "text": "attempt a CI run before excluding the role"
+        },
         {
           "source": "docs/wiki/steering/ci-role-guard-review.md",
           "text": "`when: not is_gh_actions`"
@@ -71,6 +83,7 @@
     {
       "id": "slack-package-source",
       "question": "Which Slack package source does the workstation configuration use, and why is its key trusted?",
+      "expected_answer": "Slack is installed from the packagecloud APT repository using the debian/jessie suite. The vendored public key is trusted only after validating its pinned full fingerprint and preserving clear provenance.",
       "expected_evidence": [
         {
           "source": "docs/wiki/decisions/slack-package-source.md",

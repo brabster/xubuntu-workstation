@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Knowledge-base evaluations now run on every pull request and merge-queue group**: added a dedicated workflow without path filters, so its `kb_evals / evals` status is available to require before merging. Repository rulesets must select that status check; this branch-protection setting cannot be enforced from workflow files alone.
 - **Agent sessions now assess eval coverage when the agent system changes**: session guidance asks contributors to consider focused evaluation additions when changing the knowledge base, agent instructions, prompts, or capabilities.
 - **Behavioral evaluation attestation is required when agent-system inputs change**: PRs that change the wiki, agent instructions, prompts, eval cases, developer-container configuration, hooks, or agent setup dependencies must record an all-cases pass, evaluator, runtime, and exact head SHA in the PR description. A read-only workflow validates the attestation and marks it stale after a new commit; human review remains necessary because the workflow cannot prove that the agent was run.
+- **Behavioral cases now define expected answers as well as source evidence**: the role-guard case specifically requires agents to surface the existing difference between `AGENTS.md` and the CI guard playbook instead of repeating one rule as settled guidance.
 
 ### Security
 

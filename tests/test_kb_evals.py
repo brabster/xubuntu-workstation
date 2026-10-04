@@ -4,7 +4,6 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-WIKI_ROOT = (REPO_ROOT / "docs" / "wiki").resolve()
 EVALS_PATH = REPO_ROOT / "evals" / "kb.json"
 
 
@@ -22,16 +21,17 @@ class KnowledgeBaseEvalTests(unittest.TestCase):
         for case in self.cases:
             with self.subTest(case=case.get("id")):
                 self.assertTrue(case.get("question"))
+                self.assertTrue(case.get("expected_answer"))
                 self.assertTrue(case.get("expected_evidence"))
 
-    def test_expected_evidence_exists_in_knowledge_base(self):
+    def test_expected_evidence_exists_in_repository(self):
         for case in self.cases:
             for evidence in case.get("expected_evidence", []):
                 source = (REPO_ROOT / evidence["source"]).resolve()
                 with self.subTest(case=case.get("id"), source=evidence["source"]):
                     self.assertTrue(
-                        source.is_relative_to(WIKI_ROOT),
-                        "evaluation sources must stay inside docs/wiki",
+                        source.is_relative_to(REPO_ROOT),
+                        "evaluation sources must stay inside the repository",
                     )
                     self.assertTrue(source.is_file(), "evaluation source does not exist")
                     content = source.read_text(encoding="utf-8").casefold()

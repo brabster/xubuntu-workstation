@@ -1,8 +1,8 @@
 # Knowledge base evaluations
 
 `kb.json` is a small behavioral regression set of representative questions
-about the repository knowledge base. Each case records expected evidence
-pages and short evidence excerpts that should support an answer.
+about the repository agent system. Each case records an expected answer,
+evidence sources, and short evidence excerpts that should support the answer.
 
 Run the offline evidence checks with:
 
@@ -47,7 +47,12 @@ reviewer must verify the recorded evaluation before merge. Configure
 `kb_evals / agent_eval_attestation` as a required status check in repository
 rulesets/branch protection.
 
-Add a case when an important repository question should remain answerable.
+When running the behavioral cases, compare the agent's answer to
+`expected_answer` and verify its claims against `expected_evidence`. The
+automated integrity test checks that each evidence excerpt still exists in a
+repository source, including agent instructions such as `AGENTS.md`.
+
+Add a case when an important agent-system question should remain answerable.
 Keep each evidence excerpt short and specific to the expected source so the
 integrity check detects meaningful knowledge loss rather than incidental
 wording edits.
