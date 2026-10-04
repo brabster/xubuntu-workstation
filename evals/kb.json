@@ -43,6 +43,33 @@
       ]
     },
     {
+      "id": "latest-compatible-action-upgrade",
+      "question": "A GitHub Action used by this repository runs on a deprecated Node.js runtime. How should an agent choose the replacement version?",
+      "expected_answer": "Compare the current version with the latest stable release using authoritative release notes and action metadata. Verify the runtime, minimum runner requirements, and behavior-changing defaults, then use the latest compatible version while preserving existing behavior unless a change is intended; explain any choice not to use the latest.",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/steering/agent-bootstrap-rules.md",
+          "text": "choose the latest compatible option"
+        },
+        {
+          "source": "docs/wiki/steering/agent-bootstrap-rules.md",
+          "text": "explain any decision not to use the latest"
+        },
+        {
+          "source": "docs/wiki/steering/session-workflow.md",
+          "text": "check the latest stable release and authoritative release notes or metadata"
+        },
+        {
+          "source": "docs/wiki/steering/session-workflow.md",
+          "text": "runtime and runner requirements plus behavior-changing defaults"
+        },
+        {
+          "source": "docs/wiki/steering/session-workflow.md",
+          "text": "preserving current behavior unless a change is intended"
+        }
+      ]
+    },
+    {
       "id": "lint-ci-failure",
       "question": "What should be investigated first when the ansible_lint workflow fails?",
       "expected_answer": "Inspect the unittest step output first because helper tests run before ansible-lint; investigate lint findings only after those tests pass.",
