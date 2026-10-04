@@ -18,14 +18,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- **Behavioral evaluation timestamps are validated as timezone-aware ISO 8601 values**: CI rejects malformed or timezone-naive timestamps instead of accepting unauditable text.
+- **Behavioral evaluation timestamps are validated as timezone-aware ISO 8601 values**: CI rejects malformed or timezone-naive timestamps instead of accepting unauditable text. After this digest-covered validator changed, all five behavioral cases were rerun and the attestation regenerated.
 
 ### Security
 
 - **Threat Model Assessment**: This change **reduces knowledge-regression and change-review risk while keeping workstation runtime risk unchanged**.
     - **Rationale**: The behavioral run occurs in the contributor's session; CI validates a committed evidence file against a digest of agent-system inputs and checks that its timestamp is an auditable timezone-aware value, with no model credentials or calls. The attestation is not cryptographic proof, so a required human reviewer must verify the report.
     - **Benefit**: A repeatable, offline check protects selected setup, diagnostic, and security-decision knowledge, supporting UK Cyber Essentials expectations for controlled, reviewable configuration and change management.
-    - **Net risk statement**: Knowledge-regression and review risk is **reduced**; workstation runtime risk is **unchanged**.
+    - **Net risk statement**: Knowledge-regression and review risk is **reduced**, including by refreshing stale evidence after validator changes; workstation runtime risk is **unchanged**.
     - **CLI simplification**: Removing self-reported evaluator/runtime fields reduces recording friction without changing the gate; commit history and human review remain the attribution and verification mechanisms. The net change to workstation runtime risk is **unchanged**.
 
 ## [PR #89 - Simplify Google Chrome installation dependency resolution](https://github.com/brabster/xubuntu-workstation/pull/89)
