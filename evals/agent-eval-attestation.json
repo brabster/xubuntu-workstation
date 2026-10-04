@@ -1,0 +1,14 @@
+{
+  "agent_system_sha256": "701d648ec82e682b3c5c079fba2fe75088b1d2d982cb4939bf9aaf3ce98b535d",
+  "result": "pass",
+  "cases": [
+    "agent-bootstrap",
+    "ambiguous-failure",
+    "lint-ci-failure",
+    "ci-role-guards",
+    "slack-package-source"
+  ],
+  "evaluator": "@copilot (five independent evaluator sessions)",
+  "runtime": "GitHub Copilot coding agent; five separate repository-aware evaluation sessions",
+  "evaluated_at": "2026-10-04T12:30:39.119214+00:00"
+}

@@ -10,42 +10,39 @@ Run the offline evidence checks with:
 python3 -m unittest discover -s tests -p 'test_kb_evals.py'
 ```
 
-The CI `kb_evals` workflow runs two separate checks:
+The CI `kb_evals` workflow runs corpus-integrity checks on pull requests and
+merge-queue groups. On pull requests, it also validates the behavioral
+attestation against the current agent-system inputs. Behavioral evaluation is
+checked on each pull request before it enters the merge queue; the synthetic
+combined merge-group tree is not separately attested.
 
-- `evals` checks that each case still points to a knowledge page
-  containing its expected evidence. It does not run an agent.
-- `agent_eval_attestation` requires a current behavioral evaluation record
-  when an agent-system file changes. An agent or human must run every case as
-  a separate prompt against the current agent system and verify the response
-  against the cited source evidence.
+The workflow checks that each case still points to a repository source
+containing its expected evidence. It does not run an agent.
 
-For applicable pull requests, add exactly one block to the PR description:
+When an agent-system change is ready for behavioral evaluation, run every case
+as a separate prompt in the current agent session. Compare each response with
+its `expected_answer` and verify its claims against `expected_evidence`. After
+all cases pass, write the evidence file:
 
-```html
-<!-- agent-eval-attestation
-{
-  "head_sha": "<full current PR head SHA>",
-  "result": "pass",
-  "cases": "all",
-  "evaluator": "@reviewer",
-  "runtime": "agent/runtime and model used"
-}
--->
+```sh
+python3 .github/scripts/agent_eval_attestation.py record \
+  --evaluator "human:<id>" \
+  --runtime "<agent/runtime and model>"
 ```
 
-The workflow checks that the block is valid, says all cases passed, names the
-evaluator and runtime, and matches the current PR head SHA. A new commit makes
-the attestation stale; edit the PR description after rerunning the cases to
-restore the check. The workflow uses only read-only pull-request metadata and
-does not call a model or need model credentials. Its API token is exposed only
-to the step that reads changed-file metadata, and checkout credentials are not
-persisted.
+Commit `evals/agent-eval-attestation.json` with the system change. The file
+records the case IDs, evaluator, runtime, time, result, and SHA-256 digest of
+the agent-system inputs. CI recomputes the digest on every pull request; a
+change to monitored inputs makes the evidence stale until the cases are run
+again and the file is regenerated. The attestation file is excluded from its
+own digest, so it can be generated and committed alongside the changes. No PR
+comment, CI secrets, or model/API calls are needed.
 
 This is an auditable human/agent attestation, not proof that the evaluation
 actually ran or an automated judgment of answer quality. A required human
 reviewer must verify the recorded evaluation before merge. Configure
-`kb_evals / agent_eval_attestation` as a required status check in repository
-rulesets/branch protection.
+`kb_evals / evals` as a required status check in repository rulesets/branch
+protection. Its attestation step runs for each pull request before merge.
 
 When running the behavioral cases, compare the agent's answer to
 `expected_answer` and verify its claims against `expected_evidence`. The

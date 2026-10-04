@@ -1,112 +1,117 @@
 import importlib.util
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-MODULE_PATH = REPO_ROOT / ".github" / "scripts" / "validate_agent_eval_attestation.py"
-SPEC = importlib.util.spec_from_file_location("validate_agent_eval_attestation", MODULE_PATH)
+MODULE_PATH = REPO_ROOT / ".github" / "scripts" / "agent_eval_attestation.py"
+SPEC = importlib.util.spec_from_file_location("agent_eval_attestation", MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 assert SPEC is not None
 assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 
 
-HEAD_SHA = "a" * 40
-CHANGED_AGENT_FILE = ["docs/wiki/steering/session-workflow.md"]
-
-
-def attestation(**overrides):
-    values = {
-        "head_sha": HEAD_SHA,
-        "result": "pass",
-        "cases": "all",
-        "evaluator": "@reviewer",
-        "runtime": "Copilot coding agent",
-    }
-    values.update(overrides)
-    return "<!-- agent-eval-attestation\n" + json.dumps(values) + "\n-->"
-
-
 class AgentEvalAttestationTests(unittest.TestCase):
-    def test_unrelated_changes_do_not_require_attestation(self):
-        self.assertEqual(
-            MODULE.validate_attestation(["roles/firefox/tasks/main.yml"], "", HEAD_SHA),
-            [],
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.repo = Path(self.temp_dir.name)
+        (self.repo / "evals").mkdir()
+        (self.repo / "AGENTS.md").write_text("Agent rules\n", encoding="utf-8")
+        (self.repo / "evals" / "kb.json").write_text(
+            json.dumps({"cases": [{"id": "case-one"}, {"id": "case-two"}]}),
+            encoding="utf-8",
         )
 
-    def test_all_agent_system_paths_require_attestation(self):
-        paths = [
-            "AGENTS.md",
-            ".github/copilot-instructions.md",
-            ".github/workflows/copilot-setup-steps.yml",
-            ".github/agents/reviewer.agent.md",
-            ".github/instructions/python.instructions.md",
-            ".github/prompts/review.prompt.md",
-            ".githooks/pre-commit",
-            ".devcontainer/devcontainer.json",
-            "docs/wiki/README.md",
-            "evals/kb.json",
-            "prompts/00-feature-prompt.md",
-            "requirements-dev.txt",
-            "roles/requirements.yml",
-        ]
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
-        for path in paths:
-            with self.subTest(path=path):
-                self.assertTrue(MODULE.requires_attestation([path]))
+    def test_recorded_attestation_passes_for_current_agent_system(self):
+        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
 
-    def test_agent_system_change_requires_current_passing_full_attestation(self):
-        self.assertEqual(
-            MODULE.validate_attestation(
-                CHANGED_AGENT_FILE, attestation(), HEAD_SHA
-            ),
-            [],
+        self.assertEqual(MODULE.validate_attestation(attestation, self.repo), [])
+
+    def test_agent_system_change_makes_existing_attestation_stale(self):
+        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        (self.repo / "AGENTS.md").write_text("Changed agent rules\n", encoding="utf-8")
+
+        self.assertIn(
+            "attestation is stale: agent-system inputs have changed",
+            MODULE.validate_attestation(attestation, self.repo),
         )
 
-    def test_missing_attestation_fails_for_agent_system_change(self):
-        errors = MODULE.validate_attestation(CHANGED_AGENT_FILE, "", HEAD_SHA)
+    def test_new_agent_instruction_file_changes_digest(self):
+        digest = MODULE.agent_system_digest(self.repo)
+        instructions = self.repo / ".github" / "instructions"
+        instructions.mkdir(parents=True)
+        (instructions / "python.instructions.md").write_text("New instruction\n", encoding="utf-8")
 
-        self.assertIn("PR body must contain exactly one agent eval attestation block", errors)
+        self.assertNotEqual(MODULE.agent_system_digest(self.repo), digest)
 
-    def test_stale_head_sha_fails(self):
-        errors = MODULE.validate_attestation(
-            CHANGED_AGENT_FILE,
-            attestation(head_sha="b" * 40),
-            HEAD_SHA,
+    def test_eval_instructions_change_makes_attestation_stale(self):
+        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        readme = self.repo / "evals" / "README.md"
+        readme.write_text("Evaluation instructions\n", encoding="utf-8")
+        attestation["agent_system_sha256"] = MODULE.agent_system_digest(self.repo)
+        readme.write_text("Changed evaluation instructions\n", encoding="utf-8")
+
+        self.assertIn(
+            "attestation is stale: agent-system inputs have changed",
+            MODULE.validate_attestation(attestation, self.repo),
         )
 
-        self.assertIn("agent eval attestation head_sha must match the current PR head", errors)
-
-    def test_failed_or_partial_eval_fails(self):
-        errors = MODULE.validate_attestation(
-            CHANGED_AGENT_FILE,
-            attestation(result="fail", cases=["agent-bootstrap"]),
-            HEAD_SHA,
+    def test_attestation_file_does_not_change_its_own_digest(self):
+        digest = MODULE.agent_system_digest(self.repo)
+        (self.repo / "evals" / "agent-eval-attestation.json").write_text(
+            '{"result":"pass"}\n',
+            encoding="utf-8",
         )
 
-        self.assertIn("agent eval attestation result must be 'pass'", errors)
-        self.assertIn("agent eval attestation cases must be 'all'", errors)
+        self.assertEqual(MODULE.agent_system_digest(self.repo), digest)
 
-    def test_empty_evaluator_or_runtime_fails(self):
-        errors = MODULE.validate_attestation(
-            CHANGED_AGENT_FILE,
-            attestation(evaluator=" ", runtime=""),
-            HEAD_SHA,
+    def test_all_current_cases_must_be_listed(self):
+        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        attestation["cases"] = ["case-one"]
+
+        self.assertIn(
+            "attestation cases must list every current evaluation case",
+            MODULE.validate_attestation(attestation, self.repo),
         )
 
-        self.assertIn("agent eval attestation evaluator must be a non-empty string", errors)
-        self.assertIn("agent eval attestation runtime must be a non-empty string", errors)
-
-    def test_invalid_json_fails(self):
-        errors = MODULE.validate_attestation(
-            CHANGED_AGENT_FILE,
-            "<!-- agent-eval-attestation {invalid} -->",
-            HEAD_SHA,
+    def test_result_evaluator_runtime_and_timestamp_are_required(self):
+        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        attestation.update(
+            {
+                "result": "fail",
+                "evaluator": " ",
+                "runtime": "",
+                "evaluated_at": None,
+            }
         )
 
-        self.assertIn("agent eval attestation block must contain valid JSON", errors)
+        errors = MODULE.validate_attestation(attestation, self.repo)
+
+        self.assertIn("attestation result must be 'pass'", errors)
+        self.assertIn("attestation evaluator must be a non-empty string", errors)
+        self.assertIn("attestation runtime must be a non-empty string", errors)
+        self.assertIn("attestation evaluated_at must be a non-empty string", errors)
+
+    def test_record_command_writes_evidence_file(self):
+        output_path = self.repo / "evals" / "agent-eval-attestation.json"
+
+        MODULE.record_attestation("human:reviewer", "Copilot session", output_path, self.repo)
+
+        written = json.loads(output_path.read_text(encoding="utf-8"))
+        self.assertEqual(written["cases"], ["case-one", "case-two"])
+        self.assertEqual(MODULE.validate_attestation(written, self.repo), [])
+
+    def test_empty_evaluator_or_runtime_is_rejected_when_recording(self):
+        with self.assertRaisesRegex(ValueError, "evaluator must not be empty"):
+            MODULE.build_attestation("", "Copilot session", self.repo)
+        with self.assertRaisesRegex(ValueError, "runtime must not be empty"):
+            MODULE.build_attestation("human:reviewer", " ", self.repo)
 
 
 if __name__ == "__main__":
