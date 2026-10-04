@@ -90,14 +90,6 @@
       "expected_answer": "Guard a role only when evidence shows a genuine GitHub Actions incompatibility, such as required elevated privileges being unavailable. A role needing elevation or interacting with services is not by itself enough; attempt CI first whenever compatibility is uncertain. Use the standard when: not is_gh_actions guard when warranted.",
       "expected_evidence": [
         {
-          "source": "AGENTS.md",
-          "text": "only when evidence shows a genuine GitHub Actions incompatibility"
-        },
-        {
-          "source": "AGENTS.md",
-          "text": "Do not infer CI incompatibility solely because a role requires elevation"
-        },
-        {
           "source": "docs/wiki/steering/ci-role-guard-review.md",
           "text": "genuinely incompatible with GitHub Actions constraints"
         },

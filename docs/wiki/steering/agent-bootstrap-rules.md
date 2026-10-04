@@ -21,7 +21,8 @@ stale_after: 2027-03-26T00:00:00Z
 - During implementation, iterate on evidence until the merge request is accepted.
 - Keep the merge request description aligned with the current agreed approach: avoid premature low-level specifics, and update the description after any material change in direction so review automation and reviewers see the same story as the code.
 - If wiki guidance conflicts with newer ADRs or explicit user direction, follow the user direction first and then update the wiki.
-- Keep changelog and security rationale up to date for repository changes, including UK Cyber Essentials impacts when relevant.
+- Prefer Ansible modules, idempotent role tasks, authoritative sources for system changes, and least privilege; do not introduce secrets or unsafe download/install patterns.
+- Record repository changes in `CHANGELOG.md` using its current format and a verified PR number. For security-impacting changes, include a concise threat model, rationale, explicit net-risk assessment, and relevant UK Cyber Essentials impacts.
 - Treat the wiki as a token-efficiency tool as well as a knowledge base: when durable preferences such as helper-script quality expectations are discovered, record them here once instead of re-explaining them in later sessions.
 - Treat Copilot memory as sparse hints only: durable user preferences and a few expensive-to-rediscover facts. Do not rely on memory as the main repository rules engine when the wiki already captures the guidance.
 
