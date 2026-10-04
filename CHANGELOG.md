@@ -19,14 +19,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **Every behavioral evaluation case is now explicitly mandatory**: clarified `AGENTS.md` and session guidance to match the eval README, so an agent-system change cannot be treated as requiring only a subjective subset of the current cases. The recorder still records an attestation rather than proving execution, so required human review remains necessary.
+- **Recording behavioral evaluation evidence now requires explicit confirmation**: the local command asks the operator to confirm all current cases were run and passed before writing evidence; the CI validation mode remains non-interactive. This reduces accidental false attestations without implying cryptographic or behavioral proof.
+- **CI role-guard policy is now consistent across agent guidance**: `AGENTS.md` aligns with the wiki by requiring evidence of genuine GitHub Actions incompatibility before adding a guard, and the role-guard eval now checks the settled rule instead of asking the agent to surface conflicting instructions.
 - **Behavioral evaluation timestamps are validated as timezone-aware ISO 8601 values**: CI rejects malformed or timezone-naive timestamps instead of accepting unauditable text. After this digest-covered validator changed, all five behavioral cases were rerun and the attestation regenerated.
 
 ### Security
 
 - **Threat Model Assessment**: This change **reduces knowledge-regression and change-review risk while keeping workstation runtime risk unchanged**.
-    - **Rationale**: The behavioral run occurs in the contributor's session; CI validates a committed evidence file against a digest of agent-system inputs and checks that its timestamp is an auditable timezone-aware value, with no model credentials or calls. The attestation is not cryptographic proof, so a required human reviewer must verify the report.
+    - **Rationale**: The behavioral run occurs in the contributor's session; recording requires explicit confirmation and CI validates a committed evidence file against a digest of agent-system inputs and checks that its timestamp is an auditable timezone-aware value, with no model credentials or calls. The attestation is not cryptographic proof, so a required human reviewer must verify the report.
     - **Benefit**: A repeatable, offline check protects selected setup, diagnostic, and security-decision knowledge, supporting UK Cyber Essentials expectations for controlled, reviewable configuration and change management.
-    - **Net risk statement**: Knowledge-regression and review risk is **reduced**, including by requiring every current case; workstation runtime risk is **unchanged**.
+    - **Net risk statement**: Knowledge-regression and review risk is **reduced**, including by requiring every current case and explicit confirmation, and by applying one evidence-based guard policy; workstation runtime risk is **unchanged**.
     - **CLI simplification**: Removing self-reported evaluator/runtime fields reduces recording friction without changing the gate; commit history and human review remain the attribution and verification mechanisms. The net change to workstation runtime risk is **unchanged**.
 
 ## [PR #89 - Simplify Google Chrome installation dependency resolution](https://github.com/brabster/xubuntu-workstation/pull/89)

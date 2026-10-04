@@ -22,7 +22,8 @@ containing its expected evidence. It does not run an agent.
 When an agent-system change is ready for behavioral evaluation, run every case
 as a separate prompt in the current agent session. Compare each response with
 its `expected_answer` and verify its claims against `expected_evidence`. After
-all cases pass, write the evidence file:
+all cases pass, run the recorder and confirm that every case was run and passed
+when prompted:
 
 ```sh
 python3 .github/scripts/agent_eval_attestation.py
@@ -38,10 +39,11 @@ are run again and the file is regenerated. The attestation file is excluded
 from its own digest, so it can be generated and committed alongside the
 changes. No PR comment, CI secrets, or model/API calls are needed.
 
-This is an auditable human/agent attestation, not proof that the evaluation
-actually ran or an automated judgment of answer quality. A required human
-reviewer must verify the recorded evaluation before merge; the commit history
-identifies who recorded it. Configure
+The confirmation prevents accidental recording without an explicit
+acknowledgement, but this remains an auditable human/agent attestation, not proof
+that the evaluation actually ran or an automated judgment of answer quality. A
+required human reviewer must verify the recorded evaluation before merge; the
+commit history identifies who recorded it. Configure
 `kb_evals / evals` as a required status check in repository rulesets/branch
 protection. Its attestation step runs for each pull request before merge.
 

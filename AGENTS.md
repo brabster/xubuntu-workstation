@@ -38,9 +38,9 @@ Specific principles we prioritise:
 ## Role Modularity and Guards
 
 - All automation should use modular Ansible roles, with each role responsible for a distinct area of system configuration (e.g., `ufw`, `networking`, `clamav`).
-- Roles that require elevated privileges, interact with system-level services, or are known to fail in CI (GitHub Actions) must be guarded using `when: not is_gh_actions` in playbooks.
-- If there is any doubt about CI compatibility, attempt a CI run before excluding the role.
-- The guard pattern (`when: not is_gh_actions`) is the standard and should be used unless evidence suggests a different approach is required.
+- Guard roles with `when: not is_gh_actions` only when evidence shows a genuine GitHub Actions incompatibility, such as elevated privileges unavailable in that environment.
+- Do not infer CI incompatibility solely because a role requires elevation or interacts with system services; attempt a CI run before adding a guard whenever compatibility is uncertain.
+- When a guard is required, use `when: not is_gh_actions` unless evidence supports a different approach.
 - Always document the rationale for excluding a role from CI in both the changelog and code comments.
 
 

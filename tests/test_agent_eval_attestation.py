@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -111,11 +112,43 @@ class AgentEvalAttestationTests(unittest.TestCase):
     def test_record_command_writes_evidence_file(self):
         output_path = self.repo / "evals" / "agent-eval-attestation.json"
 
-        MODULE.record_attestation(output_path, self.repo)
+        with (
+            patch("builtins.input", return_value="yes"),
+            patch("sys.argv", ["agent_eval_attestation.py"]),
+            patch.object(MODULE, "ATTESTATION_PATH", output_path),
+            patch.object(MODULE, "REPO_ROOT", self.repo),
+        ):
+            MODULE.main()
 
         written = json.loads(output_path.read_text(encoding="utf-8"))
         self.assertEqual(written["cases"], ["case-one", "case-two"])
         self.assertEqual(MODULE.validate_attestation(written, self.repo), [])
+
+    def test_record_command_does_not_write_without_confirmation(self):
+        output_path = self.repo / "evals" / "agent-eval-attestation.json"
+
+        with (
+            patch("builtins.input", return_value="no"),
+            patch("sys.argv", ["agent_eval_attestation.py"]),
+            patch.object(MODULE, "ATTESTATION_PATH", output_path),
+            patch.object(MODULE, "REPO_ROOT", self.repo),
+        ):
+            with self.assertRaisesRegex(SystemExit, "was not recorded"):
+                MODULE.main()
+
+        self.assertFalse(output_path.exists())
+
+    def test_check_command_does_not_prompt(self):
+        output_path = self.repo / "evals" / "agent-eval-attestation.json"
+        output_path.write_text("{}\n", encoding="utf-8")
+
+        with (
+            patch("builtins.input", side_effect=AssertionError("unexpected prompt")),
+            patch("sys.argv", ["agent_eval_attestation.py", "--check"]),
+            patch.object(MODULE, "ATTESTATION_PATH", output_path),
+            patch.object(MODULE, "validate_attestation", return_value=[]),
+        ):
+            MODULE.main()
 
 
 if __name__ == "__main__":

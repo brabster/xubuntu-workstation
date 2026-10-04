@@ -111,6 +111,13 @@ def record_attestation(output_path=ATTESTATION_PATH, repo_root=REPO_ROOT):
     return attestation
 
 
+def confirm_evaluation_passed():
+    response = input(
+        "Have you run and passed every current behavioral evaluation case? [y/N] "
+    )
+    return response.strip().casefold() in ("y", "yes")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -120,7 +127,9 @@ def main():
     )
     args = parser.parse_args()
     if not args.check:
-        record_attestation()
+        if not confirm_evaluation_passed():
+            raise SystemExit("Behavioral evaluation attestation was not recorded.")
+        record_attestation(ATTESTATION_PATH, REPO_ROOT)
         print(f"Wrote behavioral eval evidence to {ATTESTATION_PATH}")
         return
 
