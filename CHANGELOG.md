@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #95 - Clean up legacy agent guidance](https://github.com/brabster/xubuntu-workstation/pull/95)
+
+### Changed
+
+- **Agent bootstrap now points to the OKF wiki as its canonical guidance**: reduced `AGENTS.md` to the session-start wiki pages and lookup-on-demand rule; moved durable Ansible, security, and changelog requirements into the wiki; removed duplicate Copilot instructions.
+
+### Removed
+
+- **Archived task prompts are no longer shipped as agent guidance**: removed five one-off feature and lint prompts whose proposed steps and assumptions are stale, task-specific examples rather than reusable policy.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces agent-guidance drift and the risk of stale task-specific recommendations while leaving workstation runtime risk unchanged**.
+    - **Rationale**: A single canonical knowledge source makes current policy easier to review; removed prompts included obsolete and overly prescriptive security and implementation assumptions. No workstation configuration, package sources, privileges, or CI execution behavior change.
+    - **Benefit**: Current security practices remain in the OKF bootstrap guidance, including least privilege, secure sources, threat-model and net-risk assessment, and relevant UK Cyber Essentials impacts.
+    - **Net risk statement**: Agent-guidance drift and stale-recommendation risk are **reduced**; workstation runtime and security-control risk are **unchanged**.
+
 ## [PR #94 - Run artifact uploads on Node.js 24](https://github.com/brabster/xubuntu-workstation/pull/94)
 
 ### Changed
