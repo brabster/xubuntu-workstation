@@ -1,10 +1,12 @@
 name: kb_evals
 on:
-  pull_request: {}
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
   merge_group: {}
   workflow_dispatch: {}
 permissions:
   contents: read
+  pull-requests: read
 jobs:
   evals:
     runs-on: ubuntu-latest
@@ -17,3 +19,25 @@ jobs:
           python-version: '3.x'
       - name: run knowledge base evaluations
         run: python3 -m unittest discover -s tests -p 'test_kb_evals.py'
+  agent_eval_attestation:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout pull request head
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: fetch changed pull request files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh api --paginate \
+            "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" \
+            --jq '.[].filename' > "${RUNNER_TEMP}/changed-files.txt"
+      - name: validate behavioral evaluation attestation
+        run: |
+          python3 .github/scripts/validate_agent_eval_attestation.py \
+            --event "${GITHUB_EVENT_PATH}" \
+            --changed-files "${RUNNER_TEMP}/changed-files.txt"

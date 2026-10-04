@@ -12,11 +12,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Evaluation scope is explicit**: documented how to run the checks and how to use the cases to assess agent answers; the offline checks validate corpus evidence, not model response quality.
 - **Knowledge-base evaluations now run on every pull request and merge-queue group**: added a dedicated workflow without path filters, so its `kb_evals / evals` status is available to require before merging. Repository rulesets must select that status check; this branch-protection setting cannot be enforced from workflow files alone.
 - **Agent sessions now assess eval coverage when the agent system changes**: session guidance asks contributors to consider focused evaluation additions when changing the knowledge base, agent instructions, prompts, or capabilities.
+- **Behavioral evaluation attestation is required when agent-system inputs change**: PRs that change the wiki, agent instructions, prompts, eval cases, developer-container configuration, hooks, or agent setup dependencies must record an all-cases pass, evaluator, runtime, and exact head SHA in the PR description. A read-only workflow validates the attestation and marks it stale after a new commit; human review remains necessary because the workflow cannot prove that the agent was run.
 
 ### Security
 
 - **Threat Model Assessment**: This change **reduces knowledge-regression and change-review risk while keeping workstation runtime risk unchanged**.
-    - **Rationale**: The evaluation data and tests read repository Markdown only; they add no model/API dependency, secrets, downloads, or execution privilege. An unconditional PR/merge-queue check makes the evaluation result available on every change for branch rules to require, while session guidance prompts contributors to consider changes to the regression set.
+    - **Rationale**: The behavioral run occurs in the contributor's session; CI only reads PR metadata and validates the attestation against the current head SHA, with read-only repository permissions, no persisted checkout credentials, and no model credentials or calls. The attestation is not cryptographic proof, so a required human reviewer must verify the report.
     - **Benefit**: A repeatable, offline check protects selected setup, diagnostic, and security-decision knowledge, supporting UK Cyber Essentials expectations for controlled, reviewable configuration and change management.
     - **Net risk statement**: Knowledge-regression and review risk is **reduced**; workstation runtime risk is **unchanged**.
 
