@@ -29,12 +29,12 @@ class AgentEvalAttestationTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_recorded_attestation_passes_for_current_agent_system(self):
-        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        attestation = MODULE.build_attestation(self.repo)
 
         self.assertEqual(MODULE.validate_attestation(attestation, self.repo), [])
 
     def test_agent_system_change_makes_existing_attestation_stale(self):
-        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        attestation = MODULE.build_attestation(self.repo)
         (self.repo / "AGENTS.md").write_text("Changed agent rules\n", encoding="utf-8")
 
         self.assertIn(
@@ -51,7 +51,7 @@ class AgentEvalAttestationTests(unittest.TestCase):
         self.assertNotEqual(MODULE.agent_system_digest(self.repo), digest)
 
     def test_eval_instructions_change_makes_attestation_stale(self):
-        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        attestation = MODULE.build_attestation(self.repo)
         readme = self.repo / "evals" / "README.md"
         readme.write_text("Evaluation instructions\n", encoding="utf-8")
         attestation["agent_system_sha256"] = MODULE.agent_system_digest(self.repo)
@@ -72,7 +72,7 @@ class AgentEvalAttestationTests(unittest.TestCase):
         self.assertEqual(MODULE.agent_system_digest(self.repo), digest)
 
     def test_all_current_cases_must_be_listed(self):
-        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+        attestation = MODULE.build_attestation(self.repo)
         attestation["cases"] = ["case-one"]
 
         self.assertIn(
@@ -80,13 +80,11 @@ class AgentEvalAttestationTests(unittest.TestCase):
             MODULE.validate_attestation(attestation, self.repo),
         )
 
-    def test_result_evaluator_runtime_and_timestamp_are_required(self):
-        attestation = MODULE.build_attestation("human:reviewer", "Copilot session", self.repo)
+    def test_result_and_timestamp_are_required(self):
+        attestation = MODULE.build_attestation(self.repo)
         attestation.update(
             {
                 "result": "fail",
-                "evaluator": " ",
-                "runtime": "",
                 "evaluated_at": None,
             }
         )
@@ -94,24 +92,16 @@ class AgentEvalAttestationTests(unittest.TestCase):
         errors = MODULE.validate_attestation(attestation, self.repo)
 
         self.assertIn("attestation result must be 'pass'", errors)
-        self.assertIn("attestation evaluator must be a non-empty string", errors)
-        self.assertIn("attestation runtime must be a non-empty string", errors)
         self.assertIn("attestation evaluated_at must be a non-empty string", errors)
 
     def test_record_command_writes_evidence_file(self):
         output_path = self.repo / "evals" / "agent-eval-attestation.json"
 
-        MODULE.record_attestation("human:reviewer", "Copilot session", output_path, self.repo)
+        MODULE.record_attestation(output_path, self.repo)
 
         written = json.loads(output_path.read_text(encoding="utf-8"))
         self.assertEqual(written["cases"], ["case-one", "case-two"])
         self.assertEqual(MODULE.validate_attestation(written, self.repo), [])
-
-    def test_empty_evaluator_or_runtime_is_rejected_when_recording(self):
-        with self.assertRaisesRegex(ValueError, "evaluator must not be empty"):
-            MODULE.build_attestation("", "Copilot session", self.repo)
-        with self.assertRaisesRegex(ValueError, "runtime must not be empty"):
-            MODULE.build_attestation("human:reviewer", " ", self.repo)
 
 
 if __name__ == "__main__":

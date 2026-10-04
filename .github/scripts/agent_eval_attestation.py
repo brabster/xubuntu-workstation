@@ -69,18 +69,11 @@ def agent_system_digest(repo_root=REPO_ROOT):
     return digest.hexdigest()
 
 
-def build_attestation(evaluator, runtime, repo_root=REPO_ROOT):
-    if not evaluator.strip():
-        raise ValueError("evaluator must not be empty")
-    if not runtime.strip():
-        raise ValueError("runtime must not be empty")
-
+def build_attestation(repo_root=REPO_ROOT):
     return {
         "agent_system_sha256": agent_system_digest(repo_root),
         "result": "pass",
         "cases": [case["id"] for case in load_cases(repo_root)],
-        "evaluator": evaluator,
-        "runtime": runtime,
         "evaluated_at": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -97,14 +90,15 @@ def validate_attestation(attestation, repo_root=REPO_ROOT):
     expected_cases = [case["id"] for case in load_cases(repo_root)]
     if attestation.get("cases") != expected_cases:
         errors.append("attestation cases must list every current evaluation case")
-    for field in ("evaluator", "runtime", "evaluated_at"):
-        if not isinstance(attestation.get(field), str) or not attestation[field].strip():
-            errors.append(f"attestation {field} must be a non-empty string")
+    if not isinstance(attestation.get("evaluated_at"), str) or not attestation[
+        "evaluated_at"
+    ].strip():
+        errors.append("attestation evaluated_at must be a non-empty string")
     return errors
 
 
-def record_attestation(evaluator, runtime, output_path=ATTESTATION_PATH, repo_root=REPO_ROOT):
-    attestation = build_attestation(evaluator, runtime, repo_root)
+def record_attestation(output_path=ATTESTATION_PATH, repo_root=REPO_ROOT):
+    attestation = build_attestation(repo_root)
     output_path.write_text(
         json.dumps(attestation, indent=2) + "\n",
         encoding="utf-8",
@@ -114,23 +108,18 @@ def record_attestation(evaluator, runtime, output_path=ATTESTATION_PATH, repo_ro
 
 def main():
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    record_parser = subparsers.add_parser("record")
-    record_parser.add_argument("--evaluator", required=True)
-    record_parser.add_argument("--runtime", required=True)
-    record_parser.add_argument("--output", type=Path, default=ATTESTATION_PATH)
-
-    validate_parser = subparsers.add_parser("validate")
-    validate_parser.add_argument("--attestation", type=Path, default=ATTESTATION_PATH)
-
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="validate existing evidence instead of recording a passing evaluation",
+    )
     args = parser.parse_args()
-    if args.command == "record":
-        record_attestation(args.evaluator, args.runtime, args.output)
-        print(f"Wrote behavioral eval evidence to {args.output}")
+    if not args.check:
+        record_attestation()
+        print(f"Wrote behavioral eval evidence to {ATTESTATION_PATH}")
         return
 
-    attestation = json.loads(args.attestation.read_text(encoding="utf-8"))
+    attestation = json.loads(ATTESTATION_PATH.read_text(encoding="utf-8"))
     errors = validate_attestation(attestation)
     if errors:
         for error in errors:

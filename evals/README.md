@@ -25,22 +25,23 @@ its `expected_answer` and verify its claims against `expected_evidence`. After
 all cases pass, write the evidence file:
 
 ```sh
-python3 .github/scripts/agent_eval_attestation.py record \
-  --evaluator "human:<id>" \
-  --runtime "<agent/runtime and model>"
+python3 .github/scripts/agent_eval_attestation.py
 ```
 
 Commit `evals/agent-eval-attestation.json` with the system change. The file
-records the case IDs, evaluator, runtime, time, result, and SHA-256 digest of
-the agent-system inputs. CI recomputes the digest on every pull request; a
-change to monitored inputs makes the evidence stale until the cases are run
-again and the file is regenerated. The attestation file is excluded from its
-own digest, so it can be generated and committed alongside the changes. No PR
-comment, CI secrets, or model/API calls are needed.
+records the case IDs, time, result, and SHA-256 digest of the agent-system
+inputs. The command needs no arguments because the output path and current
+evaluation cases are fixed by the repository. CI uses `--check` to validate the
+evidence instead of recording it. CI recomputes the digest on every pull
+request; a change to monitored inputs makes the evidence stale until the cases
+are run again and the file is regenerated. The attestation file is excluded
+from its own digest, so it can be generated and committed alongside the
+changes. No PR comment, CI secrets, or model/API calls are needed.
 
 This is an auditable human/agent attestation, not proof that the evaluation
 actually ran or an automated judgment of answer quality. A required human
-reviewer must verify the recorded evaluation before merge. Configure
+reviewer must verify the recorded evaluation before merge; the commit history
+identifies who recorded it. Configure
 `kb_evals / evals` as a required status check in repository rulesets/branch
 protection. Its attestation step runs for each pull request before merge.
 
