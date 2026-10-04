@@ -1,5 +1,5 @@
 {
-  "agent_system_sha256": "f15e08a56574c3da56afe5690f10fc7746e8ecc5b81b1b39daa820579fb3e72d",
+  "agent_system_sha256": "5424a276f0e91ca0ad2bb9334a67495e895ec9695f9afd344399bd5a619e8146",
   "result": "pass",
   "cases": [
     "agent-bootstrap",
@@ -8,5 +8,5 @@
     "ci-role-guards",
     "slack-package-source"
   ],
-  "evaluated_at": "2026-10-04T16:37:39.547655+00:00"
+  "evaluated_at": "2026-10-04T17:05:40.747144+00:00"
 }
