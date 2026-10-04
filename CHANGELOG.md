@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #93 - Add knowledge base evaluations](https://github.com/brabster/xubuntu-workstation/pull/93)
+
+### Added
+
+- **An offline knowledge-base evaluation set now protects representative answers**: added question/evidence cases for agent bootstrap, failure diagnosis, CI lint triage, CI role guards, and the Slack package-source decision. The existing helper-test gate checks that expected evidence remains in its cited wiki pages, and CI runs it when the knowledge base or evaluation set changes.
+- **Evaluation scope is explicit**: documented how to run the checks and how to use the cases to assess agent answers; the offline checks validate corpus evidence, not model response quality.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces knowledge-regression and change-review risk while keeping workstation runtime risk unchanged**.
+    - **Rationale**: The evaluation data and tests read repository Markdown only; they add no model/API dependency, secrets, downloads, or execution privilege. CI fails if an evaluation source or its required evidence is removed, making key operational guidance easier to detect during review.
+    - **Benefit**: A repeatable, offline check protects selected setup, diagnostic, and security-decision knowledge, supporting UK Cyber Essentials expectations for controlled, reviewable configuration and change management.
+    - **Net risk statement**: Knowledge-regression and review risk is **reduced**; workstation runtime risk is **unchanged**.
+
 ## [PR #89 - Simplify Google Chrome installation dependency resolution](https://github.com/brabster/xubuntu-workstation/pull/89)
 
 ### Changed

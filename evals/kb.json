@@ -1,0 +1,78 @@
+{
+  "cases": [
+    {
+      "id": "agent-bootstrap",
+      "question": "Which knowledge-base pages should an agent read at session start?",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/README.md",
+          "text": "always-read bootstrap pages"
+        },
+        {
+          "source": "docs/wiki/README.md",
+          "text": "./steering/agent-bootstrap-rules.md"
+        },
+        {
+          "source": "docs/wiki/README.md",
+          "text": "./steering/session-workflow.md"
+        }
+      ]
+    },
+    {
+      "id": "ambiguous-failure",
+      "question": "What should an agent do before fixing an unclear or silent failure?",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/steering/evidence-first-diagnostics.md",
+          "text": "Gather logs, test output, and direct observations"
+        },
+        {
+          "source": "docs/wiki/steering/evidence-first-diagnostics.md",
+          "text": "Prefer small, reversible fixes"
+        }
+      ]
+    },
+    {
+      "id": "lint-ci-failure",
+      "question": "What should be investigated first when the ansible_lint workflow fails?",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/linting/ci-lint-behavior.md",
+          "text": "Runs hook behavior tests before linting."
+        },
+        {
+          "source": "docs/wiki/linting/ci-lint-behavior.md",
+          "text": "inspect the unittest step output in Actions logs"
+        }
+      ]
+    },
+    {
+      "id": "ci-role-guards",
+      "question": "When should a role be excluded from GitHub Actions?",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/steering/ci-role-guard-review.md",
+          "text": "`when: not is_gh_actions`"
+        },
+        {
+          "source": "docs/wiki/steering/ci-role-guard-review.md",
+          "text": "attempt a CI run"
+        }
+      ]
+    },
+    {
+      "id": "slack-package-source",
+      "question": "Which Slack package source does the workstation configuration use, and why is its key trusted?",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/decisions/slack-package-source.md",
+          "text": "packagecloud APT repository"
+        },
+        {
+          "source": "docs/wiki/decisions/slack-package-source.md",
+          "text": "full fingerprint is pinned and validated"
+        }
+      ]
+    }
+  ]
+}
