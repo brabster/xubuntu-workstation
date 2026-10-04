@@ -1,0 +1,23 @@
+name: kb_evals
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group: {}
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v7
+      - name: setup python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+      - name: run knowledge base evaluations
+        run: python3 -m unittest discover -s tests -p 'test_kb_evals.py'
+      - name: validate behavioral evaluation evidence
+        if: github.event_name == 'pull_request'
+        run: python3 .github/scripts/agent_eval_attestation.py --check

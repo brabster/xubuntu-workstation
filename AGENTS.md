@@ -31,15 +31,16 @@ Specific principles we prioritise:
 - Consult `docs/wiki/steering/index.md`, `docs/wiki/linting/index.md`, `docs/wiki/decisions/index.md`, and `docs/wiki/okf_spec_v0.2.md` only when the task needs them.
 - Treat this wiki as operational steering and reusable repository context.
 - If wiki guidance conflicts with newer ADR decisions or explicit user direction, follow user direction first and then update the wiki.
+- When changing `docs/wiki/`, `AGENTS.md`, `prompts/`, `evals/`, agent instruction files, developer-container configuration, hooks, or agent setup dependencies, run every current `evals/kb.json` question against the current agent system as a separate prompt and compare the response with `expected_answer` and `expected_evidence`. Add or propose cases for meaningful changes, then run the recording command in [eval guidance](docs/wiki/steering/session-workflow.md) and commit `evals/agent-eval-attestation.json` with the change. Do not fabricate a pass if behavioral execution was unavailable.
 
 
 
 ## Role Modularity and Guards
 
 - All automation should use modular Ansible roles, with each role responsible for a distinct area of system configuration (e.g., `ufw`, `networking`, `clamav`).
-- Roles that require elevated privileges, interact with system-level services, or are known to fail in CI (GitHub Actions) must be guarded using `when: not is_gh_actions` in playbooks.
-- If there is any doubt about CI compatibility, attempt a CI run before excluding the role.
-- The guard pattern (`when: not is_gh_actions`) is the standard and should be used unless evidence suggests a different approach is required.
+- Guard roles with `when: not is_gh_actions` only when evidence shows a genuine GitHub Actions incompatibility, such as elevated privileges unavailable in that environment.
+- Do not infer CI incompatibility solely because a role requires elevation or interacts with system services; attempt a CI run before adding a guard whenever compatibility is uncertain.
+- When a guard is required, use `when: not is_gh_actions` unless evidence supports a different approach.
 - Always document the rationale for excluding a role from CI in both the changelog and code comments.
 
 

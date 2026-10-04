@@ -3,8 +3,8 @@ type: Playbook
 title: Session workflow
 description: Default end-to-end workflow for issue handling, research, planning, implementation, and evidence-driven iteration.
 tags: [steering, workflow, research]
-generated: { by: github-copilot/coding-agent, at: 2026-09-26T20:54:32Z }
-stale_after: 2027-03-26T00:00:00Z
+generated: { by: github-copilot/coding-agent, at: 2026-10-04T12:21:54Z }
+stale_after: 2027-04-04T00:00:00Z
 ---
 
 # Session workflow
@@ -24,6 +24,8 @@ stale_after: 2027-03-26T00:00:00Z
 13. **Iterate until accepted**: respond to review, new evidence, or external research by refining the implementation, re-aligning the MR description if needed, and repeating validation.
 14. **For agent sessions, verify lint bootstrap first**: confirm hook-based lint prerequisites are active (for example `.githooks` hooks path and lint dependencies) before relying on pre-commit behavior.
 15. **Capture reusable lessons before closing**: when a session discovers durable steering, workflow, linting, or decision guidance, update the relevant OKF wiki pages and keep any contributor-facing summary aligned in `CHANGELOG.md`.
+16. **Run behavioral evaluations for agent-system changes**: when a change touches `docs/wiki/`, `AGENTS.md`, `prompts/`, `evals/`, agent instructions, developer-container configuration, hooks, or agent setup dependencies, run every current case from `evals/kb.json` as a separate prompt against the current agent system. Compare each response with its `expected_answer` and cited evidence. After all cases pass, write and commit `evals/agent-eval-attestation.json` with `python3 .github/scripts/agent_eval_attestation.py`. The command records the current cases, time, result, and digest; the commit history identifies who recorded it. If you cannot run the agent behaviorally, do not create a passing attestation; explain the limitation for human review. Keep the offline evidence-integrity check distinct from these behavioral evaluations.
+17. **Keep knowledge evaluations aligned with the agent system**: when changing the knowledge base, `AGENTS.md`, prompts, or agent capabilities, assess whether `evals/kb.json` needs new or updated cases. Propose focused cases for meaningful behavior changes and explain when no useful case can be added.
 
 Related concepts:
 - [Agent bootstrap rules](./agent-bootstrap-rules.md)
