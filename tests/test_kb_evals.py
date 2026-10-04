@@ -20,6 +20,7 @@ class KnowledgeBaseEvalTests(unittest.TestCase):
 
         for case in self.cases:
             with self.subTest(case=case.get("id")):
+                self.assertTrue(case.get("id"))
                 self.assertTrue(case.get("question"))
                 self.assertTrue(case.get("expected_answer"))
                 self.assertTrue(case.get("expected_evidence"))
