@@ -16,10 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Eval instructions are included in the evidence digest**: changing the procedure invalidates the previous run. Merge-queue synthetic trees run corpus-integrity checks; behavioral evidence is checked on each PR before it enters the queue.
 - **Behavioral cases now define expected answers as well as source evidence**: the role-guard case specifically requires agents to surface the existing difference between `AGENTS.md` and the CI guard playbook instead of repeating one rule as settled guidance.
 
+### Changed
+
+- **Behavioral evaluation timestamps are validated as timezone-aware ISO 8601 values**: CI rejects malformed or timezone-naive timestamps instead of accepting unauditable text.
+
 ### Security
 
 - **Threat Model Assessment**: This change **reduces knowledge-regression and change-review risk while keeping workstation runtime risk unchanged**.
-    - **Rationale**: The behavioral run occurs in the contributor's session; CI validates a committed evidence file against a digest of agent-system inputs, with no model credentials or calls. The attestation is not cryptographic proof, so a required human reviewer must verify the report.
+    - **Rationale**: The behavioral run occurs in the contributor's session; CI validates a committed evidence file against a digest of agent-system inputs and checks that its timestamp is an auditable timezone-aware value, with no model credentials or calls. The attestation is not cryptographic proof, so a required human reviewer must verify the report.
     - **Benefit**: A repeatable, offline check protects selected setup, diagnostic, and security-decision knowledge, supporting UK Cyber Essentials expectations for controlled, reviewable configuration and change management.
     - **Net risk statement**: Knowledge-regression and review risk is **reduced**; workstation runtime risk is **unchanged**.
     - **CLI simplification**: Removing self-reported evaluator/runtime fields reduces recording friction without changing the gate; commit history and human review remain the attribution and verification mechanisms. The net change to workstation runtime risk is **unchanged**.

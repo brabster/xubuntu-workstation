@@ -92,7 +92,21 @@ class AgentEvalAttestationTests(unittest.TestCase):
         errors = MODULE.validate_attestation(attestation, self.repo)
 
         self.assertIn("attestation result must be 'pass'", errors)
-        self.assertIn("attestation evaluated_at must be a non-empty string", errors)
+        self.assertIn(
+            "attestation evaluated_at must be a timezone-aware ISO 8601 timestamp",
+            errors,
+        )
+
+    def test_malformed_and_timezone_naive_timestamps_are_rejected(self):
+        for evaluated_at in ("unknown", "2026-10-04T16:14:13"):
+            with self.subTest(evaluated_at=evaluated_at):
+                attestation = MODULE.build_attestation(self.repo)
+                attestation["evaluated_at"] = evaluated_at
+
+                self.assertIn(
+                    "attestation evaluated_at must be a timezone-aware ISO 8601 timestamp",
+                    MODULE.validate_attestation(attestation, self.repo),
+                )
 
     def test_record_command_writes_evidence_file(self):
         output_path = self.repo / "evals" / "agent-eval-attestation.json"

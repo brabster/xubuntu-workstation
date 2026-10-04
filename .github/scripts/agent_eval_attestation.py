@@ -90,10 +90,15 @@ def validate_attestation(attestation, repo_root=REPO_ROOT):
     expected_cases = [case["id"] for case in load_cases(repo_root)]
     if attestation.get("cases") != expected_cases:
         errors.append("attestation cases must list every current evaluation case")
-    if not isinstance(attestation.get("evaluated_at"), str) or not attestation[
-        "evaluated_at"
-    ].strip():
-        errors.append("attestation evaluated_at must be a non-empty string")
+    evaluated_at = attestation.get("evaluated_at")
+    try:
+        timestamp = datetime.fromisoformat(evaluated_at)
+        if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+            raise ValueError
+    except (TypeError, ValueError):
+        errors.append(
+            "attestation evaluated_at must be a timezone-aware ISO 8601 timestamp"
+        )
     return errors
 
 
