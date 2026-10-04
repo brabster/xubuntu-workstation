@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **CI artifact uploads now use `actions/upload-artifact@v7`**: both workflows use the latest release, which defaults to Node.js 24; its direct-upload feature is opt-in, so artifact names, paths, and archived upload behavior are unchanged.
-- **Action and dependency upgrades now have explicit agent guidance and an evaluation case**: agents compare the latest stable release, verify compatibility and behavior changes from authoritative sources, and explain when they do not choose the latest compatible version.
+- **Agent steering now calls for evidence-based, reversible remediation and latest-compatible upgrades**: agents compare the latest stable release, verify compatibility and behavior changes from authoritative sources, and explain when they do not choose the latest compatible version; a focused action-upgrade evaluation case protects this guidance.
 
 ### Security
 
