@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #99 - Align README with the workstation setup](https://github.com/brabster/xubuntu-workstation/pull/99)
+
+### Changed
+
+- **README setup guidance now reflects the current workstation playbook**: clarified what the playbook configures, warned that setup scripts erase their target USB, removed the stale Firefox reference, and distinguished container CI checks from on-device testing.
+
 ## [PR #95 - Clean up legacy agent guidance](https://github.com/brabster/xubuntu-workstation/pull/95)
 
 ### Changed
