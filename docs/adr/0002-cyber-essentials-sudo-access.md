@@ -28,7 +28,7 @@ The standard does not prescribe Linux `sudo`, a particular group, or a specific 
 - **Is a separate administrator account with no sudoers access for the everyday account better aligned?** Yes. Keep the everyday account unprivileged and use a distinct administrator account only for administrative activity. The separate admin account may itself use sudo; Cyber Essentials does not require that no account use sudo. “No sudoers access” should refer to the everyday account, not every administrator.
 - **Does this alone establish overall Cyber Essentials compliance?** No. Compliance depends on the full in-scope environment and its actual use; this decision addresses only account separation. A certification body should be consulted if relying on command-specific delegation as an exception.
 
-The Linux interpretation above is not a Linux-specific rule stated by the NCSC. The cited source uses the section heading and requirement text rather than a numbered identifier or page number; those details were not independently verified.
+The Linux interpretation above is not a Linux-specific rule stated by the NCSC. The quoted wording and section heading were available in an indexed transcription, but the official PDF could not be retrieved during this research. Verify the exact wording and placement with NCSC or IASME before relying on it as certification evidence; no requirement number or page is cited because neither was verified.
 
 ## Decision requested
 
