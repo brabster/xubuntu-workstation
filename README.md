@@ -58,7 +58,7 @@ The setup ends by configuring NordVPN. **Its network killswitch is OFF** until y
 
 - insert bootstrap USB
 - mount, open terminal in directory
-- `sudo su -` to start a root shell (you will lose ability to `sudo` arbitrarily as part of install to meet Cyber Essentials regulations)
+- `sudo su -` to start a root shell
 - `passwd` to set a root password
 - `cd` back to the mount directory
 - ensure connected to network for updates and installs
@@ -92,11 +92,11 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
 
 
 ### Playbook
-- [sudo](roles/sudo) remove sudo timeout - you need to put your password in each time
+- [sudo](roles/sudo) set the sudo timestamp timeout to zero; passwordless grants are explicit exceptions
 - [sudo](roles/sudo) restrict sudo commands to essential tasks
     - applying updates,
-    - preparing installation media for the next update
-    - temporarily starting and stopping rarely-needed services
+    - temporarily starting and stopping CUPS (outside CI)
+- The configured everyday user is removed from the general `sudo` group but retains specific sudoers grants. This is not a separate-admin-account model; see the [Cyber Essentials assessment](docs/adr/0002-cyber-essentials-sudo-access.md) before describing this setup as compliant.
 - [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
 - [updates](roles/updates)
     - update all known supply chains, incl. OS, firmware, snap, pip, clamav

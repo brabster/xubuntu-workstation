@@ -10,6 +10,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **README setup guidance now reflects the current workstation playbook**: clarified what the playbook configures, warned that setup scripts erase their target USB, removed the stale Firefox reference, and distinguished container CI checks from on-device testing.
 
+## [PR #103 - Assess sudo access against Cyber Essentials](https://github.com/brabster/xubuntu-workstation/pull/103)
+
+### Changed
+
+- **Documented the Cyber Essentials account-separation assessment for sudo**: the everyday user is removed from the general `sudo` group but still has command-specific sudoers grants. The assessment explains that restricted grants do not by themselves provide a separate administrator account, compares the separate-account option, and records that maintainer approval is pending. README wording no longer implies that the existing setup meets Cyber Essentials regulations.
+
+### Security
+
+- **Threat Model Assessment**: This documentation change **does not change workstation runtime risk**.
+    - **Rationale**: No sudo rules or account configuration changed. The documentation clarifies that the current everyday account retains limited administrative capabilities and should not be represented as meeting the Cyber Essentials separate-account requirement.
+    - **Benefit**: An evidence-based comparison supports informed approval and avoids overstating compliance with UK Cyber Essentials.
+    - **Net risk statement**: Workstation runtime and security-control risk are **unchanged**; risk of misunderstanding the account-separation assessment is **reduced**.
+
 ## [PR #95 - Clean up legacy agent guidance](https://github.com/brabster/xubuntu-workstation/pull/95)
 
 ### Changed
