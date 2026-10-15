@@ -48,6 +48,16 @@
     regexp: '^%updaters[[:space:]]'
     validate: visudo -cf %s
 
+- name: Check whether the legacy updaters group contains the workstation user
+  ansible.builtin.command:
+    argv:
+      - getent
+      - group
+      - updaters
+  register: updates_updaters_group
+  changed_when: false
+  failed_when: false
+
 - name: Remove the workstation user from the legacy updaters group
   ansible.builtin.command:
     argv:
@@ -57,7 +67,9 @@
       - updaters
   register: updates_updaters_group_removal
   changed_when: updates_updaters_group_removal.rc == 0
-  failed_when: updates_updaters_group_removal.rc not in [0, 3]
+  when:
+    - updates_updaters_group.rc == 0
+    - username in updates_updaters_group.stdout.split(':')[-1].split(',')
 
 - name: Setup user update script
   ansible.builtin.template:

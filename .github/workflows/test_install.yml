@@ -101,6 +101,7 @@ jobs:
           grep -Fq 'OnCalendar=*-*-* 06:00:00' /etc/systemd/system/xubuntu-workstation-update.timer
           grep -Fq 'Persistent=true' /etc/systemd/system/xubuntu-workstation-update.timer
           test "$(stat -c '%U:%G:%a' /usr/local/bin/update)" = "root:root:755"
+          test "$(stat -c '%U:%G:%a' /var/log/xubuntu-workstation-update.log)" = "root:root:644"
           test -r /var/log/xubuntu-workstation-update.log
           sh -n /usr/local/bin/update
           # su - tester -c "! systemctl is-enabled cups"
