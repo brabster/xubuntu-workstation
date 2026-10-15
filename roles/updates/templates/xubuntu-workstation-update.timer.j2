@@ -1,10 +1,10 @@
 [Unit]
-Description=Run workstation system updates daily
+Description=Run workstation updates after boot and hourly
 
 [Timer]
-OnCalendar=*-*-* 06:00:00
-RandomizedDelaySec=30m
-Persistent=true
+OnBootSec=1min
+OnUnitActiveSec=1h
+RandomizedDelaySec=5min
 Unit=xubuntu-workstation-update.service
 
 [Install]

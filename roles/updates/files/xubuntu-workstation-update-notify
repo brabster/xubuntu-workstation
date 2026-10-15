@@ -1,0 +1,77 @@
+#!/bin/sh
+
+set -eu
+
+service=xubuntu-workstation-update.service
+last_success=/var/lib/xubuntu-workstation-update/last-success
+log_file=/var/log/xubuntu-workstation-update.log
+cache_dir="${XDG_CACHE_HOME:-${HOME}/.cache}/xubuntu-workstation-update"
+notified_file="${cache_dir}/last-notification"
+check_interval=900
+stale_after=93600
+monitor=true
+
+if [ "${1:-}" = "--once" ]; then
+    monitor=false
+fi
+
+if [ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ] \
+    || { [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; } \
+    || ! command -v notify-send >/dev/null 2>&1; then
+    exit 0
+fi
+
+notify_once() {
+    signature=$1
+    title=$2
+    message=$3
+
+    if [ -r "$notified_file" ] && [ "$(cat "$notified_file")" = "$signature" ]; then
+        return
+    fi
+
+    if notify-send --urgency=critical --expire-time=0 "$title" "$message"; then
+        mkdir -p "$cache_dir"
+        chmod 0700 "$cache_dir"
+        printf '%s\n' "$signature" > "${notified_file}.tmp"
+        mv -f "${notified_file}.tmp" "$notified_file"
+        chmod 0600 "$notified_file"
+    fi
+}
+
+while :; do
+    active_state="$(systemctl show --system --property=ActiveState --value "$service" 2>/dev/null || printf unknown)"
+
+    case "$active_state" in
+        active|activating|reloading)
+            ;;
+        failed)
+            result="$(systemctl show --system --property=Result --value "$service" 2>/dev/null || printf unknown)"
+            exit_status="$(systemctl show --system --property=ExecMainStatus --value "$service" 2>/dev/null || printf unknown)"
+            notify_once "failed:${result}:${exit_status}" \
+                "Workstation updates failed" \
+                "The update service failed after its retries. Check systemctl status ${service} and ${log_file}."
+            ;;
+        *)
+            if [ -r "$last_success" ]; then
+                last_success_time="$(cat "$last_success")"
+                last_success_epoch="$(date --date="$last_success_time" +%s 2>/dev/null || printf 0)"
+            else
+                last_success_time=never
+                last_success_epoch=0
+            fi
+
+            now="$(date +%s)"
+            if [ "$last_success_epoch" -eq 0 ] || [ $((now - last_success_epoch)) -gt "$stale_after" ]; then
+                notify_once "stale:${last_success_time}" \
+                    "Workstation updates are overdue" \
+                    "No successful update run has completed in the last 26 hours. Check systemctl status ${service} and ${log_file}."
+            elif [ -e "$notified_file" ]; then
+                rm -f "$notified_file"
+            fi
+            ;;
+    esac
+
+    [ "$monitor" = true ] || exit 0
+    sleep "$check_interval"
+done

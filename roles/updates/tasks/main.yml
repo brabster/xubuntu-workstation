@@ -25,6 +25,41 @@
     group: root
     mode: '0644'
 
+- name: Ensure update state directory exists
+  ansible.builtin.file:
+    path: /var/lib/xubuntu-workstation-update
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install desktop notification dependency
+  ansible.builtin.package:
+    name: libnotify-bin
+    state: present
+
+- name: Install update status notification monitor
+  ansible.builtin.copy:
+    src: files/xubuntu-workstation-update-notify
+    dest: /usr/local/bin/xubuntu-workstation-update-notify
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install update notification desktop autostart entry
+  ansible.builtin.copy:
+    dest: /etc/xdg/autostart/xubuntu-workstation-update-notify.desktop
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Name=Workstation update status
+      Exec=/usr/local/bin/xubuntu-workstation-update-notify
+      NoDisplay=true
+      X-GNOME-Autostart-enabled=true
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Install the workstation update service
   ansible.builtin.template:
     src: xubuntu-workstation-update.service.j2

@@ -95,8 +95,8 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
 - [sudo](roles/sudo) set the sudo timestamp timeout to zero
 - [sudo](roles/sudo) restrict sudo commands to essential tasks
     - temporarily starting and stopping CUPS (outside CI)
-- [updates](roles/updates) run the root-owned system update script automatically each day as a system service; the everyday user has no sudo grant for updates
-- Check update results with `systemctl status xubuntu-workstation-update.service` and `tail -n 40 /var/log/xubuntu-workstation-update.log`. Failed updates are marked in the log and leave the service failed after retries.
+- [updates](roles/updates) run the root-owned system update script shortly after boot and hourly while the workstation is on; the everyday user has no sudo grant for updates
+- A desktop notification warns when an update run fails or no successful run has completed in 26 hours. The monitor checks at login and periodically during the desktop session. Inspect details with `systemctl status xubuntu-workstation-update.service` and `tail -n 40 /var/log/xubuntu-workstation-update.log`.
 - The daily system service removes the everyday user's role in invoking privileged update operations; it does not by itself establish overall Cyber Essentials compliance. See the [Cyber Essentials assessment](docs/adr/0002-cyber-essentials-sudo-access.md).
 - [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
 - [updates](roles/updates) also invokes a user-owned update hook as the ordinary user, with a timeout; it currently performs no package updates

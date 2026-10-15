@@ -7,7 +7,16 @@ exec >> /var/log/xubuntu-workstation-update.log 2>&1
 finish_update() {
     result=$?
     if [ "$result" -eq 0 ]; then
-        printf '=== Update completed at %s ===\n' "$(date --iso-8601=seconds)"
+        success_tmp="${state_dir}/.last-success.$$"
+        if ! date --iso-8601=seconds > "$success_tmp" \
+            || ! chmod 0644 "$success_tmp" \
+            || ! mv -f "$success_tmp" "${state_dir}/last-success"; then
+            rm -f "$success_tmp"
+            result=1
+            printf '=== Update FAILED to record success at %s ===\n' "$(date --iso-8601=seconds)"
+        else
+            printf '=== Update completed at %s ===\n' "$(date --iso-8601=seconds)"
+        fi
     else
         printf '=== Update FAILED at %s (exit %s) ===\n' "$(date --iso-8601=seconds)" "$result"
     fi
@@ -20,6 +29,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 export DEBIAN_FRONTEND=noninteractive
+state_dir=/var/lib/xubuntu-workstation-update
 
 printf '\n=== Update started at %s ===\n' "$(date --iso-8601=seconds)"
 echo "Package updates"

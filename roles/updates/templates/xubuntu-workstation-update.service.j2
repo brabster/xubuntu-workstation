@@ -2,6 +2,8 @@
 Description=Apply workstation system updates
 Wants=network-online.target
 After=network-online.target
+Conflicts=shutdown.target
+Before=shutdown.target
 StartLimitIntervalSec=1d
 StartLimitBurst=3
 
