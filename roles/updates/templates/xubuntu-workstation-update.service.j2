@@ -4,8 +4,6 @@ Wants=network-online.target
 After=network-online.target
 Conflicts=shutdown.target
 Before=shutdown.target
-StartLimitIntervalSec=1d
-StartLimitBurst=3
 
 [Service]
 Type=oneshot
@@ -14,7 +12,5 @@ Environment=DEBIAN_FRONTEND=noninteractive
 Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
 ExecStart={{ update_script }}
 TimeoutStartSec=2h
-Restart=on-failure
-RestartSec=15min
 StandardOutput=append:/var/log/xubuntu-workstation-update.log
 StandardError=inherit

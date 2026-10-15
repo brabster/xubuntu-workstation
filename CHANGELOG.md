@@ -14,14 +14,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- **System updates now run shortly after boot and hourly from a root systemd timer instead of the everyday user's sudo grant**: the service runs non-interactively, retries failures, and records timestamped outcomes and the last successful run. A desktop-session monitor notifies the user when updates fail or have not succeeded within 26 hours.
+- **System updates now run shortly after boot and hourly from a root systemd timer instead of the everyday user's sudo grant**: the service runs non-interactively, is retried by the next hourly timer event after failure, and records timestamped outcomes and the last successful run. A desktop-session monitor notifies the user when updates fail or have not succeeded within 26 hours.
 
 ### Security
 
 - **Threat Model Assessment**: This change **reduces the everyday account's privileged capabilities while preserving routine update execution**.
-    - **Rationale**: The `updaters` sudoers rule and group membership are removed. A root-owned systemd service runs the fixed update script shortly after boot and hourly while powered on; system package prompts are disabled and failures remain visible in systemd state, the update log, and desktop notifications. The user-level update hook still runs as the user with a timeout, not as root. The separate CUPS sudo grant and overall Cyber Essentials interpretation are unchanged.
+    - **Rationale**: The `updaters` sudoers rule and group membership are removed. A root-owned systemd service runs the fixed update script shortly after boot and hourly while powered on; system package prompts are disabled and failures remain visible in systemd state, the update log, and desktop notifications. Failed runs remain failed until the next hourly timer retry. The user-level update hook still runs as the user with a timeout, not as root. The separate CUPS sudo grant and overall Cyber Essentials interpretation are unchanged.
     - **Benefit**: Prompt routine updates no longer require the everyday account to invoke sudo or log into another interactive account. Desktop alerts surface failed or overdue updates while preserving readable service and log status.
-    - **Net risk statement**: Privilege exposure through the everyday account is **reduced**; unattended update disruption and availability risk are **introduced** and mitigated by retries, timeouts, and user notifications. No overall Cyber Essentials certification claim is made.
+    - **Net risk statement**: Privilege exposure through the everyday account is **reduced**; unattended update disruption and availability risk are **introduced** and mitigated by the hourly retry, timeouts, and user notifications. No overall Cyber Essentials certification claim is made.
 
 ## [PR #103 - Assess sudo access against Cyber Essentials](https://github.com/brabster/xubuntu-workstation/pull/103)
 

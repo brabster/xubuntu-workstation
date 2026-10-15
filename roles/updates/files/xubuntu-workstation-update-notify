@@ -9,6 +9,7 @@ cache_dir="${XDG_CACHE_HOME:-${HOME}/.cache}/xubuntu-workstation-update"
 notified_file="${cache_dir}/last-notification"
 check_interval=900
 stale_after=93600
+reminder_interval=86400
 monitor=true
 
 if [ "${1:-}" = "--once" ]; then
@@ -26,24 +27,42 @@ notify_once() {
     title=$2
     message=$3
 
-    if [ -r "$notified_file" ] && [ "$(cat "$notified_file")" = "$signature" ]; then
-        return
+    now="$(date +%s)"
+    if [ -r "$notified_file" ]; then
+        notified_signature="$(cut -d ' ' -f 1 "$notified_file")"
+        notified_time="$(cut -d ' ' -f 2 "$notified_file")"
+        if [ "$notified_signature" = "$signature" ] \
+            && [ "$notified_time" -gt 0 ] \
+            && [ $((now - notified_time)) -lt "$reminder_interval" ]; then
+            return
+        fi
     fi
 
     if notify-send --urgency=critical --expire-time=0 "$title" "$message"; then
         mkdir -p "$cache_dir"
         chmod 0700 "$cache_dir"
-        printf '%s\n' "$signature" > "${notified_file}.tmp"
+        printf '%s %s\n' "$signature" "$now" > "${notified_file}.tmp"
         mv -f "${notified_file}.tmp" "$notified_file"
         chmod 0600 "$notified_file"
     fi
 }
 
 while :; do
-    active_state="$(systemctl show --system --property=ActiveState --value "$service" 2>/dev/null || printf unknown)"
+    if ! active_state="$(systemctl show --system --property=ActiveState --value "$service" 2>/dev/null)"; then
+        notify_once "status-unavailable" \
+            "Cannot check workstation updates" \
+            "The update service status could not be read. Check systemctl status ${service} and ${log_file}."
+        [ "$monitor" = true ] || exit 0
+        sleep "$check_interval"
+        continue
+    fi
 
     case "$active_state" in
         active|activating|reloading)
+            if [ -r "$notified_file" ] \
+                && [ "$(cat "$notified_file")" = "status-unavailable" ]; then
+                rm -f "$notified_file"
+            fi
             ;;
         failed)
             result="$(systemctl show --system --property=Result --value "$service" 2>/dev/null || printf unknown)"

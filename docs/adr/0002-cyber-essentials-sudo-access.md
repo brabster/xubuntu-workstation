@@ -11,7 +11,7 @@ This playbook targets a personal, single-user workstation. The configured everyd
 - `roles/cups/tasks/main.yml` still adds the user to `cups_users` and permits starting and stopping CUPS with sudo. This role runs outside CI.
 - `roles/next_install/tasks/main.yml` defines a sudoers grant for the USB setup scripts, but `next_install` is not included in `workstation.yml`; it is not applied by the main workstation playbook.
 
-The timer starts updates shortly after boot and repeats hourly while the machine is on. The service runs as root without an interactive user session. Its command output and timestamped completion result are recorded in a user-readable log; systemd retries failures and leaves the service failed if retries are exhausted. A desktop-session monitor notifies the user of failed runs or no successful run in 26 hours. This is a change to the update execution model, not a claim that unattended system services satisfy any particular CE account-separation interpretation.
+The timer starts updates shortly after boot and repeats hourly while the machine is on. The service runs as root without an interactive user session. Its command output and timestamped completion result are recorded in a user-readable log. A failed service remains failed until the next hourly timer activation retries it. A desktop-session monitor notifies the user of failed runs or no successful run in 26 hours. This is a change to the update execution model, not a claim that unattended system services satisfy any particular CE account-separation interpretation.
 
 ## Cyber Essentials evidence
 
