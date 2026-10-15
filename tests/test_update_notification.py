@@ -93,6 +93,7 @@ class UpdateNotificationTests(unittest.TestCase):
         notifications = self.notifications.read_text(encoding="utf-8").splitlines()
         self.assertEqual(len(notifications), 1)
         self.assertIn("Workstation updates failed", notifications[0])
+        self.assertIn("next hourly run", notifications[0])
 
         notified_file = self.cache_dir / "xubuntu-workstation-update" / "last-notification"
         notified_file.write_text("failed:exit-code:1 1\n", encoding="utf-8")

@@ -69,7 +69,7 @@ while :; do
             exit_status="$(systemctl show --system --property=ExecMainStatus --value "$service" 2>/dev/null || printf unknown)"
             notify_once "failed:${result}:${exit_status}" \
                 "Workstation updates failed" \
-                "The update service failed after its retries. Check systemctl status ${service} and ${log_file}."
+                "The update service failed. It will try again at the next hourly run. Check systemctl status ${service} and ${log_file}."
             ;;
         *)
             if [ -r "$last_success" ]; then
