@@ -17,9 +17,14 @@ class UpdateScriptTests(unittest.TestCase):
         self.bin_dir = self.root / "bin"
         self.bin_dir.mkdir()
         self.log_file = self.root / "update.log"
+        self.state_dir = self.root / "state"
+        self.state_dir.mkdir()
         script = UPDATE_TEMPLATE.read_text(encoding="utf-8")
         script = script.replace(
             "/var/log/xubuntu-workstation-update.log", str(self.log_file)
+        )
+        script = script.replace(
+            "/var/lib/xubuntu-workstation-update", str(self.state_dir)
         )
         script = script.replace("{{ username }}", "tester")
         script = script.replace("{{ user_update_script }}", "/home/tester/update")
@@ -65,6 +70,7 @@ class UpdateScriptTests(unittest.TestCase):
         self.assertIn("fwupdmgr update --assume-yes", output)
         self.assertIn("runuser --user tester -- /home/tester/update", output)
         self.assertIn("=== Update completed at ", output)
+        self.assertTrue((self.state_dir / "last-success").is_file())
 
     def test_failed_package_command_returns_failure_and_records_it(self):
         result = self._run_script(fail_apt=True)
@@ -74,6 +80,7 @@ class UpdateScriptTests(unittest.TestCase):
         self.assertIn("=== Update FAILED at ", output)
         self.assertIn("(exit 1)", output)
         self.assertNotIn("Snap updates", output)
+        self.assertFalse((self.state_dir / "last-success").exists())
 
 
 if __name__ == "__main__":

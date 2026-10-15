@@ -46,6 +46,14 @@
     group: root
     mode: '0755'
 
+- name: Ensure desktop autostart directory exists
+  ansible.builtin.file:
+    path: /etc/xdg/autostart
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Install update notification desktop autostart entry
   ansible.builtin.copy:
     dest: /etc/xdg/autostart/xubuntu-workstation-update-notify.desktop
