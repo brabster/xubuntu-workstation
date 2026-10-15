@@ -1,0 +1,11 @@
+[Unit]
+Description=Run workstation system updates daily
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+RandomizedDelaySec=30m
+Persistent=true
+Unit=xubuntu-workstation-update.service
+
+[Install]
+WantedBy=timers.target

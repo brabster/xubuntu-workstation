@@ -2,8 +2,10 @@
 
 set -euo pipefail
 
-echo "Checking update script works"
-sudo update
+echo "Checking daily update timer and latest update result"
+systemctl is-enabled --quiet xubuntu-workstation-update.timer
+systemctl status xubuntu-workstation-update.service --no-pager || true
+tail -n 40 /var/log/xubuntu-workstation-update.log
 
 echo
 echo "Checking cups can be started and stopped, but not enabled"

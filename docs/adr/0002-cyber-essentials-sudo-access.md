@@ -1,18 +1,17 @@
-# ADR 0002: Workstation sudo access and Cyber Essentials
+# ADR 0002: Workstation update privileges and Cyber Essentials
 
-- Status: Proposed — explicit maintainer approval required
+- Status: Proposed — update execution model changed; Cyber Essentials interpretation remains unconfirmed
 - Date: 2026-10-15
 - Related PR: [#103](https://github.com/brabster/xubuntu-workstation/pull/103)
 
 ## Context
 
-This playbook targets a personal, single-user workstation. Its sudo setup removes the configured user from the general `sudo` group and sets the sudo timestamp timeout to zero (`roles/sudo/tasks/main.yml`). Other roles still grant that same user specific sudoers access:
+This playbook targets a personal, single-user workstation. The configured everyday user is removed from the general `sudo` group and sudo's timestamp timeout is zero (`roles/sudo/tasks/main.yml`). The update role now removes the legacy `updaters` grant and membership, and runs the root-owned update script from a persistent daily systemd timer (`roles/updates/tasks/main.yml` and `roles/updates/templates/`).
 
-- `roles/updates/tasks/main.yml` adds the user to `updaters` and permits passwordless sudo for the update script.
-- `roles/cups/tasks/main.yml` adds the user to `cups_users` and permits starting and stopping CUPS with sudo. This role runs outside CI.
+- `roles/cups/tasks/main.yml` still adds the user to `cups_users` and permits starting and stopping CUPS with sudo. This role runs outside CI.
 - `roles/next_install/tasks/main.yml` defines a sudoers grant for the USB setup scripts, but `next_install` is not included in `workstation.yml`; it is not applied by the main workstation playbook.
 
-The bootstrap instructions also set a password for the separate root account. That does not remove the sudoers grants from the everyday user account.
+The daily service runs as root without an interactive user session. Its command output and timestamped completion result are recorded in a user-readable log; systemd retries failures and leaves the service failed if retries are exhausted. This is a change to the update execution model, not a claim that unattended system services satisfy any particular CE account-separation interpretation.
 
 ## Cyber Essentials evidence
 
@@ -24,12 +23,13 @@ The standard does not prescribe Linux `sudo`, a particular group, or a specific 
 
 ## Assessment
 
-- **Is this setup compliant with the separate-account requirement?** No, not on the configuration shown here: the ordinary user account retains sudoers grants for administrative operations. Removing that user from the general `sudo` group and restricting the commands reduces the scope of privilege, but does not make the account separate from the everyday account.
-- **Is a separate administrator account with no sudoers access for the everyday account better aligned?** Yes. Keep the everyday account unprivileged and use a distinct administrator account only for administrative activity. The separate admin account may itself use sudo; Cyber Essentials does not require that no account use sudo. “No sudoers access” should refer to the everyday account, not every administrator.
+- **Does the daily system service resolve the account-separation question?** It removes the everyday user's direct sudo invocation of the update operation, but whether unattended root services satisfy the relevant CE requirement is not established by the source reviewed here.
+- **Is a separate administrator account with no sudoers access for the everyday account better aligned?** It remains the clearest human account-separation arrangement. A root-owned system service is a different execution model and needs direct assessor interpretation before making a compliance claim.
+- **Is the current overall sudo setup limited to update execution?** No. The CUPS sudo grant remains in the everyday user's account and should be evaluated separately.
 - **Does this alone establish overall Cyber Essentials compliance?** No. Compliance depends on the full in-scope environment and its actual use; this decision addresses only account separation. A certification body should be consulted if relying on command-specific delegation as an exception.
 
 The Linux interpretation above is not a Linux-specific rule stated by the NCSC. The quoted wording and section heading were available in an indexed transcription, but the official PDF could not be retrieved during this research. Verify the exact wording and placement with NCSC or IASME before relying on it as certification evidence; no requirement number or page is cited because neither was verified.
 
 ## Decision requested
 
-The maintainer must explicitly choose whether to retain this single-user command-whitelist model as a documented departure from the separate-account requirement, or to authorize a future change to use an unprivileged everyday account and a distinct administrator account. Until that approval is recorded, this assessment is proposed and the repository must not describe the current sudo setup as Cyber Essentials compliant.
+The update execution model has been changed to a root systemd service. Confirm with IASME or the certification body whether this satisfies account separation, and separately assess the remaining CUPS sudo grant, before describing the workstation as Cyber Essentials compliant.

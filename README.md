@@ -92,16 +92,14 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
 
 
 ### Playbook
-- [sudo](roles/sudo) set the sudo timestamp timeout to zero; passwordless grants are explicit exceptions
+- [sudo](roles/sudo) set the sudo timestamp timeout to zero
 - [sudo](roles/sudo) restrict sudo commands to essential tasks
-    - applying updates,
     - temporarily starting and stopping CUPS (outside CI)
-- The configured everyday user is removed from the general `sudo` group but retains specific sudoers grants. This is not a separate-admin-account model; see the [Cyber Essentials assessment](docs/adr/0002-cyber-essentials-sudo-access.md) before describing this setup as compliant.
+- [updates](roles/updates) run the root-owned system update script automatically each day as a system service; the everyday user has no sudo grant for updates
+- Check update results with `systemctl status xubuntu-workstation-update.service` and `tail -n 40 /var/log/xubuntu-workstation-update.log`. Failed updates are marked in the log and leave the service failed after retries.
+- The daily system service removes the everyday user's role in invoking privileged update operations; it does not by itself establish overall Cyber Essentials compliance. See the [Cyber Essentials assessment](docs/adr/0002-cyber-essentials-sudo-access.md).
 - [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
-- [updates](roles/updates)
-    - update all known supply chains, incl. OS, firmware, snap, pip, clamav
-    - apply system-level updates as root
-    - su to user to apply user updates
+- [updates](roles/updates) also invokes a user-owned update hook as the ordinary user, with a timeout; it currently performs no package updates
 - [chrome](roles/chrome_browser) applies security settings by policy
 
 ## Testing
