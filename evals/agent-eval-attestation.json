@@ -1,13 +1,14 @@
 {
-  "agent_system_sha256": "72d26d8a1617e94cc4a163e08095a1c2c0a3a2956af207d009bdd846f7bffbbb",
+  "agent_system_sha256": "6d4512f219e9fb63a3b405612e1441fcf47bd6cec29ed4f6527c104941543a81",
   "result": "pass",
   "cases": [
     "agent-bootstrap",
+    "reuse-knowledge-base",
     "ambiguous-failure",
     "latest-compatible-action-upgrade",
     "lint-ci-failure",
     "ci-role-guards",
     "slack-package-source"
   ],
-  "evaluated_at": "2026-10-04T19:42:03.649649+00:00"
+  "evaluated_at": "2026-10-15T07:29:11.625636+00:00"
 }

@@ -28,6 +28,29 @@
       ]
     },
     {
+      "id": "reuse-knowledge-base",
+      "question": "How can another repository use and contribute to this knowledge base?",
+      "expected_answer": "Copy only applicable reusable guidance into the target repository, point its own agent entry point at local copies, and keep domain-specific instructions local. Review and synchronize copies manually; contribute general improvements here through pull requests.",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "copying the whole wiki would give another project irrelevant instructions"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "Keep the target repository's domain instructions"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "There is no automatic synchronization"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "propose it here as a pull request"
+        }
+      ]
+    },
+    {
       "id": "ambiguous-failure",
       "question": "What should an agent do before fixing an unclear or silent failure?",
       "expected_answer": "Gather logs, test output, and direct observations before proposing a fix; then prefer a small, reversible fix based on verified evidence.",
