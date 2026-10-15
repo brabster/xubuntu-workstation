@@ -6,10 +6,10 @@
 
 ## Context
 
-This playbook targets a personal, single-user workstation. The configured everyday user is removed from the general `sudo` group and sudo's timestamp timeout is zero (`roles/sudo/tasks/main.yml`). The update role now removes the legacy `updaters` grant and membership, and runs the root-owned update script from a persistent daily systemd timer (`roles/updates/tasks/main.yml` and `roles/updates/templates/`).
+This playbook targets a personal, single-user workstation. The configured everyday user is removed from the general `sudo` group and sudo's timestamp timeout is zero (`roles/sudo/tasks/main.yml`). The update role removes the legacy `updaters` grant and membership, and runs the root-owned update script from a systemd timer shortly after boot and hourly (`roles/updates/tasks/main.yml` and `roles/updates/templates/`).
 
-- `roles/cups/tasks/main.yml` still adds the user to `cups_users` and permits starting and stopping CUPS with sudo. This role runs outside CI.
-- `roles/next_install/tasks/main.yml` defines a sudoers grant for the USB setup scripts, but `next_install` is not included in `workstation.yml`; it is not applied by the main workstation playbook.
+- `roles/cups/tasks/main.yml` stops and disables CUPS and removes the legacy `cups_users` sudoers rule and group membership.
+- `roles/next_install/tasks/main.yml` defines an `install_users` sudoers grant for two USB setup scripts, but `next_install` is not included in `workstation.yml`; that rule is not installed by the main workstation playbook.
 
 The timer starts updates shortly after boot and repeats hourly while the machine is on. The service runs as root without an interactive user session. Its command output and timestamped completion result are recorded in a user-readable log. A failed service remains failed until the next hourly timer activation retries it. A desktop-session monitor notifies the user of failed runs or no successful run in 26 hours. This is a change to the update execution model, not a claim that unattended system services satisfy any particular CE account-separation interpretation.
 
@@ -25,7 +25,7 @@ The standard does not prescribe Linux `sudo`, a particular group, or a specific 
 
 - **Does the daily system service resolve the account-separation question?** It removes the everyday user's direct sudo invocation of the update operation, but whether unattended root services satisfy the relevant CE requirement is not established by the source reviewed here.
 - **Is a separate administrator account with no sudoers access for the everyday account better aligned?** It remains the clearest human account-separation arrangement. A root-owned system service is a different execution model and needs direct assessor interpretation before making a compliance claim.
-- **Is the current overall sudo setup limited to update execution?** No. The CUPS sudo grant remains in the everyday user's account and should be evaluated separately.
+- **Are other sudoers grants configured by the main workstation playbook?** The update and CUPS role grants are removed. The `next_install` role still defines `install_users` access for two root-installed USB setup scripts, but it is not invoked in `workstation.yml`. Confirm whether that separate install workflow is used on the target before considering its grant in an audit.
 - **Does this alone establish overall Cyber Essentials compliance?** No. Compliance depends on the full in-scope environment and its actual use; this decision addresses only account separation. A certification body should be consulted if relying on command-specific delegation as an exception.
 
 The Linux interpretation above is not a Linux-specific rule stated by the NCSC. The quoted wording and section heading were available in an indexed transcription, but the official PDF could not be retrieved during this research. Verify the exact wording and placement with NCSC or IASME before relying on it as certification evidence; no requirement number or page is cited because neither was verified.

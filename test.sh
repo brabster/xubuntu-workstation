@@ -8,10 +8,10 @@ systemctl status xubuntu-workstation-update.service --no-pager || true
 tail -n 40 /var/log/xubuntu-workstation-update.log
 
 echo
-echo "Checking cups can be started and stopped, but not enabled"
-sudo systemctl start cups
-sudo systemctl stop cups
-! sudo systemctl enable cups
+echo "Checking cups cannot be controlled through sudo"
+! sudo -n systemctl start cups
+! sudo -n systemctl stop cups
+! sudo -n systemctl enable cups
 
 echo "Checking UFW is active and running"
 if ! systemctl is-active --quiet ufw; then
