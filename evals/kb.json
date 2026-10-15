@@ -30,7 +30,7 @@
     {
       "id": "reuse-knowledge-base",
       "question": "How can another repository use and contribute to this knowledge base?",
-      "expected_answer": "Copy only applicable reusable guidance into the target repository, point its own agent entry point at local copies, and keep domain-specific instructions local. Review and synchronize copies manually; contribute general improvements here through pull requests.",
+      "expected_answer": "For a pilot, add this repository as a Git submodule and have the target repository's local AGENTS.md read selected shared pages while keeping domain-specific instructions local. Ensure each agent checkout initializes the submodule; its commit pointer pins the version and updates are deliberate. Contribute general improvements here through pull requests.",
       "expected_evidence": [
         {
           "source": "docs/wiki/using-this-knowledge-base.md",
@@ -42,7 +42,19 @@
         },
         {
           "source": "docs/wiki/using-this-knowledge-base.md",
-          "text": "There is no automatic synchronization"
+          "text": "git submodule add https://github.com/brabster/xubuntu-workstation.git .agent-system/xubuntu-workstation"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "Do not treat the submodule's workstation-specific instructions as blog requirements."
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "git submodule update --init --recursive"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "committing the submodule pointer pins the version"
         },
         {
           "source": "docs/wiki/using-this-knowledge-base.md",
