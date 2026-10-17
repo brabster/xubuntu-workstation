@@ -34,7 +34,6 @@ class UpdateNotificationTests(unittest.TestCase):
         content = content.replace(
             "/var/log/xubuntu-workstation-update.log", str(self.root / "update.log")
         )
-        content = content.replace("reminder_interval=86400", "reminder_interval=1")
         self.script.write_text(content, encoding="utf-8")
         self.script.chmod(0o755)
 
