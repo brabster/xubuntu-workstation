@@ -69,7 +69,7 @@ The setup ends by configuring NordVPN. **Its network killswitch is OFF** until y
 
 The `xfce_desktop` CI workflow tests the XFCE tasks separately on an authenticated
 Xvfb display with a disposable user, real XFWM4/settings daemons, and a panel
-running Whisker Menu. It sends Super+Arrow key events and checks window geometry,
+running Whisker Menu. It sends Super+Arrow and Alt+Arrow key events and checks window geometry,
 checks that Ctrl+F2 opens the launcher, and verifies restart persistence,
 preservation of unrelated shortcuts, and idempotence for fresh and existing
 profiles. A deliberately incorrect binding must fail the geometry check.

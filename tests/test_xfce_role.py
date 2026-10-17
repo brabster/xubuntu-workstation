@@ -48,6 +48,8 @@ class XfceRoleTests(unittest.TestCase):
 
         self.assertEqual(shortcuts["<Super>Left"], "tile_left_key")
         self.assertEqual(shortcuts["<Super>Right"], "tile_right_key")
+        self.assertEqual(shortcuts["<Alt>Left"], "tile_left_key")
+        self.assertEqual(shortcuts["<Alt>Right"], "tile_right_key")
         commands = self.shortcuts.find(
             "./property[@name='commands']/property[@name='default']"
         )
@@ -75,8 +77,27 @@ class XfceRoleTests(unittest.TestCase):
                     command_binding.attrib,
                     {"name": "<Primary>F2", "type": "string", "value": "xfrun4"},
                 )
+                for modifier in ("Super", "Alt"):
+                    for direction in ("Left", "Right", "Up", "Down"):
+                        with self.subTest(
+                            branch=branch, modifier=modifier, direction=direction
+                        ):
+                            name = f"<{modifier}>{direction}"
+                            binding = self.shortcuts.find(
+                                f"./property[@name='xfwm4']/property[@name='{branch}']/"
+                                f"property[@name='{name}']"
+                            )
+                            self.assertIsNotNone(binding)
+                            self.assertEqual(
+                                binding.attrib,
+                                {
+                                    "name": name,
+                                    "type": "string",
+                                    "value": f"tile_{direction.lower()}_key",
+                                },
+                            )
             for direction in ("Left", "Right", "Up", "Down"):
-                with self.subTest(branch=branch, direction=direction):
+                with self.subTest(branch=branch, keypad=direction):
                     name = f"<Super>KP_{direction}"
                     keypad_binding = self.shortcuts.find(
                         f"./property[@name='xfwm4']/property[@name='{branch}']/"
@@ -152,6 +173,9 @@ class XfceRoleTests(unittest.TestCase):
         )
         self.assertEqual(
             properties[("xfwm4", "custom", "<Super>Left")], "tile_left_key"
+        )
+        self.assertEqual(
+            properties[("xfwm4", "custom", "<Alt>Left")], "tile_left_key"
         )
         for branch in ("default", "custom"):
             with self.subTest(branch=branch):

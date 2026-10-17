@@ -198,12 +198,21 @@ class XfceDesktopTests(unittest.TestCase):
                    zip(("X", "Y", "WIDTH", "HEIGHT"), expected))
 
     def check_shortcuts(self):
-        window = self.new_window()
-        for direction in ("Left", "Right", "Up", "Down"):
-            with self.subTest(direction=direction):
-                self.run_command("xdotool", "key", "--clearmodifiers", f"super+{direction}")
-                self.wait_for(lambda: self.tiled(window, direction), f"Super+{direction} tiling")
-        self.run_command("xdotool", "windowclose", window)
+        for modifier in ("Super", "Alt"):
+            window = self.new_window()
+            for direction in ("Left", "Right", "Up", "Down"):
+                with self.subTest(modifier=modifier, direction=direction):
+                    self.run_command(
+                        "xdotool",
+                        "key",
+                        "--clearmodifiers",
+                        f"{modifier.lower()}+{direction}",
+                    )
+                    self.wait_for(
+                        lambda: self.tiled(window, direction),
+                        f"{modifier}+{direction} tiling",
+                    )
+            self.run_command("xdotool", "windowclose", window)
         self.run_command("xdotool", "key", "--clearmodifiers", "ctrl+F2")
         launcher = self.wait_for(
             lambda: self.run_command(
