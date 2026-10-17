@@ -9,9 +9,12 @@ tail -n 40 /var/log/xubuntu-workstation-update.log
 
 echo
 echo "Checking cups cannot be controlled through sudo"
-! sudo -n systemctl start cups
-! sudo -n systemctl stop cups
-! sudo -n systemctl enable cups
+for action in start stop enable; do
+    if sudo -l /usr/bin/systemctl "$action" cups; then
+        echo "Unexpected sudo permission to $action CUPS" >&2
+        exit 1
+    fi
+done
 
 echo "Checking UFW is active and running"
 if ! systemctl is-active --quiet ufw; then
