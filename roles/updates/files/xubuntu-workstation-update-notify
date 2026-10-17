@@ -60,7 +60,7 @@ while :; do
     case "$active_state" in
         active|activating|reloading)
             if [ -r "$notified_file" ] \
-                && [ "$(cat "$notified_file")" = "status-unavailable" ]; then
+                && [ "$(cut -d ' ' -f 1 "$notified_file")" = "status-unavailable" ]; then
                 rm -f "$notified_file"
             fi
             ;;
