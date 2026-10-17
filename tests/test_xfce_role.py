@@ -1,6 +1,9 @@
+import importlib.util
+import tempfile
 import unittest
 from pathlib import Path
 import xml.etree.ElementTree as ET
+from unittest import mock
 
 import yaml
 
@@ -14,6 +17,14 @@ KEYBOARD_SHORTCUTS = (
     / "templates"
     / "xfce4-keyboard-shortcuts.xml.j2"
 )
+SHORTCUT_UPDATER = (
+    REPO_ROOT / "roles" / "xfce" / "files" / "update-xfce-keyboard-shortcuts.py"
+)
+SPEC = importlib.util.spec_from_file_location(
+    "update_xfce_keyboard_shortcuts", SHORTCUT_UPDATER
+)
+UPDATER = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(UPDATER)
 
 
 class XfceRoleTests(unittest.TestCase):
@@ -37,16 +48,130 @@ class XfceRoleTests(unittest.TestCase):
 
         self.assertEqual(shortcuts["<Super>Left"], "tile_left_key")
         self.assertEqual(shortcuts["<Super>Right"], "tile_right_key")
+        commands = self.shortcuts.find(
+            "./property[@name='commands']/property[@name='default']"
+        )
+        self.assertEqual(
+            commands.find("property").attrib,
+            {"name": "<Primary>F2", "type": "string", "value": "xfrun4"},
+        )
 
         configure_task = self._task("Configure xfce4 keyboard shortcuts for window tiling")
+        self.assertIn("ansible.builtin.script", configure_task)
+        self.assertEqual(configure_task["become_user"], "{{ username }}")
+
+    def test_existing_channel_preserves_unrelated_shortcuts(self):
+        existing_xml = """\
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Super&gt;l" type="string" value="custom-lock"/>
+      <property name="&lt;Primary&gt;F2" type="string" value="old-launcher"/>
+    </property>
+    <property name="custom" type="empty">
+      <property name="&lt;Primary&gt;&lt;Alt&gt;t" type="string" value="custom-terminal"/>
+    </property>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Alt&gt;Tab" type="string" value="custom-cycle"/>
+      <property name="&lt;Super&gt;Left" type="string" value="old-action"/>
+    </property>
+    <property name="custom" type="empty">
+      <property name="&lt;Primary&gt;&lt;Alt&gt;Left" type="string" value="custom-window-action"/>
+    </property>
+  </property>
+</channel>
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            channel_file = Path(directory) / "xfce4-keyboard-shortcuts.xml"
+            channel_file.write_text(existing_xml, encoding="utf-8")
+            self.assertTrue(UPDATER._update_file(channel_file, self.shortcuts, 0))
+            result = ET.parse(channel_file).getroot()
+            properties = {
+                (section.attrib["name"], branch.attrib["name"], item.attrib["name"]):
+                item.attrib["value"]
+                for section in result.findall("property")
+                for branch in section.findall("property")
+                for item in branch.findall("property")
+            }
+
         self.assertEqual(
-            configure_task["ansible.builtin.template"]["src"],
-            "xfce4-keyboard-shortcuts.xml.j2",
+            properties[("commands", "default", "<Super>l")], "custom-lock"
         )
         self.assertEqual(
-            configure_task["ansible.builtin.template"]["mode"],
-            "0600",
+            properties[("commands", "default", "<Primary>F2")], "xfrun4"
         )
+        self.assertEqual(
+            properties[("commands", "custom", "<Primary><Alt>t")],
+            "custom-terminal",
+        )
+        self.assertEqual(
+            properties[("xfwm4", "default", "<Alt>Tab")], "custom-cycle"
+        )
+        self.assertEqual(
+            properties[("xfwm4", "default", "<Super>Left")], "tile_left_key"
+        )
+        self.assertEqual(
+            properties[("xfwm4", "custom", "<Primary><Alt>Left")],
+            "custom-window-action",
+        )
+
+    @mock.patch.object(UPDATER, "_update_session", return_value=None)
+    @mock.patch.object(UPDATER, "_has_user_sessions", return_value=True)
+    @mock.patch.object(UPDATER, "_has_running_xfconfd", return_value=False)
+    def test_offline_update_refuses_to_write_during_user_session(
+        self, _running_daemon, _user_sessions, _session
+    ):
+        with tempfile.TemporaryDirectory() as directory:
+            channel_file = Path(directory) / "xfce4-keyboard-shortcuts.xml"
+            with self.assertRaisesRegex(RuntimeError, "refusing to update"):
+                UPDATER.update(channel_file, self.shortcuts)
+            self.assertFalse(channel_file.exists())
+
+    @mock.patch.object(UPDATER, "_update_session", side_effect=[None, True])
+    @mock.patch.object(UPDATER, "_has_user_sessions", return_value=False)
+    @mock.patch.object(UPDATER, "_has_running_xfconfd", return_value=False)
+    @mock.patch.object(UPDATER.os, "getuid", return_value=1000)
+    def test_session_starting_during_offline_update_is_synchronized(
+        self, _uid, _running_daemon, _user_sessions, _session
+    ):
+        with tempfile.TemporaryDirectory() as directory:
+            channel_file = Path(directory) / "xfce4-keyboard-shortcuts.xml"
+            self.assertTrue(UPDATER.update(channel_file, self.shortcuts))
+
+    @mock.patch.object(UPDATER, "_file_matches_defaults", side_effect=[False, True])
+    @mock.patch.object(UPDATER, "_update_file", return_value=True)
+    @mock.patch.object(UPDATER, "_update_session", return_value=None)
+    @mock.patch.object(UPDATER, "_has_user_sessions", return_value=False)
+    @mock.patch.object(UPDATER, "_has_running_xfconfd", return_value=False)
+    @mock.patch.object(UPDATER.os, "getuid", return_value=1000)
+    def test_offline_update_retries_if_channel_changes_during_write(
+        self,
+        _uid,
+        _running_daemon,
+        _user_sessions,
+        _session,
+        update_file,
+        _matches,
+    ):
+        self.assertTrue(UPDATER.update(Path("unused"), self.shortcuts))
+        self.assertEqual(update_file.call_count, 2)
+
+    @mock.patch.object(UPDATER, "_update_session", return_value=None)
+    @mock.patch.object(UPDATER, "_has_user_sessions", side_effect=[False, True])
+    @mock.patch.object(UPDATER, "_has_running_xfconfd", return_value=False)
+    @mock.patch.object(UPDATER.os, "getuid", return_value=1000)
+    def test_raced_session_without_bus_restores_original_channel(
+        self, _uid, _running_daemon, _user_sessions, _session
+    ):
+        original_xml = '<channel name="xfce4-keyboard-shortcuts" version="1.0"/>'
+        with tempfile.TemporaryDirectory() as directory:
+            channel_file = Path(directory) / "xfce4-keyboard-shortcuts.xml"
+            channel_file.write_text(original_xml, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "session started"):
+                UPDATER.update(channel_file, self.shortcuts)
+            self.assertEqual(channel_file.read_text(encoding="utf-8"), original_xml)
 
     def test_whisker_menu_super_trigger_is_disabled_when_config_exists(self):
         find_task = self._task("Find whisker menu panel plugin configuration files")

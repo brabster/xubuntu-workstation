@@ -8,8 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- **Configure Super+Left/Right window tiling with Ansible-managed XFCE settings**: deploy the xfconf keyboard-shortcut channel directly instead of relying on `xfconf-query`, which requires an active graphical session. Disable the Whisker Menu Super-key trigger so XFWM4 receives the tiling shortcuts.
-- **Cover XFCE shortcuts with focused tests**: verify the configured tile actions and Whisker Menu trigger setting.
+- **Configure XFCE shortcuts without replacing existing user settings**: update the running user's xfconf channel when its session bus is available, or merge only the requested shortcuts into the channel file when no session or `xfconfd` is active. Disable the Whisker Menu Super-key trigger so XFWM4 receives the tiling shortcuts.
+- **Cover XFCE shortcuts with focused tests**: verify the configured tile actions, valid Ctrl+F2 accelerator, preservation of existing shortcuts, and Whisker Menu trigger setting.
 
 ### Security
 

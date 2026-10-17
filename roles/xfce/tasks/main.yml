@@ -20,11 +20,16 @@
     owner: '{{ username }}'
 
 - name: Configure xfce4 keyboard shortcuts for window tiling
-  ansible.builtin.template:
-    src: xfce4-keyboard-shortcuts.xml.j2
-    dest: '{{ user_home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml'
-    owner: '{{ username }}'
-    mode: '0600'
+  ansible.builtin.script:
+    cmd: >-
+      update-xfce-keyboard-shortcuts.py
+      '{{ user_home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml'
+      '{{ lookup("file", role_path + "/templates/xfce4-keyboard-shortcuts.xml.j2") | b64encode }}'
+    executable: /usr/bin/python3
+  become: true
+  become_user: '{{ username }}'
+  register: xfce_keyboard_shortcuts
+  changed_when: "'updated' in xfce_keyboard_shortcuts.stdout"
 
 - name: Ensure xfce4 panel configuration directory exists
   ansible.builtin.file:
