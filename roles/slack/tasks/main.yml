@@ -27,6 +27,7 @@
 - name: Check whether Slack keyring is already installed
   ansible.builtin.stat:
     path: /etc/apt/keyrings/slack.gpg
+    checksum_algorithm: sha256
   register: slack_keyring_stat
 
 - name: Inspect installed Slack keyring fingerprint
@@ -56,6 +57,7 @@
     slack_keyring_is_valid: >-
       {{
         slack_keyring_stat.stat.exists
+        and (slack_keyring_stat.stat.checksum | default('')) == 'd59b44bfd21cf26a502303edcbc758188dfb98ed2add88e4bd1d4782f1444cc5'
         and (slack_installed_pubkey_count | default(0)) == 1
         and ((slack_installed_fingerprints | default([])) | length >= 1)
         and (((slack_installed_fingerprints | default([])) | first | default('')) == 'DB085A08CA13B8ACB917E0F6D938EC0D038651BD')

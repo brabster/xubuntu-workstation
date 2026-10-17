@@ -1,6 +1,10 @@
-Single-user Xubuntu setup: repeatable and demonstrable software installs and configuration.
+# Xubuntu workstation setup
 
-**Target OS: Xubuntu latest LTS and rolling** (see OS version in [GitHub actions](.github/workflows/test_install.yml))
+This repository automates the setup and maintenance of a personal, single-user Xubuntu workstation with Ansible. It is tailored to my own use; review the playbook and variables before using it on another machine.
+
+**Target OS: Xubuntu latest LTS and rolling.** CI checks the playbook in `ubuntu:latest` and `ubuntu:rolling` containers; it does not test a graphical Xubuntu desktop.
+
+The playbook configures networking, sudo, system and user updates, development tools, Chrome, Git, ClamAV, Slack, Visual Studio Code, and (outside CI) desktop settings, CUPS, clipboard clearing, UFW, and NordVPN.
 
 ## Support
 
@@ -20,23 +24,23 @@ See [CHANGELOG.md](./CHANGELOG.md) for summaries of changes and reasons.
 
 ## Usage
 
-Most convenient way to do this is to create a bootable USB for the xubuntu distro, and a separate non-bootable USB from this repo. Minimal Xubuntu distro expected.
+Use a minimal Xubuntu install, a bootable USB for the Xubuntu installer, and a separate USB for this repository. The setup scripts erase their target USB device, so check the device path carefully before running them.
 
-The [next_install role](./roles/next_install) places these scripts in a non-user modifiable directory and grants sudo rights to execute them. Some safety checks are in place but user takes responsibility for any data loss that may occur.
+The [next_install role](./roles/next_install) installs the USB setup scripts in a non-user-modifiable directory and grants the `install_users` group permission to run them. The scripts check that the target is a USB device, but this does not prevent data loss if the wrong device is selected.
 
-NOTE: the setup ends by setting up NordVPN with some security-related settings. **The network killswitch will be OFF** and will need login to enable. Username/password not required, emailed one-time code option is available to login.
+The setup ends by configuring NordVPN. **Its network killswitch is OFF** until you log in and enable it. NordVPN supports login with an emailed one-time code.
 
 ### Setup Distro USB
 
 - wipes any existing USB content
-- run [sudo setup_linux_usb.sh iso_image_path target_usb_device](./roles/next_install/files/setup_linux_usb.sh)
+- run `sudo setup_linux_usb.sh iso_image_path target_usb_device` (for example, `sudo setup_linux_usb.sh ~/Downloads/xubuntu.iso /dev/sdX`)
 
 ### Create Bootstrap USB
 
 - wipes any existing USB content
 - use [.vars_example.yml](./.vars_example.yml) to create a file .vars.yml with appropriate settings
-- [optional] - edit workstation.yml to one-off customise install
-- run [sudo setup_ansible_usb.sh repo_root_dir target_usb_device](./roles/next_install/files/setup_ansible_usb.sh)
+- optionally edit [workstation.yml](./workstation.yml) to customise this install
+- run `sudo setup_ansible_usb.sh repo_root_dir target_usb_device` (for example, `sudo setup_ansible_usb.sh ~/projects/xubuntu-workstation /dev/sdX`)
 
 ### Install Xubuntu
 
@@ -115,17 +119,19 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
     - update all known supply chains, incl. OS, firmware, snap, pip, clamav
     - apply system-level updates as root
     - su to user to apply user updates
-- [firefox](roles/firefox), [chrome](roles/chrome_browser) apply security settings by policy
+- [chrome](roles/chrome_browser) applies security settings by policy
 
 ## Testing
 
-[GitHub actions](.github/workflows) runs playbook on a container of the same OS as target. Tasks requiring a graphical target or systemd interaction (snap, systemctl) cannot be tested in a container.
+CI runs the playbook in Ubuntu containers. It checks that Ansible tasks execute, but cannot cover tasks that need a graphical desktop or systemd.
 
-For local commit-time Ansible linting, install dev dependencies and enable repository git hooks:
+After installation, log out and back in, then run `./test.sh` as the normal user to check behavior on the target machine.
+
+For local Ansible linting, install dev dependencies and enable the repository git hooks:
 
 - `python3 -m pip install -r requirements-dev.txt`
 - `git config core.hooksPath .githooks`
 
-CI independently enforces `ansible-lint` for the same scoped files before merge.
+CI also runs `ansible-lint` on the playbooks and roles before merge.
 
 Contributor and agent steering for this repository lives in [AGENTS.md](./AGENTS.md) and the versioned wiki under [docs/wiki/](./docs/wiki/).

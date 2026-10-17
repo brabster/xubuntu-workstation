@@ -21,6 +21,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Threat Model Assessment**: This change has **no impact on workstation security posture**. It only configures desktop keyboard shortcuts; no packages, services, or privileges are changed.
 - **CI test isolation**: the new job installs desktop test packages only on its disposable runner, uses a separate unprivileged desktop user and authenticated X server with TCP disabled, and grants its GitHub token read-only repository access. Root is used for Ansible provisioning and test-user cleanup, not desktop applications. No new workstation services or privileges are introduced; net workstation security risk and UK Cyber Essentials controls are unchanged.
 
+## [PR #107 - Use standard OS release information](https://github.com/brabster/xubuntu-workstation/pull/107)
+
+### Fixed
+
+- **Installation CI reads `/etc/os-release` for debug information**: avoids failing before setup on rolling Ubuntu images that no longer provide `/etc/lsb-release`, while retaining compatibility with stable Ubuntu images.
+- **Stable and rolling installation jobs finish independently**: disabled matrix fail-fast so a failure on one image does not cancel the other.
+- **CI creates its tester account with `useradd`**: explicitly creates the home directory, private group, and Bash login shell without depending on the optional `adduser` package.
+- **Slack's vendored key now uses verified SHA-512 certifications**: refreshed from the Packagecloud key supplied in [PR comment 6240141403](https://github.com/brabster/xubuntu-workstation/pull/107#issuecomment-6240141403), retaining the pinned primary fingerprint. A SHA-256 content check also replaces obsolete installed keyrings with the same fingerprint.
+
+### Security
+
+- **Slack signing-policy compatibility is restored without a verification bypass**: valid SHA-512 self-certification and subkey binding replace SHA-1 signatures rejected by rolling Ubuntu. The threat is accepting obsolete or unauthenticated package-signing material; fingerprint validation, repository-scoped trust, and APT signature enforcement remain intact. Net risk is reduced by removing dependence on SHA-1 certifications, supporting UK Cyber Essentials secure-configuration and maintained-software expectations.
+- **Net risk is unchanged**: the CI-only tester account retains a locked password and an automatically allocated UID, avoiding passwordless authentication or collisions with existing accounts. No workstation privileges change; explicit account defaults support UK Cyber Essentials access-control expectations.
+
+## [PR #99 - Align README with the workstation setup](https://github.com/brabster/xubuntu-workstation/pull/99)
+
+### Changed
+
+- **README setup guidance now reflects the current workstation playbook**: clarified what the playbook configures, warned that setup scripts erase their target USB, removed the stale Firefox reference, and distinguished container CI checks from on-device testing.
+
 ## [PR #95 - Clean up legacy agent guidance](https://github.com/brabster/xubuntu-workstation/pull/95)
 
 ### Changed
