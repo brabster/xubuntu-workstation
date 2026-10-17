@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - **Installation CI reads `/etc/os-release` for debug information**: avoids failing before setup on rolling Ubuntu images that no longer provide `/etc/lsb-release`, while retaining compatibility with stable Ubuntu images.
+- **Stable and rolling installation jobs finish independently**: disabled matrix fail-fast so a failure on one image does not cancel the other.
+- **CI creates its tester account with `useradd`**: explicitly creates the home directory, private group, and Bash login shell without depending on the optional `adduser` package.
+
+### Security
+
+- **Net risk is unchanged**: the CI-only tester account retains a locked password and an automatically allocated UID, avoiding passwordless authentication or collisions with existing accounts. No workstation privileges change; explicit account defaults support UK Cyber Essentials access-control expectations.
 
 ## [PR #99 - Align README with the workstation setup](https://github.com/brabster/xubuntu-workstation/pull/99)
 
