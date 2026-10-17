@@ -22,7 +22,7 @@
 - name: Configure xfce4 keyboard shortcuts for window tiling
   ansible.builtin.script:
     cmd: >-
-      update-xfce-keyboard-shortcuts.py
+      '{{ role_path }}/files/update-xfce-keyboard-shortcuts.py'
       '{{ user_home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml'
       '{{ lookup("file", role_path + "/templates/xfce4-keyboard-shortcuts.xml.j2") | b64encode }}'
     executable: /usr/bin/python3

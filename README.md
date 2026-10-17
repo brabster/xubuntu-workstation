@@ -63,6 +63,22 @@ NOTE: the setup ends by setting up NordVPN with some security-related settings. 
 
 ### Smoke test
 
+The `xfce_desktop` CI workflow tests the XFCE tasks separately on an authenticated
+Xvfb display with a disposable user, real XFWM4/settings daemons, and a panel
+running Whisker Menu. It sends Super+Arrow key events and checks window geometry,
+checks that Ctrl+F2 opens the launcher, and verifies restart persistence,
+preservation of unrelated shortcuts, and idempotence for fresh and existing
+profiles. A deliberately incorrect binding must fail the geometry check.
+Desktop and Ansible logs are uploaded as CI artifacts; package versions appear
+in the job log. Focused unit tests also cover the live-session updater.
+
+This tests the Ubuntu runner's packaged X11 desktop, not an exact Xubuntu image,
+physical keyboard, GPU, display-manager login/logout, multi-monitor setup, or
+Wayland session. The tested Whisker 2.8 package migrates rc settings into xfconf;
+the test verifies that migration but cannot demonstrate that `button-trigger=0`
+disables the originally reported Super-key grab. The desktop restart checks
+reload and persistence but do not replace a full login/logout test.
+
 Numerous setup options cannot be checked in GitHub actions, as the VM is locked down, the container does not run systemd and the whole thing is headless. The build mainly checks that the Ansible playbook executes successfully and very basic things are working.
 
 A test script is provided to run on the target machine after installation as the normal user account.

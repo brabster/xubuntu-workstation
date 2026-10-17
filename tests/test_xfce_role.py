@@ -55,6 +55,38 @@ class XfceRoleTests(unittest.TestCase):
             commands.find("property").attrib,
             {"name": "<Primary>F2", "type": "string", "value": "xfrun4"},
         )
+        for branch in ("default", "custom"):
+            with self.subTest(branch=branch):
+                wm_binding = self.shortcuts.find(
+                    f"./property[@name='xfwm4']/property[@name='{branch}']/"
+                    "property[@name='<Primary>F2']"
+                )
+                self.assertIsNotNone(wm_binding)
+                self.assertEqual(
+                    wm_binding.attrib,
+                    {"name": "<Primary>F2", "type": "string", "value": ""},
+                )
+                command_binding = self.shortcuts.find(
+                    f"./property[@name='commands']/property[@name='{branch}']/"
+                    "property[@name='<Primary>F2']"
+                )
+                self.assertIsNotNone(command_binding)
+                self.assertEqual(
+                    command_binding.attrib,
+                    {"name": "<Primary>F2", "type": "string", "value": "xfrun4"},
+                )
+            for direction in ("Left", "Right", "Up", "Down"):
+                with self.subTest(branch=branch, direction=direction):
+                    name = f"<Super>KP_{direction}"
+                    keypad_binding = self.shortcuts.find(
+                        f"./property[@name='xfwm4']/property[@name='{branch}']/"
+                        f"property[@name='{name}']"
+                    )
+                    self.assertIsNotNone(keypad_binding)
+                    self.assertEqual(
+                        keypad_binding.attrib,
+                        {"name": name, "type": "string", "value": ""},
+                    )
 
         configure_task = self._task("Configure xfce4 keyboard shortcuts for window tiling")
         self.assertIn("ansible.builtin.script", configure_task)
@@ -76,9 +108,11 @@ class XfceRoleTests(unittest.TestCase):
     <property name="default" type="empty">
       <property name="&lt;Alt&gt;Tab" type="string" value="custom-cycle"/>
       <property name="&lt;Super&gt;Left" type="string" value="old-action"/>
+      <property name="&lt;Super&gt;KP_Right" type="string" value="tile_right_key"/>
     </property>
     <property name="custom" type="empty">
       <property name="&lt;Primary&gt;&lt;Alt&gt;Left" type="string" value="custom-window-action"/>
+      <property name="&lt;Super&gt;KP_Right" type="string" value="tile_right_key"/>
     </property>
   </property>
 </channel>
@@ -119,6 +153,11 @@ class XfceRoleTests(unittest.TestCase):
         self.assertEqual(
             properties[("xfwm4", "custom", "<Super>Left")], "tile_left_key"
         )
+        for branch in ("default", "custom"):
+            with self.subTest(branch=branch):
+                self.assertEqual(
+                    properties[("xfwm4", branch, "<Super>KP_Right")], ""
+                )
 
     def test_custom_override_preserves_inherited_bindings(self):
         existing_xml = """\
@@ -287,6 +326,158 @@ class XfceRoleTests(unittest.TestCase):
         self.assertEqual(lineinfile["regexp"], "^button-trigger=")
         self.assertEqual(lineinfile["line"], "button-trigger=0")
         self.assertEqual(disable_task["loop"], "{{ xfce_whisker_menu_configs.files }}")
+
+
+class XfceSessionUpdateTests(unittest.TestCase):
+    def setUp(self):
+        self.defaults = ET.fromstring(
+            """\
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Primary&gt;F2" type="string" value="xfrun4"/>
+    </property>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="custom" type="empty">
+      <property name="&lt;Super&gt;Left" type="string" value="tile_left_key"/>
+      <property name="override" type="bool" value="true"/>
+    </property>
+  </property>
+</channel>
+"""
+        )
+        self.managed = [
+            ("/commands/default/<Primary>F2", "string", "xfrun4"),
+            ("/xfwm4/custom/<Super>Left", "string", "tile_left_key"),
+            ("/xfwm4/custom/override", "bool", "true"),
+        ]
+        self.environment = {
+            "DISPLAY": ":17",
+            "XDG_RUNTIME_DIR": "/run/user/1000",
+            "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+        }
+        environment = mock.patch.dict(
+            UPDATER.os.environ,
+            {
+                "DISPLAY": ":17",
+                "XDG_RUNTIME_DIR": "/wrong/runtime",
+                "DBUS_SESSION_BUS_ADDRESS": "unix:path=/wrong/bus",
+            },
+            clear=True,
+        )
+        environment.start()
+        self.addCleanup(environment.stop)
+        exists = mock.patch.object(Path, "exists", autospec=True, return_value=True)
+        self.exists = exists.start()
+        self.addCleanup(exists.stop)
+        run = mock.patch.object(UPDATER.subprocess, "run")
+        self.run = run.start()
+        self.addCleanup(run.stop)
+
+    def _query_call(self, path):
+        return mock.call(
+            [
+                "xfconf-query",
+                "--channel",
+                "xfce4-keyboard-shortcuts",
+                "--property",
+                path,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=self.environment,
+        )
+
+    def _write_call(self, path, value_type, value):
+        return mock.call(
+            [
+                "xfconf-query",
+                "--channel",
+                "xfce4-keyboard-shortcuts",
+                "--property",
+                path,
+                "--create",
+                "--type",
+                value_type,
+                "--set",
+                value,
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+            env=self.environment,
+        )
+
+    def test_unavailable_session_bus_returns_none_without_subprocess_calls(self):
+        self.exists.return_value = False
+
+        self.assertIsNone(UPDATER._update_session(self.defaults, 1000))
+
+        self.exists.assert_called_once_with(Path("/run/user/1000/bus"))
+        self.run.assert_not_called()
+
+    def test_matching_session_settings_return_false_without_writes(self):
+        self.run.side_effect = [
+            mock.Mock(returncode=0, stdout=f"  {value}\n")
+            for _path, _value_type, value in self.managed
+        ]
+
+        self.assertIs(UPDATER._update_session(self.defaults, 1000), False)
+
+        self.exists.assert_called_once_with(Path("/run/user/1000/bus"))
+        self.assertEqual(
+            self.run.call_args_list,
+            [self._query_call(path) for path, _value_type, _value in self.managed],
+        )
+
+    def test_changed_and_missing_managed_settings_are_written_with_correct_types(self):
+        unrelated = "/commands/custom/<Primary><Alt>t"
+        current = {
+            self.managed[0][0]: "old-launcher",
+            unrelated: "custom-terminal",
+        }
+
+        def query_or_write(argv, **kwargs):
+            path = argv[argv.index("--property") + 1]
+            if kwargs["check"]:
+                current[path] = argv[argv.index("--set") + 1]
+                return mock.Mock(returncode=0, stdout="")
+            return mock.Mock(
+                returncode=0 if path in current else 1,
+                stdout=current.get(path, ""),
+            )
+
+        self.run.side_effect = query_or_write
+
+        self.assertIs(UPDATER._update_session(self.defaults, 1000), True)
+
+        expected = []
+        for path, value_type, value in self.managed:
+            expected.extend(
+                [self._query_call(path), self._write_call(path, value_type, value)]
+            )
+            self.assertEqual(current[path], value)
+        self.assertEqual(self.run.call_args_list, expected)
+        self.assertEqual(current[unrelated], "custom-terminal")
+
+    def test_failed_session_write_propagates_called_process_error(self):
+        path, value_type, value = self.managed[0]
+        write = self._write_call(path, value_type, value)
+        error = UPDATER.subprocess.CalledProcessError(
+            1, write.args[0], stderr="write denied"
+        )
+        self.run.side_effect = [
+            mock.Mock(returncode=0, stdout="old-launcher\n"),
+            error,
+        ]
+
+        with self.assertRaises(UPDATER.subprocess.CalledProcessError) as raised:
+            UPDATER._update_session(self.defaults, 1000)
+
+        self.assertIs(raised.exception, error)
+        self.assertEqual(self.run.call_args_list, [self._query_call(path), write])
 
 
 if __name__ == "__main__":
