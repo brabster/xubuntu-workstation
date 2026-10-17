@@ -92,13 +92,20 @@ jobs:
           su - tester -c "python --version"
           su - tester -c "! pip install jsonschema # should not work because no venv"
           su - tester -c "clamscan --version"
+          set -euo pipefail
           echo "Checking the everyday user cannot run the update script with sudo..."
-          su - tester -c "! sudo -n update"
+          if su - tester -c "sudo -n -l /usr/local/bin/update"; then
+            echo "The everyday user still has sudo permission for updates" >&2
+            exit 1
+          fi
           su - tester -c "! sudo ls /root"
-          ! grep -q '^%updaters[[:space:]]' /etc/sudoers
-          ! grep -q '^%cups_users[[:space:]]' /etc/sudoers
-          ! id -nG tester | grep -qw updaters
-          ! id -nG tester | grep -qw cups_users
+          if grep -q '^%updaters[[:space:]]' /etc/sudoers \
+            || grep -q '^%cups_users[[:space:]]' /etc/sudoers \
+            || id -nG tester | grep -qw updaters \
+            || id -nG tester | grep -qw cups_users; then
+            echo "Legacy sudo delegation remains" >&2
+            exit 1
+          fi
           grep -Fq 'User=root' /etc/systemd/system/xubuntu-workstation-update.service
           grep -Fq 'OnBootSec=1min' /etc/systemd/system/xubuntu-workstation-update.timer
           grep -Fq 'OnUnitActiveSec=1h' /etc/systemd/system/xubuntu-workstation-update.timer
