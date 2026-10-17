@@ -153,7 +153,7 @@ class XfceRoleTests(unittest.TestCase):
 
         self.assertEqual(properties["<Super>Left"], "tile_left_key")
         self.assertEqual(properties["<Super>Up"], "tile_up_key")
-        self.assertEqual(properties["<Alt>Tab"], "cycle_windows_key")
+        self.assertNotIn("<Alt>Tab", properties)
         self.assertEqual(properties["<Primary><Alt>Left"], "custom-action")
         self.assertEqual(
             commands.find("property").attrib,

@@ -113,12 +113,16 @@ def _merge_defaults(channel, defaults):
                 defaults_default = _find_property(section, "default")
                 channel_default = _find_property(channel_section, "default")
                 custom = _property(channel_section, "custom")
-                for source in (channel_default, defaults_default):
-                    if source is not None:
-                        for shortcut in source.findall("property"):
-                            if _find_property(custom, shortcut.attrib["name"]) is None:
-                                custom.append(copy.deepcopy(shortcut))
-                                changed = True
+                if not any(
+                    shortcut.attrib.get("name") != "override"
+                    for shortcut in custom.findall("property")
+                ):
+                    for source in (channel_default, defaults_default):
+                        if source is not None:
+                            for shortcut in source.findall("property"):
+                                if _find_property(custom, shortcut.attrib["name"]) is None:
+                                    custom.append(copy.deepcopy(shortcut))
+                                    changed = True
         for branch in section.findall("property"):
             channel_branch = _find_property(channel_section, branch.attrib["name"])
             if channel_branch is None:
