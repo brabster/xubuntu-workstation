@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: debug info
         run: |
-          cat /etc/lsb-release
+          cat /etc/os-release
       - name: update and install pre-reqs
         # snapd depends on systemd and can't easily be run in a container
         # but snaps have never caused any problems so not concerned about lack of smoke testing

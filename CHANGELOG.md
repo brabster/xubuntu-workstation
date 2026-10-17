@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #107 - Use standard OS release information](https://github.com/brabster/xubuntu-workstation/pull/107)
+
+### Fixed
+
+- **Installation CI reads `/etc/os-release` for debug information**: avoids failing before setup on rolling Ubuntu images that no longer provide `/etc/lsb-release`, while retaining compatibility with stable Ubuntu images.
+
 ## [PR #99 - Align README with the workstation setup](https://github.com/brabster/xubuntu-workstation/pull/99)
 
 ### Changed
