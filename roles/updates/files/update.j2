@@ -45,8 +45,14 @@ snap refresh
 echo "Firmware updates"
 
 if command -v fwupdmgr >/dev/null 2>&1; then
-    fwupdmgr refresh --force
-    fwupdmgr update --assume-yes
+    fwupdmgr refresh --force || {
+        fwupd_status=$?
+        [ "$fwupd_status" -eq 2 ] || exit "$fwupd_status"
+    }
+    fwupdmgr update --assume-yes || {
+        fwupd_status=$?
+        [ "$fwupd_status" -eq 2 ] || exit "$fwupd_status"
+    }
 else
     echo "fwupdmgr is not installed; skipping firmware updates"
 fi
