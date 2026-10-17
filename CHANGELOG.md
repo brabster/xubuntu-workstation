@@ -10,6 +10,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **README setup guidance now reflects the current workstation playbook**: clarified what the playbook configures, warned that setup scripts erase their target USB, removed the stale Firefox reference, and distinguished container CI checks from on-device testing.
 
+## [PR #103 - Run workstation updates as a system service](https://github.com/brabster/xubuntu-workstation/pull/103)
+
+### Changed
+
+- **System updates now run shortly after boot and hourly from a root systemd timer instead of the everyday user's sudo grant**: the service runs non-interactively, is retried by the next hourly timer event after failure, and records timestamped outcomes and the last successful run. A desktop-session monitor notifies the user when updates fail or have not succeeded within 26 hours.
+
+### Security
+
+- **Threat Model Assessment**: This change **reduces the everyday account's privileged capabilities while preserving routine update execution**.
+    - **Rationale**: The `updaters` and `cups_users` sudoers rules and user group memberships are removed. A root-owned systemd service runs the fixed update script shortly after boot and hourly while powered on; system package prompts are disabled and failures remain visible in systemd state, the update log, and desktop notifications. Failed runs remain failed until the next hourly timer retry. The user-level update hook still runs as the user with a timeout, not as root. An unused `install_users` sudoers rule remains in the uninvoked `next_install` role; overall Cyber Essentials interpretation is unchanged.
+    - **Benefit**: Prompt routine updates no longer require the everyday account to invoke sudo or log into another interactive account. Desktop alerts surface failed or overdue updates while preserving readable service and log status.
+    - **Net risk statement**: Privilege exposure through the everyday account is **reduced**; unattended update disruption and availability risk are **introduced** and mitigated by the hourly retry, timeouts, and user notifications. No overall Cyber Essentials certification claim is made.
+
+## [PR #103 - Assess sudo access against Cyber Essentials](https://github.com/brabster/xubuntu-workstation/pull/103)
+
+### Changed
+
+- **Documented the Cyber Essentials account-separation assessment for sudo**: the everyday user is removed from the general `sudo` group but still has command-specific sudoers grants. The assessment explains that restricted grants do not by themselves provide a separate administrator account, compares the separate-account option, and records that maintainer approval is pending. README wording no longer implies that the existing setup meets Cyber Essentials regulations.
+
+### Security
+
+- **Threat Model Assessment**: This documentation change **does not change workstation runtime risk**.
+    - **Rationale**: No sudo rules or account configuration changed. The documentation clarifies that the current everyday account retains limited administrative capabilities and should not be represented as meeting the Cyber Essentials separate-account requirement.
+    - **Benefit**: An evidence-based comparison supports informed approval and avoids overstating compliance with UK Cyber Essentials.
+    - **Net risk statement**: Workstation runtime and security-control risk are **unchanged**; risk of misunderstanding the account-separation assessment is **reduced**.
+
 ## [PR #95 - Clean up legacy agent guidance](https://github.com/brabster/xubuntu-workstation/pull/95)
 
 ### Changed

@@ -5,7 +5,6 @@
 # username: '{{ undef(hint="username must be set to OS user username") }}'
 user_home: '/home/{{ username }}'
 user_bashrc: '{{ user_home }}/.bashrc'
-user_profile: '{{ user_home }}/.profile'
 update_script: /usr/local/bin/update
 user_update_script: '{{ user_home }}/.local/bin/update'
 is_gh_actions: '{{ lookup("ansible.builtin.env", "CI", default="false") | bool }}'
