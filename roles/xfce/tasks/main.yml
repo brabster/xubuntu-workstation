@@ -12,6 +12,45 @@
     mode: '0755'
     owner: '{{ username }}'
 
+- name: Ensure xfce4 xfconf per-channel XML configuration directory exists
+  ansible.builtin.file:
+    path: '{{ user_home }}/.config/xfce4/xfconf/xfce-perchannel-xml'
+    state: directory
+    mode: '0700'
+    owner: '{{ username }}'
+
+- name: Configure xfce4 keyboard shortcuts for window tiling
+  ansible.builtin.script:
+    cmd: >-
+      '{{ role_path }}/files/update-xfce-keyboard-shortcuts.py'
+      '{{ user_home }}/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-keyboard-shortcuts.xml'
+      '{{ lookup("file", role_path + "/templates/xfce4-keyboard-shortcuts.xml.j2") | b64encode }}'
+    executable: /usr/bin/python3
+  become: true
+  become_user: '{{ username }}'
+  register: xfce_keyboard_shortcuts
+  changed_when: "'updated' in xfce_keyboard_shortcuts.stdout"
+
+- name: Ensure xfce4 panel configuration directory exists
+  ansible.builtin.file:
+    path: '{{ user_home }}/.config/xfce4/panel'
+    state: directory
+    mode: '0700'
+    owner: '{{ username }}'
+
+- name: Find whisker menu panel plugin configuration files
+  ansible.builtin.find:
+    paths: '{{ user_home }}/.config/xfce4/panel'
+    patterns: 'whiskermenu-*.rc'
+  register: xfce_whisker_menu_configs
+
+- name: Disable whisker menu Super key trigger to allow tile shortcuts
+  ansible.builtin.lineinfile:
+    path: '{{ item.path }}'
+    regexp: '^button-trigger='
+    line: 'button-trigger=0'
+  loop: '{{ xfce_whisker_menu_configs.files }}'
+
 # Not critical, not working: Failed to init libxfconf: cannot autolaunch D-Bus without X11 display
 # - name: Disable media automounting
 #   ansible.builtin.command: xfconf-query -c thunar-volman -np /automount-media/enabled -t 'bool' -s 'false'
