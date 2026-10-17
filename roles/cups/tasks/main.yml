@@ -10,7 +10,7 @@
   ansible.builtin.lineinfile:
     dest: /etc/sudoers
     state: absent
-    regexp: '^%cups_users[[:space:]]'
+    regexp: '^%cups_users\s'
     validate: visudo -cf %s
 
 - name: Check whether the legacy cups_users group exists
