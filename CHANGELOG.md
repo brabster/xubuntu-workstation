@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #101 - Share agent knowledge across repositories](https://github.com/brabster/xubuntu-workstation/pull/101)
+
+### Added
+
+- **Guidance for cross-repository knowledge-base use and contribution**: explains selective local copies and provides a copyable Git-submodule pilot for the blog, including root `AGENTS.md` bootstrap text and submodule initialization for development and agent checkouts.
+
 ## [PR #99 - Align README with the workstation setup](https://github.com/brabster/xubuntu-workstation/pull/99)
 
 ### Changed

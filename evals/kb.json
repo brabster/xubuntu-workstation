@@ -28,6 +28,41 @@
       ]
     },
     {
+      "id": "reuse-knowledge-base",
+      "question": "How can another repository use and contribute to this knowledge base?",
+      "expected_answer": "For a pilot, add this repository as a Git submodule and have the target repository's local AGENTS.md read selected shared pages while keeping domain-specific instructions local. Ensure each agent checkout initializes the submodule; its commit pointer pins the version and updates are deliberate. Contribute general improvements here through pull requests.",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "copying the whole wiki would give another project irrelevant instructions"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "Keep the target repository's domain instructions"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "git submodule add https://github.com/brabster/xubuntu-workstation.git .agent-system/xubuntu-workstation"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "Do not treat the submodule's workstation-specific instructions as blog requirements."
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "git submodule update --init --recursive"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "committing the submodule pointer pins the version"
+        },
+        {
+          "source": "docs/wiki/using-this-knowledge-base.md",
+          "text": "propose it here as a pull request"
+        }
+      ]
+    },
+    {
       "id": "ambiguous-failure",
       "question": "What should an agent do before fixing an unclear or silent failure?",
       "expected_answer": "Gather logs, test output, and direct observations before proposing a fix; then prefer a small, reversible fix based on verified evidence.",

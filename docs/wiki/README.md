@@ -31,6 +31,7 @@ This directory is the repository's working OKF-style wiki for agent and contribu
 ## Structure
 
 - [Root index](./index.md): top-level navigation for progressive disclosure.
+- [Using this knowledge base elsewhere](./using-this-knowledge-base.md): how to adopt reusable guidance in another repository and contribute improvements upstream.
 - [Steering](./steering/): playbooks describing operating principles.
 - [Linting](./linting/): lint toolchain behavior and controls.
 - [Decisions](./decisions/): ADR-backed decision summaries, while canonical ADR records remain in `docs/adr/` so their status, date, and PR context stay in a conventional ADR location.
