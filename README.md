@@ -59,6 +59,7 @@ NOTE: the setup ends by setting up NordVPN with some security-related settings. 
 - `cd` back to the mount directory
 - ensure connected to network for updates and installs
 - `./bootstrap.sh`
+- log out and back in to activate the XFCE keyboard shortcut and Whisker Menu changes
 
 ### Smoke test
 

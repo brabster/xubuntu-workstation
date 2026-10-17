@@ -2,6 +2,7 @@
 
 import argparse
 import base64
+import copy
 import os
 from pathlib import Path
 import stat
@@ -29,14 +30,17 @@ def _has_running_xfconfd(uid):
 
 def _has_user_sessions(uid):
     result = subprocess.run(
-        ["loginctl", "show-user", str(uid), "--property=Sessions", "--value"],
+        ["loginctl", "list-sessions", "--no-legend", "--no-pager"],
         check=False,
         capture_output=True,
         text=True,
     )
     if result.returncode:
         raise RuntimeError("Cannot verify that xfconfd is stopped before offline update")
-    return bool(result.stdout.strip())
+    return any(
+        len(fields := line.split()) > 1 and fields[1] == str(uid)
+        for line in result.stdout.splitlines()
+    )
 
 
 def _update_session(defaults, uid):
@@ -102,9 +106,28 @@ def _merge_defaults(channel, defaults):
     changed = False
     for section in defaults.findall("property"):
         channel_section = _property(channel, section.attrib["name"])
+        if section.attrib["name"] == "xfwm4":
+            custom = _find_property(channel_section, "custom")
+            override = _find_property(custom, "override") if custom is not None else None
+            if override is not None and override.attrib.get("value") == "true":
+                defaults_default = _find_property(section, "default")
+                channel_default = _find_property(channel_section, "default")
+                custom = _property(channel_section, "custom")
+                for source in (channel_default, defaults_default):
+                    if source is not None:
+                        for shortcut in source.findall("property"):
+                            if _find_property(custom, shortcut.attrib["name"]) is None:
+                                custom.append(copy.deepcopy(shortcut))
+                                changed = True
         for branch in section.findall("property"):
+            channel_branch = _find_property(channel_section, branch.attrib["name"])
+            if channel_branch is None:
+                changed = True
             channel_branch = _property(channel_section, branch.attrib["name"])
             for shortcut in branch.findall("property"):
+                target = _find_property(channel_branch, shortcut.attrib["name"])
+                if target is None:
+                    changed = True
                 target = _property(channel_branch, shortcut.attrib["name"])
                 for attribute in ("type", "value"):
                     value = shortcut.attrib[attribute]

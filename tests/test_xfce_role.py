@@ -116,6 +116,106 @@ class XfceRoleTests(unittest.TestCase):
             properties[("xfwm4", "custom", "<Primary><Alt>Left")],
             "custom-window-action",
         )
+        self.assertEqual(
+            properties[("xfwm4", "custom", "<Super>Left")], "tile_left_key"
+        )
+
+    def test_custom_override_preserves_inherited_bindings(self):
+        existing_xml = """\
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Primary&gt;F2" type="string" value="old-launcher"/>
+    </property>
+    <property name="custom" type="empty"/>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Super&gt;Up" type="string" value="maximize_window_key"/>
+      <property name="&lt;Alt&gt;Tab" type="string" value="cycle_windows_key"/>
+    </property>
+    <property name="custom" type="empty">
+      <property name="override" type="bool" value="true"/>
+      <property name="&lt;Super&gt;Left" type="string" value="old-action"/>
+      <property name="&lt;Primary&gt;&lt;Alt&gt;Left" type="string" value="custom-action"/>
+    </property>
+  </property>
+</channel>
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            channel_file = Path(directory) / "xfce4-keyboard-shortcuts.xml"
+            channel_file.write_text(existing_xml, encoding="utf-8")
+            self.assertTrue(UPDATER._update_file(channel_file, self.shortcuts, 0))
+            result = ET.parse(channel_file).getroot()
+            custom = result.find("./property[@name='xfwm4']/property[@name='custom']")
+            commands = result.find("./property[@name='commands']/property[@name='custom']")
+            properties = {item.attrib["name"]: item.attrib["value"] for item in custom.findall("property")}
+
+        self.assertEqual(properties["<Super>Left"], "tile_left_key")
+        self.assertEqual(properties["<Super>Up"], "tile_up_key")
+        self.assertEqual(properties["<Alt>Tab"], "cycle_windows_key")
+        self.assertEqual(properties["<Primary><Alt>Left"], "custom-action")
+        self.assertEqual(
+            commands.find("property").attrib,
+            {"name": "<Primary>F2", "type": "string", "value": "xfrun4"},
+        )
+
+    def test_missing_custom_branch_is_counted_as_a_change(self):
+        channel = ET.fromstring(
+            """\
+<channel name="xfce4-keyboard-shortcuts" version="1.0">
+  <property name="commands" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Primary&gt;F2" type="string" value="xfrun4"/>
+    </property>
+  </property>
+  <property name="xfwm4" type="empty">
+    <property name="default" type="empty">
+      <property name="&lt;Super&gt;Down" type="string" value="tile_down_key"/>
+      <property name="&lt;Super&gt;Left" type="string" value="tile_left_key"/>
+      <property name="&lt;Super&gt;Right" type="string" value="tile_right_key"/>
+      <property name="&lt;Super&gt;Up" type="string" value="tile_up_key"/>
+    </property>
+    <property name="custom" type="empty"/>
+  </property>
+</channel>
+"""
+        )
+        self.assertTrue(UPDATER._merge_defaults(channel, self.shortcuts))
+
+    @mock.patch.object(
+        UPDATER.subprocess,
+        "run",
+        return_value=mock.Mock(returncode=0, stdout="", stderr=""),
+    )
+    def test_no_sessions_is_valid_for_fully_logged_out_user(self, run):
+        self.assertFalse(UPDATER._has_user_sessions(1000))
+        self.assertEqual(
+            run.call_args.args[0],
+            ["loginctl", "list-sessions", "--no-legend", "--no-pager"],
+        )
+
+    @mock.patch.object(
+        UPDATER.subprocess,
+        "run",
+        return_value=mock.Mock(
+            returncode=0,
+            stdout="  12 1000 user seat0 tty2\n  13 1001 other seat1 tty3\n",
+            stderr="",
+        ),
+    )
+    def test_user_sessions_are_matched_by_uid(self, _run):
+        self.assertTrue(UPDATER._has_user_sessions(1000))
+        self.assertFalse(UPDATER._has_user_sessions(1002))
+
+    @mock.patch.object(
+        UPDATER.subprocess,
+        "run",
+        return_value=mock.Mock(returncode=1, stdout="", stderr="failed"),
+    )
+    def test_session_query_failure_is_rejected(self, _run):
+        with self.assertRaisesRegex(RuntimeError, "Cannot verify"):
+            UPDATER._has_user_sessions(1000)
 
     @mock.patch.object(UPDATER, "_update_session", return_value=None)
     @mock.patch.object(UPDATER, "_has_user_sessions", return_value=True)
