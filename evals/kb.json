@@ -85,6 +85,25 @@
       ]
     },
     {
+      "id": "ci-smoke-test-failure",
+      "question": "How should an agent diagnose and write reliable CI smoke-test assertions when a log contains both expected denials and unexpected failures?",
+      "expected_answer": "Inspect the failed step's command trace and output, enable strict shell mode before the first assertion, use commands available in the image, and make expected failures explicit. Check sudo access with a command-specific `sudo -l -U USER COMMAND` query rather than inferring authorization from another command's failure, and assert permissions and ownership directly.",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/steering/ci-smoke-test-diagnostics.md",
+          "text": "Enable strict shell handling before the first assertion"
+        },
+        {
+          "source": "docs/wiki/steering/ci-smoke-test-diagnostics.md",
+          "text": "command-specific `sudo -l -U USER COMMAND` query"
+        },
+        {
+          "source": "docs/wiki/steering/ci-smoke-test-diagnostics.md",
+          "text": "distinguish expected negative-test diagnostics from unexpected failures"
+        }
+      ]
+    },
+    {
       "id": "ci-role-guards",
       "question": "When should a role be excluded from GitHub Actions?",
       "expected_answer": "Guard a role only when evidence shows a genuine GitHub Actions incompatibility, such as required elevated privileges being unavailable. A role needing elevation or interacting with services is not by itself enough; attempt CI first whenever compatibility is uncertain. Use the standard when: not is_gh_actions guard when warranted.",

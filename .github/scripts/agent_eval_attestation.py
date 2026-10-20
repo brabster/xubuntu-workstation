@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import sys
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -111,11 +112,21 @@ def record_attestation(output_path=ATTESTATION_PATH, repo_root=REPO_ROOT):
     return attestation
 
 
-def confirm_evaluation_passed():
-    response = input(
-        "Have you run and passed every current behavioral evaluation case? [y/N] "
-    )
-    return response.strip().casefold() in ("y", "yes")
+def confirm_evaluation_passed(cases):
+    if not sys.stdin.isatty():
+        raise SystemExit(
+            "Run the behavioral attestation recorder interactively; "
+            "piped confirmations are not accepted."
+        )
+
+    for case in cases:
+        response = input(
+            f"Did case '{case['id']}' pass with its expected answer and evidence "
+            "verified? [y/N] "
+        )
+        if response.strip().casefold() not in ("y", "yes"):
+            return False
+    return True
 
 
 def main():
@@ -127,7 +138,8 @@ def main():
     )
     args = parser.parse_args()
     if not args.check:
-        if not confirm_evaluation_passed():
+        cases = load_cases(REPO_ROOT)
+        if not confirm_evaluation_passed(cases):
             raise SystemExit("Behavioral evaluation attestation was not recorded.")
         record_attestation(ATTESTATION_PATH, REPO_ROOT)
         print(f"Wrote behavioral eval evidence to {ATTESTATION_PATH}")

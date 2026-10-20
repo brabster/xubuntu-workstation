@@ -1,10 +1,42 @@
 #!/bin/sh
 
+set -eu
+
+exec >> /var/log/xubuntu-workstation-update.log 2>&1
+
+finish_update() {
+    result=$?
+    if [ "$result" -eq 0 ]; then
+        success_tmp="${state_dir}/.last-success.$$"
+        if ! date --iso-8601=seconds > "$success_tmp" \
+            || ! chmod 0644 "$success_tmp" \
+            || ! mv -f "$success_tmp" "${state_dir}/last-success"; then
+            rm -f "$success_tmp"
+            result=1
+            printf '=== Update FAILED to record success at %s ===\n' "$(date --iso-8601=seconds)"
+        else
+            printf '=== Update completed at %s ===\n' "$(date --iso-8601=seconds)"
+        fi
+    else
+        printf '=== Update FAILED at %s (exit %s) ===\n' "$(date --iso-8601=seconds)" "$result"
+    fi
+    exit "$result"
+}
+
+trap finish_update EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+export DEBIAN_FRONTEND=noninteractive
+state_dir=/var/lib/xubuntu-workstation-update
+
+printf '\n=== Update started at %s ===\n' "$(date --iso-8601=seconds)"
 echo "Package updates"
 
 apt-get update
-apt-get --with-new-pkgs upgrade
-apt-get autoremove
+apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold --with-new-pkgs upgrade
+apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold autoremove
 
 echo "Snap updates"
 
@@ -12,10 +44,18 @@ snap refresh
 
 echo "Firmware updates"
 
-fwupdmgr refresh --force
-fwupdmgr get-updates || true
-fwupdmgr update || true
-#############################
+if command -v fwupdmgr >/dev/null 2>&1; then
+    fwupdmgr refresh --force || {
+        fwupd_status=$?
+        [ "$fwupd_status" -eq 2 ] || exit "$fwupd_status"
+    }
+    fwupdmgr update --assume-yes || {
+        fwupd_status=$?
+        [ "$fwupd_status" -eq 2 ] || exit "$fwupd_status"
+    }
+else
+    echo "fwupdmgr is not installed; skipping firmware updates"
+fi
+
 echo "Running user updates"
-su -c '{{ user_update_script }}' '{{ username }}'
-#############################
+timeout --signal=TERM --kill-after=30s 10m runuser --user '{{ username }}' -- '{{ user_update_script }}'

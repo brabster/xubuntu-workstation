@@ -35,6 +35,21 @@ class InstallWorkflowTests(unittest.TestCase):
 
         self.assertEqual("cat /etc/os-release", debug_step["run"].strip())
 
+    def test_install_checks_fail_fast_and_query_sudo_permissions(self):
+        workflow = yaml.safe_load(WORKFLOW_FILE.read_text(encoding="utf-8"))
+        steps = workflow["jobs"]["test_install"]["steps"]
+        check_step = next(step for step in steps if step.get("name") == "check")
+        commands = check_step["run"].splitlines()
+
+        self.assertEqual("set -euo pipefail", commands[0])
+        self.assertIn('su - tester -c "python3 --version"', commands)
+        self.assertIn(
+            "if sudo -l -U tester /usr/local/bin/update; then",
+            commands,
+        )
+        self.assertIn("visudo -c", commands)
+        self.assertFalse(any("sudo -n" in command for command in commands))
+
 
 if __name__ == "__main__":
     unittest.main()

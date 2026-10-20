@@ -29,6 +29,10 @@ when prompted:
 python3 .github/scripts/agent_eval_attestation.py
 ```
 
+The recorder requires an interactive terminal and asks for a separate
+confirmation for each case. Do not pipe or automate confirmations; only confirm
+after running and checking that case.
+
 Commit `evals/agent-eval-attestation.json` with the system change. The file
 records the case IDs, time, result, and SHA-256 digest of the agent-system
 inputs. The command needs no arguments because the output path and current

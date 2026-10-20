@@ -4,26 +4,115 @@
   ansible.builtin.template:
     src: files/update.j2
     dest: '{{ update_script }}'
+    owner: root
+    group: root
     mode: '0755'
 
-- name: Add updaters group
-  ansible.builtin.group:
-    name: updaters
+- name: Ensure update log is readable by the workstation user
+  ansible.builtin.copy:
+    dest: /var/log/xubuntu-workstation-update.log
+    content: ''
+    force: false
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Normalize update log ownership and permissions
+  ansible.builtin.file:
+    path: /var/log/xubuntu-workstation-update.log
+    state: file
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure update state directory exists
+  ansible.builtin.file:
+    path: /var/lib/xubuntu-workstation-update
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install desktop notification dependency
+  ansible.builtin.package:
+    name: libnotify-bin
     state: present
 
-- name: Add current user to updaters group
-  ansible.builtin.user:
-    name: '{{ username }}'
-    groups: updaters
-    append: true
+- name: Install update status notification monitor
+  ansible.builtin.copy:
+    src: files/xubuntu-workstation-update-notify
+    dest: /usr/local/bin/xubuntu-workstation-update-notify
+    owner: root
+    group: root
+    mode: '0755'
 
-- name: Allow updaters group to run update script with appropriate privileges
+- name: Ensure desktop autostart directory exists
+  ansible.builtin.file:
+    path: /etc/xdg/autostart
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install update notification desktop autostart entry
+  ansible.builtin.copy:
+    dest: /etc/xdg/autostart/xubuntu-workstation-update-notify.desktop
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Name=Workstation update status
+      Exec=/usr/local/bin/xubuntu-workstation-update-notify
+      NoDisplay=true
+      X-GNOME-Autostart-enabled=true
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install the workstation update service
+  ansible.builtin.template:
+    src: xubuntu-workstation-update.service.j2
+    dest: /etc/systemd/system/xubuntu-workstation-update.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install the workstation update timer
+  ansible.builtin.template:
+    src: xubuntu-workstation-update.timer.j2
+    dest: /etc/systemd/system/xubuntu-workstation-update.timer
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Remove the legacy updaters sudoers grant
   ansible.builtin.lineinfile:
     dest: /etc/sudoers
-    state: present
-    regexp: '^%updaters'
-    line: '%updaters {{ ansible_facts["hostname"] }}=NOPASSWD: {{ update_script }}'
+    state: absent
+    regexp: '^%updaters\s'
     validate: visudo -cf %s
+
+- name: Check whether the legacy updaters group contains the workstation user
+  ansible.builtin.command:
+    argv:
+      - getent
+      - group
+      - updaters
+  register: updates_updaters_group
+  changed_when: false
+  failed_when: false
+
+- name: Remove the workstation user from the legacy updaters group
+  ansible.builtin.command:
+    argv:
+      - gpasswd
+      - -d
+      - '{{ username }}'
+      - updaters
+  register: updates_updaters_group_removal
+  changed_when: updates_updaters_group_removal.rc == 0
+  when:
+    - updates_updaters_group.rc == 0
+    - username in updates_updaters_group.stdout.split(':')[-1].split(',')
 
 - name: Setup user update script
   ansible.builtin.template:
@@ -31,3 +120,15 @@
     dest: '{{ user_update_script }}'
     mode: '0755'
     owner: '{{ username }}'
+
+- name: Reload systemd unit files
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when: not is_gh_actions
+
+- name: Enable and start the daily workstation update timer
+  ansible.builtin.systemd_service:
+    name: xubuntu-workstation-update.timer
+    enabled: true
+    state: started
+  when: not is_gh_actions
