@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<labwc_config>
+  <core>
+    <gap>0</gap>
+  </core>
+  <keyboard>
+    <default />
+{% for shortcut in labwc_shortcuts %}
+    <keybind key="{{ shortcut.key | e }}">
+      <action name="Execute" command="{{ shortcut.command | e }}" />
+    </keybind>
+{% endfor %}
+  </keyboard>
+</labwc_config>
