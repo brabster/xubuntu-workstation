@@ -80,6 +80,11 @@ jobs:
           cd $GITHUB_WORKSPACE
           cp ${GITHUB_WORKSPACE}/.github/test_vars.yml ${GITHUB_WORKSPACE}/.vars.yml
           ./bootstrap.sh
+      - name: verify LXQt labwc headless Wayland session
+        shell: bash -l {0}
+        run: |
+          ansible-playbook -i localhost, -c local roles/lxqt_labwc/molecule/default/converge.yml
+          ansible-playbook -i localhost, -c local roles/lxqt_labwc/molecule/default/verify.yml
       - name: generate resolved-version manifest and SBOM
         run: |
           python3 .github/scripts/generate_ci_dependency_artifacts.py \

@@ -1,0 +1,9 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    username: tester
+    user_home: /home/tester
+  roles:
+    - role: ../.. # noqa role-name[path]

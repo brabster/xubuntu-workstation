@@ -1,0 +1,70 @@
+---
+- name: Validate labwc shortcut commands use absolute paths
+  ansible.builtin.assert:
+    that:
+      - item.command is match('^/[^ /]+')
+    fail_msg: "labwc shortcut commands must start with an absolute executable path."
+  loop: "{{ labwc_shortcuts }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Install LXQt Wayland desktop and verification packages
+  ansible.builtin.apt:
+    name:
+      - lxqt-core
+      - lxqt-wayland-session
+      - labwc
+      - qterminal
+      - swaylock
+      - wtype
+      - procps
+    state: present
+    install_recommends: false
+    update_cache: true
+
+- name: Ensure LXQt configuration directories are private
+  ansible.builtin.file:
+    path: "{{ user_home }}/.config/{{ item }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0700'
+  loop:
+    - ""
+    - lxqt
+    - labwc
+    - environment.d
+
+- name: Configure LXQt Wayland session
+  ansible.builtin.copy:
+    dest: "{{ user_home }}/.config/lxqt/session.conf"
+    content: |
+      [General]
+      __userfile__=true
+      DisplayServer=wayland
+
+      [Wayland]
+      CompositorCommand=labwc
+      ScreenLocker=swaylock -f -c 000000
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0600'
+
+- name: Configure Wayland environment
+  ansible.builtin.copy:
+    dest: "{{ user_home }}/.config/environment.d/10-wayland-security.conf"
+    content: |
+      ELECTRON_OZONE_PLATFORM_HINT=auto
+      MOZ_ENABLE_WAYLAND=1
+      QT_QPA_PLATFORM=wayland;xcb
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0600'
+
+- name: Configure labwc keyboard shortcuts
+  ansible.builtin.template:
+    src: rc.xml.j2
+    dest: "{{ user_home }}/.config/labwc/rc.xml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0600'
