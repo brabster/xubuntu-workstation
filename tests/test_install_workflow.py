@@ -43,7 +43,10 @@ class InstallWorkflowTests(unittest.TestCase):
 
         self.assertEqual("set -euo pipefail", commands[0])
         self.assertIn('su - tester -c "python3 --version"', commands)
-        self.assertIn("if sudo -l -U tester; then", commands)
+        self.assertIn(
+            "if sudo -l -U tester /usr/local/bin/update; then",
+            commands,
+        )
         self.assertIn("visudo -c", commands)
         self.assertFalse(any("sudo -n" in command for command in commands))
 

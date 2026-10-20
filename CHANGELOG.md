@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 
 - **System updates now run shortly after boot and hourly from a root systemd timer instead of the everyday user's sudo grant**: the service runs non-interactively, is retried by the next hourly timer event after failure, and records timestamped outcomes and the last successful run. A desktop-session monitor notifies the user when updates fail or have not succeeded within 26 hours.
+- **Agent CI guidance and behavioral checks now cover smoke-test diagnosis and attestation**: documents reliable command, shell, sudo, ownership, and mode assertions; adds a KB case; and requires per-case interactive confirmation before recording behavioral evaluation evidence.
 
 ### Security
 
