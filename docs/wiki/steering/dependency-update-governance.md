@@ -9,6 +9,14 @@ stale_after: 2027-03-26T00:00:00Z
 
 # Dependency update governance
 
+## Strategy for this repository
+
+This is a personal Xubuntu workstation bootstrap, not a versioned application. Keep routine updates automated and use CI results to decide where the sole maintainer's attention is needed:
+
+- Keep daily Dependabot updates for GitHub Actions and pip with the existing three-day cooldown. Let routine updates through when their required checks pass; handle security updates promptly rather than waiting for the routine cooldown.
+- Let Ubuntu packages follow the signed distro archives and Ansible collections follow `roles/requirements.yml`; the weekly `test_install` job exercises the bootstrap on Ubuntu latest and rolling. Use its resolved-version manifest and SBOM artifacts as evidence instead of maintaining a duplicate lockfile or version inventory.
+- Treat CI as smoke coverage, not proof of every workstation behavior: it cannot exercise graphical setup, systemd, or snap interactions. Spend maintainer review on failed checks and changes to compatibility, package sources, or trust settings that the checks do not cover, rather than manually reviewing every green version bump.
+
 - Apply dependency updates automatically in CI and developer environments at point of use where possible.
 - Keep repository-level cooldown controls enabled for supported ecosystems to reduce immediate exposure to newly published malicious releases.
 - Treat automated test and validation outcomes as the primary merge gate, not semantic-version category alone.
