@@ -121,6 +121,25 @@
           "text": "clear provenance"
         }
       ]
+    },
+    {
+      "id": "dependency-update-strategy",
+      "question": "What dependency update strategy fits this repository and its sole-maintainer setup?",
+      "expected_answer": "Keep daily Dependabot updates for GitHub Actions and pip with the existing three-day cooldown, and let routine updates through when required CI checks pass. Use existing distro and Ansible collection update paths plus the weekly bootstrap smoke test and its resolved-version/SBOM artifacts. Reserve maintainer attention for failures and compatibility or trust changes CI does not cover, since CI cannot test graphical, systemd, or snap behavior.",
+      "expected_evidence": [
+        {
+          "source": "docs/wiki/steering/dependency-update-governance.md",
+          "text": "Keep daily Dependabot updates for GitHub Actions and pip with the existing three-day cooldown."
+        },
+        {
+          "source": "docs/wiki/steering/dependency-update-governance.md",
+          "text": "Use its resolved-version manifest and SBOM artifacts as evidence"
+        },
+        {
+          "source": "docs/wiki/steering/dependency-update-governance.md",
+          "text": "it cannot exercise graphical setup, systemd, or snap interactions"
+        }
+      ]
     }
   ]
 }
