@@ -113,22 +113,40 @@ class AgentEvalAttestationTests(unittest.TestCase):
         output_path = self.repo / "evals" / "agent-eval-attestation.json"
 
         with (
-            patch("builtins.input", return_value="yes"),
+            patch("builtins.input", side_effect=["yes", "yes"]) as prompt,
+            patch.object(MODULE.sys.stdin, "isatty", return_value=True),
             patch("sys.argv", ["agent_eval_attestation.py"]),
             patch.object(MODULE, "ATTESTATION_PATH", output_path),
             patch.object(MODULE, "REPO_ROOT", self.repo),
         ):
             MODULE.main()
 
+        self.assertEqual(prompt.call_count, 2)
         written = json.loads(output_path.read_text(encoding="utf-8"))
         self.assertEqual(written["cases"], ["case-one", "case-two"])
         self.assertEqual(MODULE.validate_attestation(written, self.repo), [])
+
+    def test_record_command_rejects_noninteractive_confirmation(self):
+        output_path = self.repo / "evals" / "agent-eval-attestation.json"
+
+        with (
+            patch("builtins.input", side_effect=AssertionError("unexpected prompt")),
+            patch.object(MODULE.sys.stdin, "isatty", return_value=False),
+            patch("sys.argv", ["agent_eval_attestation.py"]),
+            patch.object(MODULE, "ATTESTATION_PATH", output_path),
+            patch.object(MODULE, "REPO_ROOT", self.repo),
+        ):
+            with self.assertRaisesRegex(SystemExit, "piped confirmations"):
+                MODULE.main()
+
+        self.assertFalse(output_path.exists())
 
     def test_record_command_does_not_write_without_confirmation(self):
         output_path = self.repo / "evals" / "agent-eval-attestation.json"
 
         with (
             patch("builtins.input", return_value="no"),
+            patch.object(MODULE.sys.stdin, "isatty", return_value=True),
             patch("sys.argv", ["agent_eval_attestation.py"]),
             patch.object(MODULE, "ATTESTATION_PATH", output_path),
             patch.object(MODULE, "REPO_ROOT", self.repo),

@@ -1,0 +1,16 @@
+[Unit]
+Description=Apply workstation system updates
+Wants=network-online.target
+After=network-online.target
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+User=root
+Environment=DEBIAN_FRONTEND=noninteractive
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+ExecStart={{ update_script }}
+TimeoutStartSec=2h
+StandardOutput=append:/var/log/xubuntu-workstation-update.log
+StandardError=inherit

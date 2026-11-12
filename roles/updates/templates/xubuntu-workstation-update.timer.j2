@@ -1,0 +1,11 @@
+[Unit]
+Description=Run workstation updates after boot and hourly
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1h
+RandomizedDelaySec=5min
+Unit=xubuntu-workstation-update.service
+
+[Install]
+WantedBy=timers.target

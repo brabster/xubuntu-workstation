@@ -4,7 +4,7 @@ This repository automates the setup and maintenance of a personal, single-user X
 
 **Target OS: Xubuntu latest LTS and rolling.** CI checks the playbook in `ubuntu:latest` and `ubuntu:rolling` containers; it does not test a graphical Xubuntu desktop.
 
-The playbook configures networking, sudo, system and user updates, development tools, Chrome, Git, ClamAV, Slack, Visual Studio Code, and (outside CI) desktop settings, CUPS, clipboard clearing, UFW, and NordVPN.
+The playbook configures networking, sudo, scheduled system updates, development tools, Chrome, Git, ClamAV, Slack, Visual Studio Code, and (outside CI) desktop settings, CUPS, clipboard clearing, UFW, and NordVPN.
 
 ## Support
 
@@ -58,7 +58,7 @@ The setup ends by configuring NordVPN. **Its network killswitch is OFF** until y
 
 - insert bootstrap USB
 - mount, open terminal in directory
-- `sudo su -` to start a root shell (you will lose ability to `sudo` arbitrarily as part of install to meet Cyber Essentials regulations)
+- `sudo su -` to start a root shell
 - `passwd` to set a root password
 - `cd` back to the mount directory
 - ensure connected to network for updates and installs
@@ -77,7 +77,7 @@ A test script is provided to run on the target machine after installation as the
 - minimal install (minimise unneeded packages)
 - encrypt HDD (optionally same password as user account)
 - remove any packages that I know I don't need
-- disable any services that I rarely need, add service-specific start/stop via sudoers
+- disable any services that I rarely need
 
 ### ClamAV on-access scanning
 
@@ -92,16 +92,13 @@ This install uses **ClamAV** as its antivirus solution. [CHANGELOG](CHANGELOG.md
 
 
 ### Playbook
-- [sudo](roles/sudo) remove sudo timeout - you need to put your password in each time
-- [sudo](roles/sudo) restrict sudo commands to essential tasks
-    - applying updates,
-    - preparing installation media for the next update
-    - temporarily starting and stopping rarely-needed services
+- [sudo](roles/sudo) set the sudo timestamp timeout to zero
+- [cups](roles/cups) stop and disable CUPS; no CUPS sudoers delegation is configured
+- [updates](roles/updates) run the root-owned system update script shortly after boot and hourly while the workstation is on; the everyday user has no sudo grant for updates
+- A desktop notification warns when an update run fails or no successful run has completed in 26 hours. The monitor checks at login and periodically during the desktop session. Inspect details with `systemctl status xubuntu-workstation-update.service` and `tail -n 40 /var/log/xubuntu-workstation-update.log`.
+- The scheduled system service removes the everyday user's role in invoking privileged update operations; this does not by itself establish overall Cyber Essentials compliance. See the [Cyber Essentials assessment](docs/adr/0002-cyber-essentials-sudo-access.md).
 - [clamav](roles/clamav) install clamav and freshclam, add custom context menu to scan in Thunar file manager, notes versions and signature update version/date in update script
-- [updates](roles/updates)
-    - update all known supply chains, incl. OS, firmware, snap, pip, clamav
-    - apply system-level updates as root
-    - su to user to apply user updates
+- [updates](roles/updates) also invokes a user-owned update hook as the ordinary user, with a timeout; it currently performs no package updates
 - [chrome](roles/chrome_browser) applies security settings by policy
 
 ## Testing

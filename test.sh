@@ -2,14 +2,19 @@
 
 set -euo pipefail
 
-echo "Checking update script works"
-sudo update
+echo "Checking daily update timer and latest update result"
+systemctl is-enabled --quiet xubuntu-workstation-update.timer
+systemctl status xubuntu-workstation-update.service --no-pager || true
+tail -n 40 /var/log/xubuntu-workstation-update.log
 
 echo
-echo "Checking cups can be started and stopped, but not enabled"
-sudo systemctl start cups
-sudo systemctl stop cups
-! sudo systemctl enable cups
+echo "Checking cups cannot be controlled through sudo"
+for action in start stop enable; do
+    if sudo -l /usr/bin/systemctl "$action" cups; then
+        echo "Unexpected sudo permission to $action CUPS" >&2
+        exit 1
+    fi
+done
 
 echo "Checking UFW is active and running"
 if ! systemctl is-active --quiet ufw; then
