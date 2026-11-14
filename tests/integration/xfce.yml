@@ -1,0 +1,10 @@
+---
+- name: Exercise the XFCE role in an isolated desktop
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Apply XFCE tasks without workstation-wide dependencies
+      ansible.builtin.import_tasks: ../../roles/xfce/tasks/main.yml
+      vars:
+        role_path: '{{ playbook_dir }}/../../roles/xfce' # noqa: var-naming[read-only] -- supply role context for imported tasks

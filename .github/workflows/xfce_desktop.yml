@@ -1,0 +1,54 @@
+name: xfce_desktop
+on:
+  pull_request:
+    paths:
+      - 'roles/xfce/**'
+      - 'tests/test_xfce_role.py'
+      - 'tests/integration/**'
+      - '.github/workflows/xfce_desktop.yml'
+      - 'requirements-dev.txt'
+  push:
+    branches: [main]
+    paths:
+      - 'roles/xfce/**'
+      - 'tests/test_xfce_role.py'
+      - 'tests/integration/**'
+      - '.github/workflows/xfce_desktop.yml'
+      - 'requirements-dev.txt'
+  workflow_dispatch: {}
+jobs:
+  shortcuts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+      - name: Install test and desktop dependencies
+        run: |
+          python -m pip install -r requirements-dev.txt
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            acl dbus-x11 xvfb xauth x11-utils xdotool xterm xfconf \
+            xfwm4 xfce4-settings xfce4-panel xfce4-whiskermenu-plugin xfce4-appfinder
+          dpkg-query -W xfwm4 xfce4-settings xfce4-panel xfce4-whiskermenu-plugin xfconf
+      - name: Create disposable desktop user
+        run: sudo useradd --create-home --shell /bin/bash xfce-ci
+      - name: Exercise real shortcuts on an authenticated virtual display
+        run: |
+          xvfb-run -a -s '-screen 0 1280x800x24 -nolisten tcp' \
+            sudo --preserve-env=DISPLAY,XAUTHORITY \
+            env RUN_XFCE_INTEGRATION=1 \
+            XFCE_TEST_ARTIFACTS="$RUNNER_TEMP/xfce-desktop" \
+            ANSIBLE_PLAYBOOK="$(command -v ansible-playbook)" \
+            python3 tests/integration/test_xfce_desktop.py
+      - name: Upload desktop and Ansible diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: xfce-desktop-diagnostics
+          path: ${{ runner.temp }}/xfce-desktop
+          if-no-files-found: warn

@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #98 - Configure XFCE window tiling shortcuts](https://github.com/brabster/xubuntu-workstation/pull/98)
+
+### Added
+
+- **Configure XFCE shortcuts without replacing existing user settings**: update the running user's xfconf channel when its session bus is available, or merge only the requested shortcuts into the channel file when no session or `xfconfd` is active. Preserve inherited XFWM4 defaults when custom bindings override them, and disable the Whisker Menu Super-key trigger.
+- **Cover XFCE shortcuts with focused tests**: verify the configured tile actions, valid Ctrl+F2 accelerator, preservation of existing and inherited shortcuts, offline session detection, and Whisker Menu trigger setting. Log out and back in after bootstrap to activate the changes.
+- **Exercise shortcuts in CI**: add live-session updater unit coverage and an isolated Xvfb desktop job using real XFWM4, settings, and Whisker processes. Assert all four tiling geometries and launcher activation, restart persistence, unrelated-setting preservation, idempotence, and rejection of a deliberately broken binding. Publish diagnostic logs and report tested package versions; document hardware and desktop-version limitations.
+
+### Fixed
+
+- **Remove competing stock shortcuts found by desktop tests**: clear XFWM's Ctrl+F2 workspace binding so the launcher can grab it, and clear duplicate Super+keypad tile bindings so XFWM reliably selects the managed Super+Arrow accelerators.
+
+### Security
+
+- **Threat Model Assessment**: This change has **no impact on workstation security posture**. It only configures desktop keyboard shortcuts; no packages, services, or privileges are changed.
+- **CI test isolation**: the new job installs desktop test packages only on its disposable runner, uses a separate unprivileged desktop user and authenticated X server with TCP disabled, and grants its GitHub token read-only repository access. Root is used for Ansible provisioning and test-user cleanup, not desktop applications. No new workstation services or privileges are introduced; net workstation security risk and UK Cyber Essentials controls are unchanged.
+
 ## [PR #107 - Use standard OS release information](https://github.com/brabster/xubuntu-workstation/pull/107)
 
 ### Fixed
