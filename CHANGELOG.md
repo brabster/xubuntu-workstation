@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [PR #108 - Switch desktop to LXQt and labwc](https://github.com/brabster/xubuntu-workstation/pull/108)
+
+### Changed
+
+- **Desktop configuration now uses LXQt on Wayland with labwc**: installs the minimal desktop, compositor, locker, and headless verification packages; manages session, secure environment, and absolute-path keyboard shortcuts with restrictive permissions.
+- **Threat Model Assessment**: Wayland client isolation and declarative shortcut files reduce exposure to X11 input snooping and daemon-managed configuration drift. Headless static and behavioral checks cover the labwc configuration without an X server or GPU. Net risk is reduced for desktop isolation and configuration integrity; UK Cyber Essentials secure-configuration expectations are supported. The retained XWayland path may still expose XWayland clients to one another.
+
 ## [PR #107 - Use standard OS release information](https://github.com/brabster/xubuntu-workstation/pull/107)
 
 ### Fixed

@@ -4,7 +4,7 @@ This repository automates the setup and maintenance of a personal, single-user X
 
 **Target OS: Xubuntu latest LTS and rolling.** CI checks the playbook in `ubuntu:latest` and `ubuntu:rolling` containers; it does not test a graphical Xubuntu desktop.
 
-The playbook configures networking, sudo, system and user updates, development tools, Chrome, Git, ClamAV, Slack, Visual Studio Code, and (outside CI) desktop settings, CUPS, clipboard clearing, UFW, and NordVPN.
+The playbook configures networking, sudo, system and user updates, development tools, Chrome, Git, ClamAV, Slack, Visual Studio Code, and (outside CI) an LXQt Wayland desktop using labwc, CUPS, clipboard clearing, UFW, and NordVPN.
 
 ## Support
 

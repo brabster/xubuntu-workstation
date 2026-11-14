@@ -35,6 +35,23 @@ class InstallWorkflowTests(unittest.TestCase):
 
         self.assertEqual("cat /etc/os-release", debug_step["run"].strip())
 
+    def test_lxqt_wayland_verification_runs_after_setup(self):
+        workflow = yaml.safe_load(WORKFLOW_FILE.read_text(encoding="utf-8"))
+        steps = workflow["jobs"]["test_install"]["steps"]
+        setup_index = next(
+            index for index, step in enumerate(steps) if step.get("name") == "setup"
+        )
+        verify_index = next(
+            index
+            for index, step in enumerate(steps)
+            if step.get("name") == "verify LXQt labwc headless Wayland session"
+        )
+
+        self.assertGreater(verify_index, setup_index)
+        verify = steps[verify_index]["run"]
+        self.assertIn("molecule/default/converge.yml", verify)
+        self.assertIn("molecule/default/verify.yml", verify)
+
 
 if __name__ == "__main__":
     unittest.main()

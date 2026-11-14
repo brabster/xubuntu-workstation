@@ -1,0 +1,16 @@
+---
+- name: Prepare test container
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Install Python for Ansible modules
+      ansible.builtin.raw: apt-get update && apt-get install -y --no-install-recommends python3
+      register: lxqt_labwc_python_install
+      changed_when: "'Setting up python3' in lxqt_labwc_python_install.stdout"
+
+    - name: Create the test account
+      ansible.builtin.raw: |
+        id -u tester >/dev/null 2>&1 ||
+        (useradd --create-home --user-group --shell /bin/bash tester && echo 'test account created')
+      register: lxqt_labwc_test_account
+      changed_when: "'test account created' in lxqt_labwc_test_account.stdout"

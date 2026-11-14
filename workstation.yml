@@ -30,7 +30,7 @@
     - role: slack
     - role: vscode
       when: not is_gh_actions
-    - role: xfce
+    - role: lxqt_labwc
       when: not is_gh_actions
     - role: cups
       when: not is_gh_actions

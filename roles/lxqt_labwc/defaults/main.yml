@@ -1,0 +1,6 @@
+---
+labwc_shortcuts: # noqa var-naming[no-role-prefix]
+  - key: "W-Return"
+    command: "/usr/bin/qterminal"
+  - key: "W-l"
+    command: "/usr/bin/swaylock -f -c 000000"

@@ -1,0 +1,18 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: ubuntu-rolling
+    image: ubuntu:rolling
+    pre_build_image: true
+    command: sleep infinity
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      ubuntu-rolling:
+        ansible_python_interpreter: /usr/bin/python3
+verifier:
+  name: ansible

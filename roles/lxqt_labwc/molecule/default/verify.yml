@@ -1,0 +1,40 @@
+---
+- name: Verify labwc configuration
+  hosts: all
+  become: true
+  become_user: tester
+  vars:
+    username: tester
+  tasks:
+    - name: Validate labwc rc.xml syntax natively
+      ansible.builtin.command:
+        argv:
+          - labwc
+          - -C
+          - "{{ ansible_facts['user_dir'] }}/.config/labwc"
+          - -m
+      changed_when: false
+
+    - name: Verify Super+Return spawns qterminal in headless Wayland
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -euo pipefail
+          export WLR_BACKENDS=headless
+          export WLR_LIBINPUT_NO_DEVICES=1
+          export WLR_RENDERER=pixman
+          export QT_QPA_PLATFORM=wayland
+          export XDG_RUNTIME_DIR="$(mktemp -d /tmp/wayland-ci.XXXXXX)"
+          chmod 0700 "$XDG_RUNTIME_DIR"
+          trap 'rm -rf "$XDG_RUNTIME_DIR"' EXIT
+
+          timeout 30s labwc -C "{{ ansible_facts['user_dir'] }}/.config/labwc" -s "sh -c '
+            trap \"labwc -e\" EXIT
+            wtype -M logo -k Return -m logo
+            for i in $(seq 1 20); do
+              pgrep -u $(id -u) -x qterminal && break
+              sleep 0.1
+            done
+            pgrep -u $(id -u) -x qterminal
+          '"
+      changed_when: false
